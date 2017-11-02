@@ -5,6 +5,7 @@ services:
     image: postgres:9.2
     volumes:
       - "${PG_DATA_DIR}:/var/lib/postgresql/data"
+      - "${PG_CONF_FILE}:/var/lib/postgresql/data/postgresql.conf"
     ports:
       - "9081:5432"
     expose:

@@ -28,17 +28,4 @@ RUN chmod u+x /usr/local/labkey/*/* \
  && cat /usr/local/labkey/*/*.cron >> /etc/crontab \
  && touch ~/.netrc
 
-#RUN mkdir -p /usr/local/labkey/                                          \
- #&& cd /tmp                                                              \
- #&& git clone https://github.com/WNPRC-EHR-Services/WNPRC-EHR.git        \
- #&& cd WNPRC-EHR/                                                        \
- #&& mkdir -p /usr/local/labkey                                           \
- #&& cp -r tools/scheduledScripts/* /usr/local/labkey/                    \
- #&& chmod u+x /usr/local/labkey/*/*                                      \
- #&& echo "\n\nMAILTO=ehrservices@g-groups.wisc.edu\n\n" >> /etc/crontab  \
- #&& cat tools/scheduledScripts/*/*.cron >> /etc/crontab                  \
- #&& cd ..                                                                \
- #&& touch ~/.netrc                                                       \
- #&& rm -rf WNPRC-EHR/
-
 CMD /bin/bash -c "envsubst < /root/netrc.template > /root/.netrc && chmod 600 /root/.netrc && touch /etc/crontab /etc/cron.*/* && /usr/sbin/rsyslogd && cron && touch /var/log/cron.log && tail -f /var/log/syslog"

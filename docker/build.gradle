@@ -26,7 +26,7 @@ task("buildMonit", group: "Docker", type: Exec, description: "Generates the Moni
 task("buildPgbadger", group: "Docker", type: Exec, description: "Generates the pgbadger docker image") {
     workingDir "${project.rootDir}/docker/pgbadger"
     executable "docker"
-    args "build", ",", "-t", "wnprcehr/pgbadger:latest"
+    args "build", ".", "-t", "wnprcehr/pgbadger:latest"
 }
 
 task("build", group: "Docker", description: "Generates all the docker images in the subfolders", dependsOn: [ "buildEhrcron", "buildLabkey", "buildMonit", "buildPgbadger" ] )

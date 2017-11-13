@@ -7,6 +7,6 @@ RUN apk --no-cache add coreutils openssl perl make tzdata \
   | tar xz --strip 1 \
  && perl Makefile.PL \
  && make && make install \
- && echo '0 4 * * * pgbadger -I /var/log/postgresql/postgresql-$(date --date yesterday +"%Y-%m-%d").log -O /var/www/pg_reports/' >> /var/spool/cron/crontabs/root
+ && echo '0 4 * * * pgbadger -I -p "%m [%p]:[%c]:[%l] h=%h " /var/log/postgresql/postgresql-$(date --date yesterday +"%Y-%m-%d").log -O /var/www/pg_reports/' >> /var/spool/cron/crontabs/root
 
 CMD ["sh", "-c", "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && crond -l 2 -f"]

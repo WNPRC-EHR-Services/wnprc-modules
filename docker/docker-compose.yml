@@ -47,7 +47,7 @@ services:
     volumes:
       - "${LABKEY_FILES_DIR}:/usr/local/labkey/files"
       - "${LABKEY_LOG_DIR}:/usr/local/tomcat/logs"
-      - "${LABKEY_MODULE_DEPLOY_DIR}:/usr/local/labkey/externalModules"
+      - "${LABKEY_MODULE_DEPLOY_DIR}:/usr/local/modules"
       - "${LABKEY_SESSION_DIR}:/usr/local/labkey/sessions"
     expose:
       - "8080"

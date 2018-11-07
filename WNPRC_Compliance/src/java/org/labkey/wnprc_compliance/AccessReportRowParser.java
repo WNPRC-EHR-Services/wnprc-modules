@@ -1,6 +1,7 @@
 package org.labkey.wnprc_compliance;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.labkey.api.action.ApiUsageException;
 import org.labkey.api.data.Container;
@@ -14,7 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Created by jon on 2/9/17.
@@ -98,13 +98,13 @@ public class AccessReportRowParser {
             if (cell != null) {
                 if (columnName.type == Date.class) {
                     Date value;
-                    if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                    if (cell.getCellType() == CellType.STRING) {
                         value = parseDate(cell.getStringCellValue());
                     }
-                    else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                    else if (cell.getCellType() == CellType.NUMERIC) {
                         value = cell.getDateCellValue();
                     }
-                    else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+                    else if (cell.getCellType() == CellType.BLANK) {
                         value = null;
                     }
                     else {

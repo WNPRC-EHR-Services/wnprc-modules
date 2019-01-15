@@ -9,5 +9,7 @@ public class WaterFormSections extends SimpleGridSection
     {
         super ("study", "watergiven", "Water Given", EHRService.FORM_SECTION_LOCATION.Body);
         this.addConfigSource("Task");
+        _showLocation = true;
+
     }
 }

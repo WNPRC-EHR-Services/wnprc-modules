@@ -111,6 +111,50 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             }
 
         },
+        'study.watergiven':{
+            date: {
+                xtype: 'xdatetime',
+                noSaveInTemplateByDefault: true,
+                columnConfig: {
+                    fixed: true,
+                    width: 130
+                }
+            },
+            volume: {
+
+            },
+            vol_unit: {
+                lookup: {
+                    schemaName: 'ehr_lookups',
+                    queryName: 'pathologists',
+                    displayColumn: 'UserId',
+                    keyColumn: 'UserId'
+                },
+            }
+
+        },
+        'study.weight':{
+            Id: {
+                hidden :true,
+                shownInGrid: false
+            },
+            date: {
+                hidden :true,
+                shownInGrid: false
+            }
+
+        },
+        'study.restraints':{
+            Id: {
+                hidden :true,
+                shownInGrid: false
+            },
+            date: {
+                hidden :true,
+                shownInGrid: false
+            }
+
+        },
         'ehr.requests':{
             priority:{
                 hidden: true

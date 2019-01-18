@@ -1,7 +1,7 @@
 <query xmlns="http://labkey.org/data/xml/query">
     <metadata>
         <tables xmlns="http://labkey.org/data/xml">
-            <table tableName="blood" tableDbType="TABLE" useColumnOrder="true">
+            <table tableName="waterGiven" tableDbType="TABLE" useColumnOrder="true">
                 <tableUrl />
                 <insertUrl />
                 <importUrl />
@@ -58,24 +58,6 @@
                         </fk>
 
                     </column>
-
-
-                    <column columnName="restraint">
-                        <columnTitle>Restraint</columnTitle>
-                        <fk>
-                            <fkDbSchema>ehr_lookups</fkDbSchema>
-                            <fkTable>restraint_type</fkTable>
-                            <fkColumnName>type</fkColumnName>
-                        </fk>
-                    </column>
-                    <column columnName="restraintDuration">
-                    <columnTitle>Time Restrained</columnTitle>
-                    <fk>
-                        <fkDbSchema>ehr_lookups</fkDbSchema>
-                        <fkTable>restraint_duration</fkTable>
-                        <fkColumnName>value</fkColumnName>
-                    </fk>
-                    </column>
                     <column columnName="room">
                         <columnTitle>Room</columnTitle>
                     </column>
@@ -86,8 +68,6 @@
                             <fkColumnName>MostRecentWeight</fkColumnName>
                         </fk>
                     </column>
-
-
                 </columns>
             </table>
         </tables>

@@ -9,6 +9,7 @@ import org.labkey.api.module.Module;
 import org.labkey.api.view.template.ClientDependency;
 import org.labkey.wnprc_ehr.WNPRCConstants;
 import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterFormSections;
+import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterWeightSection;
 import org.labkey.wnprc_ehr.dataentry.forms.Weight.FormSections.WeightSection;
 import org.labkey.wnprc_ehr.dataentry.generics.sections.restraintFormSection;
 
@@ -23,8 +24,8 @@ public class EnterWater extends TaskForm
         super(ctx, owner, NAME, "Enter " + NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
                 new TaskFormSection(),
                 new AnimalDetailsFormSection(),
-                new WaterFormSections("Water"),
-                new WeightSection(),
+                new WaterFormSections(),
+                new WaterWeightSection(),
                 new restraintFormSection()
         ));
         this.addClientDependency(ClientDependency.fromPath("wnprc_ehr/model/sources/Husbandry.js"));

@@ -21,7 +21,7 @@ public class EnterWater extends TaskForm
 
     public EnterWater(DataEntryFormContext ctx, Module owner)
     {
-        super(ctx, owner, NAME, "Enter " + NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
+        super(ctx, owner, NAME,  NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
                 new TaskFormSection(),
                 new AnimalDetailsFormSection(),
                 new WaterFormSections(),

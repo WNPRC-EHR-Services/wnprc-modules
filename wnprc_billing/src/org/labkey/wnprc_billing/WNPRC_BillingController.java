@@ -484,12 +484,14 @@ public class WNPRC_BillingController extends SpringActionController
             if (formName.equalsIgnoreCase("Invoice PDF"))
             {
                 invoicedItems = getInvoicedItems(invoicePdfForm.getInvoiceNumber());
+                pdf.createLineItems(invoicedItems, true);
             }
             else
             {
                 invoicedItems = getSummarizedItems(invoicePdfForm.getInvoiceNumber());
+                pdf.createLineItems(invoicedItems, false);
             }
-            pdf.createLineItems(invoicedItems);
+
             SimpleDateFormat dateFormatBillingFor = new SimpleDateFormat("MM_yyyy");
             String filename = alias.getGrantNumber() + "_" + dateFormatBillingFor.format(invoiceRun.getBillingPeriodStart()) + "_Invoice.pdf";
             PageFlowUtil.prepareResponseForFile(getViewContext().getResponse(), Collections.emptyMap(), filename, invoicePdfForm.isAsAttachment());

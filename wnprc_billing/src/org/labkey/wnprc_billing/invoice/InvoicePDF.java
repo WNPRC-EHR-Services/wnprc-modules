@@ -61,7 +61,7 @@ public class InvoicePDF extends FPDF
     }
 
 
-    public void createLineItems(List<InvoicedItem> invoicedItems) throws IOException
+    public void createLineItems(List<InvoicedItem> invoicedItems, boolean includeSubtotal) throws IOException
     {
         List<FormattedLineItem> items = new ArrayList<>();
         Calendar calendarCurrent = Calendar.getInstance();
@@ -84,10 +84,11 @@ public class InvoicePDF extends FPDF
                 isServiceCenterChange = !invoicedItem.getServicecenter().equals(currentServiceCenter);
             }
 
-
-            if((isDateChange || isServiceCenterChange) && !isFirstItem ){
-                items.add(new FormattedLineItem(null,"Sub total:", null,   null, subTotal, true));
-                subTotal = 0;
+            if(includeSubtotal) {
+                if((isDateChange || isServiceCenterChange) && !isFirstItem ){
+                    items.add(new FormattedLineItem(null,"Sub total:", null,   null, subTotal, true));
+                    subTotal = 0;
+                }
             }
 
             if (isDateChange){
@@ -106,11 +107,14 @@ public class InvoicePDF extends FPDF
 
             items.addAll(getLineItemsFromInvoicedItem(invoicedItem));
         }
-        items.add(new FormattedLineItem(null,"Sub total:", null,   null, subTotal, true));
+
+        if(includeSubtotal) {
+            items.add(new FormattedLineItem(null, "Sub total:", null, null, subTotal, true));
+        }
         addLines(items);
     }
 
-    private List<FormattedLineItem> getLineItemsFromInvoicedItem(InvoicedItem invoicedItem){
+    protected List<FormattedLineItem> getLineItemsFromInvoicedItem(InvoicedItem invoicedItem){
         String indent = "  ";
         List<FormattedLineItem> formattedLineItems = new ArrayList<>();
         boolean showDetailsWithItem = invoicedItem.getComment() == null;
@@ -778,7 +782,7 @@ public class InvoicePDF extends FPDF
         else
             setFont("Helvetica", Collections.emptySet(), 9);
 
-        for (Column header : headers)
+        for (Column header : this.getHeaders())
         {
             int cellWidth  = header._width -2;
             String s = header.getValue(lineItem);

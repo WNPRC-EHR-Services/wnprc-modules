@@ -8,6 +8,7 @@ import com.koadweb.javafpdf.FontStyle;
 import com.koadweb.javafpdf.Format;
 import com.koadweb.javafpdf.ImageType;
 import com.koadweb.javafpdf.Position;
+import org.apache.commons.lang3.StringUtils;
 import org.labkey.api.util.FileUtil;
 import org.labkey.api.util.UnexpectedException;
 import org.labkey.wnprc_billing.domain.Alias;
@@ -341,7 +342,7 @@ public class InvoicePDF extends FPDF
             addInvoiceNo();
             addCharge();
             addPaymentInfo();
-            addAccountContact(alias.getContact_email().strip());
+            addAccountContact(alias.getContact_email());
             addBillingDate(invoiceRun.getBillingPeriodStart(), invoiceRun.getBillingPeriodEnd());
             addCols(this.getHeaders());
 
@@ -606,7 +607,7 @@ public class InvoicePDF extends FPDF
         setFont("Arial", Collections.emptySet(), 8);
         setFillColor(230, 230, 230);
         MultiCell(w - 20, 3, "\n");
-        MultiCell(w - 20, 3, contact, null, Alignment.LEFT, false);
+        MultiCell(w - 20, 3, (StringUtils.trimToNull(contact)), null, Alignment.LEFT, false);
     }
 
     // payment info

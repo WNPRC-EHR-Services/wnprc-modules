@@ -22,7 +22,7 @@ public class SummaryPDF extends InvoicePDF
                     return lineItem.get_chargeDate() == null? "--" : dateFormat.format(lineItem.get_chargeDate());
                 }
             },
-            new Column("Description", 150, Alignment.LEFT)
+            new Column("Description", 145, Alignment.LEFT)
             {
                 @Override
                 public String getValue(FormattedLineItem lineItem)
@@ -30,7 +30,7 @@ public class SummaryPDF extends InvoicePDF
                     return lineItem.get_description() == null?"": lineItem.get_description();
                 }
             },
-            new Column("Total Price", 15, Alignment.RIGHT)
+            new Column("Total Price", 20, Alignment.LEFT)
             {
                 @Override
                 public String getValue(FormattedLineItem lineItem)

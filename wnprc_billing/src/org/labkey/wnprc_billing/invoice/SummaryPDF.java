@@ -30,7 +30,7 @@ public class SummaryPDF extends InvoicePDF
                     return lineItem.get_description() == null?"": lineItem.get_description();
                 }
             },
-            new Column("Total Price", 20, Alignment.LEFT)
+            new Column("Total Price", 20, Alignment.RIGHT)
             {
                 @Override
                 public String getValue(FormattedLineItem lineItem)

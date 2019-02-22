@@ -111,7 +111,7 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             }
 
         },
-        'study.watergiven':{
+        'study.waterGiven':{
             date: {
                 xtype: 'xdatetime',
                 noSaveInTemplateByDefault: true,
@@ -123,14 +123,38 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             volume: {
 
             },
-            vol_unit: {
-                lookup: {
+            vol_units: {
+                defaultValue: 'mL'
+
+            },
+            route: {
+                defaultValue : 'oral'
+            },
+            location:{
+                defaultValue: 'lab',
+                lookup:{
                     schemaName: 'ehr_lookups',
-                    queryName: 'pathologists',
-                    displayColumn: 'UserId',
-                    keyColumn: 'UserId'
-                },
+                    queryName: 'water_location',
+                    keyColumn: 'value',
+                    displayColumn: 'title',
+                    sort: 'sort_order'
+                }
+            },
+            assignTo:{
+                defaultValue: 'researchstaff',
+                lookup:{
+                    schemaName: 'ehr_lookups',
+                    queryName: 'husbandry_assigned',
+                    keyColumn: 'value',
+                    displayColumn: 'title',
+                    sort: 'sort_order'
+                }
+            },
+            remarks :{
+                xtype: 'ehr-remarkfield'
             }
+
+
 
         },
         'study.weight':{

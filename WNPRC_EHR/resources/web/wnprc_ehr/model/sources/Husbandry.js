@@ -170,12 +170,68 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
         },
         'study.restraints':{
             Id: {
-                hidden :true,
-                shownInGrid: false
+                hidden : true
             },
             date: {
-                hidden :true,
-                shownInGrid: false
+                hidden :true
+            },
+            restraintType: {
+
+                editorConfig :{
+                    id: 'restraintType',
+                    listeners:{
+                        select: function(field, val){
+
+
+                            if (field) {
+                                var durationField = Ext4.getCmp('restraintDuration');
+                                var locationField = Ext4.getCmp('location');
+
+                                if(field.value === 'Long Term Chairing') {
+                                    durationField.show();
+                                } else {
+                                    durationField.setValue('');
+                                    durationField.hide();
+                                }
+                                if(field.value === 'Short Term Chairing') {
+                                    locationField.show();
+                                } else {
+                                    locationField.setValue('');
+                                    locationField.hide();
+                                }
+                            }
+
+                        }
+                    }
+                }
+            },
+            restraintDuration: {
+                hidden: false,
+                editorConfig : {
+                    id : 'restraintDuration',
+                    listeners: {
+                        render: function (field) {
+                            field.hide();
+
+                        }
+                    }
+                }
+
+
+            },
+            location: {
+                hidden: false,
+                editorConfig : {
+                    id : 'location',
+                    listeners: {
+                        render: function (field) {
+                            field.hide();
+
+                        }
+                    }
+                }
+
+
             }
 
         },

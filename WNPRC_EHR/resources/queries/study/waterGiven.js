@@ -1,4 +1,5 @@
 require("ehr/triggers").initScript(this);
+var WNPRC = require("wnprc_ehr/WNPRC").WNPRC;
 
 //EHR.Server.Utils = require("ehr/utils").EHR.Server.Utils;
 
@@ -50,17 +51,16 @@ function onInit(event, helper){
             }, this);
         }
         if (shouldAdd){
-            waterInTransaction[row.Id].push({
+            /*waterInTransaction[row.Id].push({
                 objectid: row.objectid,
                 date: row.date,
                 qcstate: row.qcstate,
                 assignto: row.assignto,
                 parentid: row.parentid,
                 volume: row.volume,
-                lsid: row.lsid,
-                requestingtask: row.requestingtask,
-                weight: row.weight
-            });
+                lsid: row.lsid
+
+            });*/
             //console.log (i+' inside loop water in Transaction '+ waterInTransaction[i].date+ ' '+ waterInTransaction[i].Id +' '+ waterInTransaction[i].assignto);
             //console.log (waterInTransaction[i].objectid+ ' '+waterInTransaction[i].volume);
         }
@@ -132,7 +132,7 @@ function onUpsert(helper, scriptErrors, row, oldRow) {
                     EHR.Server.Utils.addError(scriptErrors, 'performedby', "Must add Performed By", errorQC)
             }
 
-            var msg = helper.getJavaHelper().checkScheduledWaterTask(waters);
+            var msg = WNPRC.Utils.getJavaHelper().checkScheduledWaterTask(waters);
             if (msg != null){
                 EHR.Server.Utils.addError(scriptErrors, 'date', msg, errorQC);
                 //EHR.Server.Utils.addError(scriptErrors, 'quantity', msg, errorQC);
@@ -140,7 +140,7 @@ function onUpsert(helper, scriptErrors, row, oldRow) {
 
             if (row.volume)
                 {
-                    var msg = helper.getJavaHelper().waterLastThreeDays(row.Id, row.date, waters);
+                    var msg = WNPRC.Utils.getJavaHelper().waterLastThreeDays(row.Id, row.date, waters);
                     if (msg != null){
                         EHR.Server.Utils.addError(scriptErrors, 'volume', msg, 'INFO');
                         //EHR.Server.Utils.addError(scriptErrors, 'quantity', msg, errorQC);
@@ -153,7 +153,7 @@ function onUpsert(helper, scriptErrors, row, oldRow) {
         console.log ('parentid '+ row.parentid + ' lsid: '+row.lsid);
         if (row.id && row.date && row.performedby && row.parentid && !row.lsid){
             console.log ('parentid '+ row.parentid);
-            helper.getJavaHelper().updateWaterRow(row.performedby, row.parentid);
+            WNPRC.Utils.WNPRC.Utils.getJavaHelper().updateWaterRow(row.performedby, row.parentid);
         }
 
         console.log("value of qcstate "+ row.QCStateLabel+ "  QCState Using Secuirty "+ EHR.Server.Security.getQCState(row)['isPublicData']);

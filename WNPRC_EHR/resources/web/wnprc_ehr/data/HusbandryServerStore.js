@@ -1,20 +1,10 @@
-Ext4.define('WNPRC.ext.data.WaterServerStore', {
+Ext4.define('wnprc.ext.data.HusbandryServerStore'), {
     extend: 'EHR.data.DataEntryServerStore',
-    alias: 'store.wnprc-waterserverstore',
+    //alias: 'store.wnprc-HusbandryServerStore',
 
     constructor: function(){
         this.callParent(arguments);
-    },
 
-    //private
-    //this method performs simple checks client-side
-    validateRecords: function(records, validateOnServer){
-        Ext4.Array.forEach(records, function(r){
-            r.validate();
-        }, this);
-
-        //Do not kick off server side validations on every user input
-        this.fireEvent('validation', this, records);
     },
 
     getCommands: function(records, forceUpdate, validateOnly){
@@ -45,48 +35,14 @@ Ext4.define('WNPRC.ext.data.WaterServerStore', {
             var r;
             for (var i=0; i<records.length;i++){
                 r = records[i];
-
-
-                if (r.phantom ) {
-
-                    switch (r.store.queryName){
-                        case 'weight':
-                            var weight = r.get('weight');
-                            if (weight == null ){
-                                break;
-                            }
-                            else {
-                                recMap.create.push(r);
-                                break;
-                            }
-                        case 'restraints':
-                            var restraintType = r.get('restraintType');
-                            if (restraintType == null  || restraintType == ""){
-                                break;
-                            }
-                            else {
-                                recMap.create.push(r);
-                                break;
-                            }
-                        case 'chairing':
-                            var location = r.get('location');
-                            if (location == null || location == ""){
-                                break
-                            }
-                            else {
-                                recMap.create.push(r);
-                                break;
-                            }
-                        default:
-                            recMap.create.push(r);
-
-
-                    }
+                var weight = r.get('weight');
+                if (r.phantom && weight != null){
+                    recMap.create.push(r);
                 }
-                else if (forceUpdate || !LABKEY.Utils.isEmptyObj(r.modified)) {
+                else if (forceUpdate || !LABKEY.Utils.isEmptyObj(r.modified)){
                     var v = r.get(this.proxy.reader.getIdProperty());
                     LDK.Assert.assertNotEmpty('Record passed as update which lacks keyfield for store: ' + this.storeId + '/' + this.proxy.reader.idProperty + '/' + Ext4.encode(r.modified), v);
-                    if (v) {
+                    if (v){
                         recMap.update.push(r);
                     }
                     else {
@@ -94,7 +50,6 @@ Ext4.define('WNPRC.ext.data.WaterServerStore', {
                         recMap.create.push(r);
                     }
                 }
-
             }
 
             var removed = this.getRemovedRecordsToSync();
@@ -150,4 +105,6 @@ Ext4.define('WNPRC.ext.data.WaterServerStore', {
             records: recordsPerCommand
         };
     }
-});
+
+
+}

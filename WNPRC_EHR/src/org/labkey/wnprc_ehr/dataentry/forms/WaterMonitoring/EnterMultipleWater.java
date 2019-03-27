@@ -3,32 +3,27 @@ package org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring;
 import org.labkey.api.ehr.dataentry.AnimalDetailsFormSection;
 import org.labkey.api.ehr.dataentry.DataEntryFormContext;
 import org.labkey.api.ehr.dataentry.FormSection;
+import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterMultipleFormSection;
 import org.labkey.wnprc_ehr.dataentry.generics.sections.TaskFormSection;
 import org.labkey.api.module.Module;
 import org.labkey.api.view.template.ClientDependency;
 import org.labkey.wnprc_ehr.WNPRCConstants;
-import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterFormSections;
-import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterWeightSection;
 import org.labkey.wnprc_ehr.dataentry.generics.forms.SimpleTaskForm;
-import org.labkey.wnprc_ehr.dataentry.generics.sections.chairingFormSection;
-import org.labkey.wnprc_ehr.dataentry.generics.sections.restraintFormSection;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-public class EnterWater extends SimpleTaskForm
+public class EnterMultipleWater extends SimpleTaskForm
 {
-    public static final String NAME = "Enter Water";
+    public static final String NAME = "Enter Water Multiple";
 
-    public EnterWater(DataEntryFormContext ctx, Module owner)
+    public EnterMultipleWater(DataEntryFormContext ctx, Module owner)
     {
         super(ctx, owner, NAME,  NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
-                new TaskFormSection(),
-                new WaterFormSections(),
-                new AnimalDetailsFormSection(),
-                new WaterWeightSection(),
-                new chairingFormSection(),
-                new restraintFormSection()
+            new TaskFormSection(),
+            new AnimalDetailsFormSection(),
+            new WaterMultipleFormSection()
         ));
         setStoreCollectionClass("WNPRC.ext.data.WaterStoreCollection");
         this.addClientDependency(ClientDependency.fromPath("wnprc_ehr/model/sources/Husbandry.js"));
@@ -40,7 +35,7 @@ public class EnterWater extends SimpleTaskForm
             section.addConfigSource("Encounter");
         }
 
-       // setStoreCollectionClass("EHR.data.WaterStore");
+        // setStoreCollectionClass("EHR.data.WaterStore");
     }
 
     @Override

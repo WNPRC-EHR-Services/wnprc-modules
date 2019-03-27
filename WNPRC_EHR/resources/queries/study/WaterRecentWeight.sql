@@ -22,6 +22,6 @@ SELECT
     wa.objectid
     --timestampdiff('SQL_TSI_DAY',wa.date ,wa.RecentWeight) AS DayDiff
 
-    FROM study.water_given wa
+    FROM study.waterGiven wa
 ) voGi
 --GROUP BY voGi.id, voGi.date,voGi.RecentWeight,voGi.InnerWeight

@@ -28,9 +28,9 @@ FROM (
 SELECT
     wa.id AS id,
     wa.date AS date,
-    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.water_given iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'laboratory'),0) AS volumeGivenInLabSub,
-    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.water_given iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'animalcare'),0) AS volumeGivenInCage,
-    COALESCE ((SELECT SUM (CAST (iwg.volume AS NUMERIC)) FROM study.water_given iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0),0) AS TotalWater,
+    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'laboratory'),0) AS volumeGivenInLabSub,
+    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'animalcare'),0) AS volumeGivenInCage,
+    COALESCE ((SELECT SUM (CAST (iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0),0) AS TotalWater,
     (SELECT we.weight
         FROM study.weight we
         --INNER JOIN study.weight wein
@@ -39,7 +39,7 @@ SELECT
     (SELECT MAX(wen.date) from study.weight wen WHERE wen.id=wa.id AND timestampdiff('SQL_TSI_DAY',wen.date ,wa.date)>=0) AS RecentWeight
     --timestampdiff('SQL_TSI_DAY',wa.date ,we.date)>=0) AS Innerweight
 
-    FROM study.water_given wa
+    FROM study.waterGiven wa
     /*SELECT  iwg.id,
             iwg.date,
             SUM (CAST (iwg.volume AS NUMERIC)) AS volumeGivenInLabSub

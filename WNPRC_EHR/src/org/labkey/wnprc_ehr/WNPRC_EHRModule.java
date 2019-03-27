@@ -54,6 +54,7 @@ import org.labkey.wnprc_ehr.dataentry.forms.Necropsy.NecropsyRequestForm;
 import org.labkey.wnprc_ehr.dataentry.forms.FoodDeprives.FoodDeprivesStartForm;
 import org.labkey.wnprc_ehr.dataentry.forms.FoodDeprivesRequest.FoodDeprivesRequestForm;
 import org.labkey.wnprc_ehr.dataentry.forms.VVC.VVCForm;
+import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.EnterMultipleWater;
 import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.EnterWater;
 import org.labkey.wnprc_ehr.demographics.MedicalFieldDemographicsProvider;
 import org.labkey.wnprc_ehr.demographics.MostRecentObsDemographicsProvider;
@@ -354,7 +355,8 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule {
                 FoodDeprivesRequestForm.class,
                 ProtocolForm.class,
                 BreedingEncounterForm.class,
-                EnterWater.class
+                EnterWater.class,
+                EnterMultipleWater.class
         );
 
         for(Class form : forms) {

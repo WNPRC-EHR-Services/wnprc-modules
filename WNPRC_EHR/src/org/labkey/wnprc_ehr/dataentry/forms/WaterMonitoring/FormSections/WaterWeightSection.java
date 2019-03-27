@@ -17,6 +17,8 @@ public class WaterWeightSection extends SlaveFormSection
         super("study", "Weight", "Weight");
 
         maxItemsPerColumn = 1;
+        //setClientStoreClass("wnprc.ext.data.HusbandryServerStore");
+       //this.addClientDependency(ClientDependency.fromPath("wnprc_ehr/data/HusbandryServerStore.js"));
     }
     @Override
     public Set<String> getSlaveFields(){

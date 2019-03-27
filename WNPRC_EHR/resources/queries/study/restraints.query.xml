@@ -18,15 +18,6 @@
                             <fkColumnName>type</fkColumnName>
                         </fk>
                     </column>
-                    <column columnName="restraintDuration">
-                        <columnTitle>Restraint Duration</columnTitle>
-                        <description>Restraint Duration</description>
-                        <fk>
-                            <fkDbSchema>ehr_lookups</fkDbSchema>
-                            <fkTable>restraint_duration</fkTable>
-                            <fkColumnName>value</fkColumnName>
-                        </fk>
-                    </column>
 
                 </columns>
                 <tableTitle>restraints</tableTitle>

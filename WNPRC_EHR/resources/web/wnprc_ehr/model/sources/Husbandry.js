@@ -120,8 +120,11 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
                     width: 130
                 }
             },
+            project:{
+                allowBlank: false
+            },
             volume: {
-
+                allowBlank: false
             },
             vol_units: {
                 defaultValue: 'mL'
@@ -152,10 +155,10 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             },
             remarks :{
                 xtype: 'ehr-remarkfield'
+            },
+            performedby:{
+                allowBlank: false
             }
-
-
-
         },
         'study.weight':{
             Id: {
@@ -165,17 +168,34 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             date: {
                 hidden :true,
                 shownInGrid: false
+            },
+            weight:{
+                allowBlank :true
             }
 
         },
-        'study.restraints':{
+        'study.chairing':{
             Id: {
                 hidden : true
             },
             date: {
                 hidden :true
             },
-            restraintType: {
+            location: {
+                editorConfig : {
+                    id: 'chairingLocation',
+                    listeners: {
+                        select: function (field, val) {
+                            if (field) {
+                                var chairingStartTime = Ext4.getCmp('chairingStartTime');
+                                chairingStartTime.setValue((new Date()).format('Y-m-d H:i'));
+                            }
+                        }
+                    }
+                }
+
+            },
+            /*restraintType: {
 
                 editorConfig :{
                     id: 'restraintType',
@@ -184,54 +204,143 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
 
 
                             if (field) {
-                                var durationField = Ext4.getCmp('restraintDuration');
+                                var restraintStartTime = Ext4.getCmp('restraintStartTime');
+                                var restraintEndTime = Ext4.getCmp('restraintEndTime');
                                 var locationField = Ext4.getCmp('location');
 
-                                if(field.value === 'Long Term Chairing') {
-                                    durationField.show();
-                                } else {
-                                    durationField.setValue('');
-                                    durationField.hide();
+                                switch (field.value){
+                                    case 'Long Term Chairing':
+                                        restraintStartTime.show();
+                                        restraintStartTime.setValue((new Date()).format('Y-m-d H:i'));
+                                        restraintEndTime.show();
+                                        restraintEndTime.setValue(new Date());
+                                        locationField.show();
+
+                                    break;
+
+                                    case 'Short Term Chairing':
+                                        var starTime = new Date();
+                                       // var endTime = new Date (starTime);
+                                       // endTime.setMinutes(starTime.getMinutes()+30);
+                                        restraintStartTime.show();
+                                        restraintStartTime.setValue((new Date()).format('Y-m-d H:i'));
+                                        restraintEndTime.show();
+                                        //restraintEndTime.setValue(endTime);
+                                        locationField.setValue('');
+                                        locationField.hide();
+                                    break;
+                                    default :
+                                        restraintStartTime.setValue('');
+                                        restraintEndTime.setValue('');
+                                        locationField.setValue('');
+                                        restraintStartTime.hide();
+                                        restraintEndTime.hide();
+                                        locationField.hide();
+
+
+
+
+
                                 }
-                                if(field.value === 'Short Term Chairing') {
+
+
+                                /!*if(field.value === 'Long Term Chairing') {
+                                    restraintStartTime.show();
+                                    restraintStartTime.setValue((new Date()).format('Y-m-d H:i'));
+                                    restraintEndTime.show();
+                                    restraintEndTime.setValue(new Date());
                                     locationField.show();
+
                                 } else {
+                                    restraintStartTime.setValue('');
+                                    restraintEndTime.setValue('');
                                     locationField.setValue('');
+                                    restraintStartTime.hide();
+                                    restraintEndTime.hide();
                                     locationField.hide();
                                 }
+                                if(field.value === 'Short Term Chairing') {
+                                    var starTime = new Date();
+                                    var endTime = new Date (starTime);
+                                    endTime.setMinutes(starTime.getMinutes()+30);
+                                    restraintStartTime.show();
+                                    restraintStartTime.setValue((new Date()).format('Y-m-d H:i'));
+                                    restraintEndTime.show();
+                                    restraintEndTime.setValue(endTime);
+                                } else {
+                                    restraintStartTime.setValue('');
+                                    restraintEndTime.setValue('');
+                                    restraintStartTime.hide();
+                                    restraintEndTime.hide();
+
+                                }*!/
                             }
 
                         }
                     }
                 }
-            },
-            restraintDuration: {
+            },*/
+            chairingStartTime: {
+                xtype: 'xdatetime',
+                extFormat:'Y-m-d H:i',
                 hidden: false,
+               // hideMode: 'offsets',
                 editorConfig : {
-                    id : 'restraintDuration',
+                    id : 'chairingStartTime',
                     listeners: {
-                        render: function (field) {
-                            field.hide();
-
+                        change :function(field, val){
+                            var restraintEndTime = Ext4.getCmp('chairingEndTime');
+                            var startTime = new Date(val);
+                            var endTime = new Date (startTime);
+                            endTime.setMinutes(startTime.getMinutes()+30);
+                            restraintEndTime.setValue(endTime);
                         }
+                    }
+                },
+                setInitialValue: function(v) {
+                    var date = (new Date());
+                    return v || date;
+                }
+
+
+            },
+            chairingEndTime: {
+                xtype: 'xdatetime',
+                extFormat:'Y-m-d H:i',
+                hidden: false,
+                hideMode: 'offsets',
+                editorConfig : {
+                    id : 'chairingEndTime',
+                    listeners: {
+
                     }
                 }
 
 
             },
             location: {
+                helpPopup : 'Location of longest chairing',
                 hidden: false,
                 editorConfig : {
                     id : 'location',
                     listeners: {
                         render: function (field) {
-                            field.hide();
+                            //field.hide();
 
                         }
                     }
                 }
 
 
+            }
+
+        },
+        'study.restraints':{
+            Id:{
+                hidden : true
+            },
+            date: {
+                hidden :true
             }
 
         },

@@ -1283,4 +1283,21 @@ public class WNPRC_EHRController extends SpringActionController
             return new ApiSimpleResponse("success", true);
         }
     }
+
+    @ActionNames("WaterCalendar")
+    @RequiresLogin()
+    public class WaterCalendarAction extends WNPRCJspPageAction
+    {
+        @Override
+        public String getPathToJsp()
+        {
+            return "pages/husbandry/WaterCalendar.jsp";
+        }
+
+        @Override
+        public String getTitle()
+        {
+            return "Water Calendar";
+        }
+    }
 }

@@ -26,6 +26,13 @@
 
 
                     </column>
+                    <column columnName="r12012::total">
+                        <columnTitle>Goals For Day</columnTitle>
+
+
+
+
+                    </column>
                     <!--<column columnName="r02086::Weight">
                         <conditionalFormats>
                             <conditionalFormat>

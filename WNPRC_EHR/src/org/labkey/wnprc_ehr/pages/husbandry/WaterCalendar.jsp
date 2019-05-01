@@ -57,9 +57,11 @@
                 },
                 eventSources:[
                     {events: function (startMoment, endMoment, timezone, callback) {
+                        var date = new Date();
                         WebUtils.API.selectRows("study", "waterSchedule", {
                             "date~gte": startMoment.format('Y-MM-DD'),
                             "date~lte": endMoment.format('Y-MM-DD'),
+                            "parameters": {NumDays: 30,StartDate: date.format(LABKEY.extDefaultDateFormat)}
                             //  "wanimalid~eq": 'r18012'
                         }).then(function (data) {
                             var events = data.rows;

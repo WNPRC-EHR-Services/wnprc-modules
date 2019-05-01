@@ -48,7 +48,7 @@ FROM (
       t1.volume,
       t1.qcstate
 
-    FROM ehr_lookups.next30Days dr
+    FROM ehr_lookups.dateRange dr
 
     JOIN study.waterOrders t1
       --NOTE: should the enddate consider date/time?

@@ -16,7 +16,7 @@ JOIN (
 
 SELECT
   s.*,
-  timestampadd('SQL_TSI_MINUTE', ((s.hours * 60) + s.minutes), s.origDate) as date,
+  timestampadd('SQL_TSI_MINUTE', ((s.hours * 60) + s.minutes), s.origDate) as datemin,
   CASE
     WHEN (hours >= 6 AND hours < 20) THEN 'AM'
     WHEN (hours < 6 OR hours >= 20) THEN 'PM'
@@ -40,10 +40,13 @@ FROM (
         ELSE minute(t1.date)
       END as minutes,
       dr.date as origDate,
+      dr.dateOnly AS dateOnly,      --debug column
+      t1.dateOnly AS dateOnlyT1,    --debug column
       t1.frequency.meaning as frequency,
       t1.date as startDate,
-      timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1 as daysElapsed,
+      timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly)  as daysElapsed,
       t1.enddate,
+      t1.enddateCoalescedFuture,    --debug column
       t1.project,
       t1.volume,
       t1.qcstate
@@ -52,13 +55,13 @@ FROM (
 
     JOIN study.waterOrders t1
       --NOTE: should the enddate consider date/time?
-      ON (dr.dateOnly >= t1.dateOnly and dr.dateOnly <= t1.enddateCoalesced AND
+      ON dr.dateOnly >= t1.dateOnly and dr.dateOnly <= t1.enddateCoalescedFuture --AND
           --technically the first day of the treatment is day 1, not day 0
-      (  (mod(CAST(timestampdiff('SQL_TSI_DAY', CAST(t1.dateOnly as timestamp), dr.dateOnly) as integer), t1.frequency.intervalindays) = 0 And t1.frequency.intervalindays is not null And t1.frequency.dayofweek is null )
+      --(  (mod(CAST(timestampdiff('SQL_TSI_DAY', CAST(t1.dateOnly as timestamp), dr.dateOnly) as integer), t1.frequency.intervalindays) = 0 And t1.frequency.intervalindays is not null And t1.frequency.dayofweek is null )
 
       -- OR (t1.frequency.dayofweek is not null And t1.frequency.intervalindays is null And dr.DayOfWeek in (select k.value from onprc_ehr.Frequency_DayofWeek k where k.FreqKey = t1.frequency.rowid ) )
-        )
-          )
+        --)
+        --  )
 
     --LEFT JOIN ehr.treatment_times tt ON (tt.treatmentid = t1.objectid)
     LEFT JOIN ehr_lookups.treatment_frequency_times ft ON (ft.frequency = t1.frequency.meaning )
@@ -80,8 +83,8 @@ FROM (
 
 ) s ON (s.animalid = d.id)
 
-WHERE (d.lastDayatCenter Is Null or d.lastDayAtCenter > s.enddate)
+WHERE (d.lastDayatCenter Is Null or d.lastDayAtCenter >= s.enddateCoalescedFuture)
 
 
 --account for date/time in schedule
-and s.date >= s.startDate and s.date <= s.enddate
+and s.datemin >= s.startDate and s.datemin < s.enddateCoalescedFuture

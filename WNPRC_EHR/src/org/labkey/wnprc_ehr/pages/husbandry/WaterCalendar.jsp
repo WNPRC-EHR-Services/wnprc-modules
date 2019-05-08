@@ -30,6 +30,24 @@
 </style>
 
 <div class="col-xs-12 col-xl-8">
+    <div class="col-xs-12 col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading"><span>Water Details</span></div>
+            <div class="panel-body" data-bind="with: taskDetails">
+
+
+                <dl class="dl-horizontal">
+                    <dt>Task ID:            </dt> <dd>{{taskid}}</dd>
+                    <dt>Animal ID:          </dt> <dd><a href="{{animalLink}}">{{animalid}}</a></dd>
+                    <dt>Volume:             </dt> <dd>{{volume}}</dd>
+                    <dt>Project (Account):  </dt> <dd>{{project}} ({{account}})</dd>
+                    <dt>Date:               </dt> <dd>{{date}}</dd>
+                </dl>
+
+
+            </div>
+        </div>
+    </div>
     <div class="col-xs-12 col-md-8">
         <div class="panel panel-primary">
             <div class="panel-heading"><span>Calendar</span></div>
@@ -53,28 +71,30 @@
                 header: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'month,agendaWeek'
+                    right: 'month,basicWeek,basicDay'
                 },
                 eventSources:[
                     {events: function (startMoment, endMoment, timezone, callback) {
                         var date = new Date();
-                        WebUtils.API.selectRows("study", "waterSchedule", {
+                        date.setDate(date.getDate()-60);
+
+                        WebUtils.API.selectRows("study", "waterScheduleCoalesced", {
                             "date~gte": startMoment.format('Y-MM-DD'),
                             "date~lte": endMoment.format('Y-MM-DD'),
-                            "parameters": {NumDays: 30,StartDate: date.format(LABKEY.extDefaultDateFormat)}
+                            "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)}
                             //  "wanimalid~eq": 'r18012'
                         }).then(function (data) {
                             var events = data.rows;
 
                                 callback(events.map(function (row) {
                                     var eventObj = {
-                                        title: row.wanimalid + ' ' + row.volume+'ml',
+                                        title: row.animalid + ' ' + row.volumeCoalesced+'ml',
                                         start: row.date,
                                         allDay: true,
                                        // vol: row.volume,
                                         rawRowData: row,
                                         color: '#00FFFF',
-                                        description: 'Water for animal '+ row.wanimalid
+                                        description: 'Water for animal '+ row.animalid
                                     };
 
                                     return eventObj;
@@ -107,5 +127,53 @@
 
             })
         });
+
+        var displayDate = function(dateString) {
+            return moment(dateString, "YYYY/MM/DD HH:mm:ss").calendar(null, {
+                sameElse: 'MMM D[,] YYYY'
+            })
+        };
+
+        // For some reason, type-ahead makes this transparent.  In order to allow bootstrap to "disable" it
+        // by greying it out, we need to remove that property.
+        //$assignedToField.css('background-color', '');
+
+        //var $scheduleForm = $('.scheduleForm');
+
+        _.extend(WebUtils.VM, {
+
+            taskDetails: {
+                lsid:                 ko.observable(),
+                taskid:               ko.observable(),
+                animalid:             ko.observable(),
+                date:                 ko.observable(),
+                volume:               ko.observable(),
+                project:              ko.observable(),
+                account:              ko.observable(),
+
+            },
+            form: ko.mapping.fromJS({
+                lsid:        '',
+                animalid:    '',
+                date:        new Date()
+
+            }),
+
+
+            requestTableClickAction: function(row) {
+                WebUtils.VM.requestRowInForm = row;
+                WebUtils.VM.updateForm(row.otherData.lsid);
+            }
+        });
+
+        WebUtils.VM.taskDetails.animalLink = ko.pureComputed(function() {
+            var animalId = WebUtils.VM.taskDetails.animalid();
+
+            return LABKEY.ActionURL.buildURL('ehr', 'participantView', null, {
+                participantId: animalId
+            });
+        });
+
+
     })();
 </script>

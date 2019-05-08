@@ -19,7 +19,7 @@
                         <formatString>yyyy-MM-dd</formatString>
                     </column>
                     <column columnName="endDate">
-                        <formatString>yyyy-MM-dd</formatString>
+                        <formatString>yyyy-MM-dd HH:mm</formatString>
                     </column>
                     <column columnName="frequency">
                         <columnTitle>Frequency</columnTitle>

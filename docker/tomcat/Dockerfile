@@ -1,4 +1,4 @@
-FROM store/oracle/serverjre:8
+FROM openjdk:12.0.1-jdk-oraclelinux7
 
 ENV LANG en_US.utf8
 
@@ -41,8 +41,8 @@ RUN mkdir -p /usr/local/labkey/config/config-server
 COPY pipelineConfig.xml /usr/local/labkey/config/config-server/pipelineConfig.xml
 
 # install the necessary R scripts
-COPY install.r /tmp/install.r
-RUN mkdir -p /usr/share/doc/R-3.2.0/html && Rscript /tmp/install.r
+#COPY install.r /tmp/install.r
+#RUN mkdir -p /usr/share/doc/R-3.2.0/html && Rscript /tmp/install.r
 
 # copy over the .netrc template file
 COPY netrc /root/netrc.template

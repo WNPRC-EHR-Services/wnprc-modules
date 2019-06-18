@@ -50,6 +50,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class WNPRC_BillingController extends SpringActionController
 {
@@ -486,6 +487,9 @@ public class WNPRC_BillingController extends SpringActionController
         @Override
         public void export(InvoicePdfForm invoicePdfForm, HttpServletResponse response, BindException errors) throws Exception
         {
+//            TODO: get selected invoices for 'Download Invoices' button - something like this:
+//            Set<String> selectedInvoices = DataRegionSelection.getSelected(HttpView.currentContext(), true);
+
             Invoice invoice = getInvoice(invoicePdfForm.getInvoiceNumber());
             if (null == invoice)
             {

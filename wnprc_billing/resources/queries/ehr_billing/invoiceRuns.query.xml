@@ -15,6 +15,13 @@
                         <formatString>Date</formatString>
                     </column>
                 </columns>
+                <buttonBarOptions includeStandardButtons="false">
+                    <includeScript>ehr.context</includeScript>
+                    <includeScript>ehr_billing/BillingUtils.js</includeScript>
+                    <item text="Delete" permission="ADMIN" requiresSelection="true">
+                        <onClick>EHR_Billing.BillingUtils.deleteInvoiceRuns(dataRegionName);</onClick>
+                    </item>
+                </buttonBarOptions>
             </table>
         </tables>
     </metadata>

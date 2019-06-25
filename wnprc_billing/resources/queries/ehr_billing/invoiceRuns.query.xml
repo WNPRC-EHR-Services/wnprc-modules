@@ -16,10 +16,8 @@
                     </column>
                 </columns>
                 <buttonBarOptions includeStandardButtons="false">
-                    <includeScript>ehr.context</includeScript>
-                    <includeScript>ehr_billing/BillingUtils.js</includeScript>
                     <item text="Delete" permission="ADMIN" requiresSelection="true">
-                        <target method="POST">ehr_billing/DeleteBillingPeriod.view?</target>
+                        <target method="GET">ehr_billing/DeleteBillingPeriod.view?</target>
                     </item>
                 </buttonBarOptions>
             </table>

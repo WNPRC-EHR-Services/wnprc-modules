@@ -359,7 +359,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         log("Download Summary Invoice PDF");
         viewPDF("summarizedPDF");
-        
+
         log("Verify payments received for invoice runs");
         testPaymentsReceived();
 
@@ -368,6 +368,12 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         log("View Charges and adjustments Not Yet Billed");
         viewChargesAdjustmentsNotYetBilled();
+
+        log("Download Multiple Invoices");
+        testDownloadMultipleInvoices();
+
+        log("Delete invoice runs");
+        testDeleteInvoiceRuns();
     }
 
     private void testBillingNotification()
@@ -953,21 +959,21 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
-        performBillingRun();
+        performBillingRun("10/01/2010", "10/31/2010",1);
         testInvoicedItems();
         testSummaryReports();
     }
 
-    private void performBillingRun()
+    private void performBillingRun(String startDate, String endDate, int billingRunCount)
     {
         waitAndClickAndWait(Locator.linkContainingText("Perform Billing Run"));
         Ext4FieldRef.waitForField(this, "Start Date");
-        Ext4FieldRef.getForLabel(this, "Start Date").setValue("10/01/2010");
-        Ext4FieldRef.getForLabel(this, "End Date").setValue("10/31/2010");
+        Ext4FieldRef.getForLabel(this, "Start Date").setValue(startDate);
+        Ext4FieldRef.getForLabel(this, "End Date").setValue(endDate);
         waitAndClick(Ext4Helper.Locators.ext4Button("Submit"));
         checkMessageWindow("Success", "Run Started!", "OK");
         waitAndClickAndWait(Locator.linkWithText("All"));
-        waitForPipelineJobsToComplete(1, "Billing Run", false);
+        waitForPipelineJobsToComplete(billingRunCount, "Billing Run", false);
     }
 
     private void testInvoicedItems()
@@ -1532,6 +1538,54 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
                         "iStat"
                 ));
         checkClinicalHistoryType(expectedLabels);
+    }
+
+    @Test
+    public void testDownloadMultipleInvoices()
+    {
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        performBillingRun("11/01/2010", "11/15/2010", 2);
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        performBillingRun("11/16/2010", "11/30/2010", 3);
+
+        goToSchemaBrowser();
+        DataRegionTable dataRegionTable = viewQueryData("ehr_billing", "invoiceExternal");
+        dataRegionTable.checkCheckbox(0);
+        dataRegionTable.checkCheckbox(1);
+        File zip = doAndWaitForDownload(() -> dataRegionTable.clickHeaderButton("Download Invoices"));
+        assertTrue("Wrong file type for download invoices [" + zip.getName() + "]", zip.getName().endsWith(".zip"));
+        assertTrue("Empty zip downloaded [" + zip.getName() + "]", zip.length() > 0);
+    }
+
+    @Test
+    public void testDeleteInvoiceRuns()
+    {
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        waitForText("Invoiced Items");
+        clickAndWait(Locator.bodyLinkContainingText("Invoiced Items"));
+        DataRegionTable invoicedItems = new DataRegionTable("query", getDriver());
+        int invoicedItemsBeforeDelete = invoicedItems.getDataRowCount();
+
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        waitForText("Invoice Runs");
+        clickAndWait(Locator.linkContainingText("Invoice Runs"));
+        DataRegionTable invoiceRuns = new DataRegionTable("query", getDriver());
+        int invoiceRunsBeforeDelete = invoiceRuns.getDataRowCount();
+        invoiceRuns.checkCheckbox(0);
+        invoiceRuns.clickHeaderButton("Delete");
+
+        assertTextPresent("This will also delete");
+        clickButton("OK");
+
+        invoiceRuns = new DataRegionTable("query", getDriver());
+        assertEquals("Invoiced Run was not deleted", invoiceRuns.getDataRowCount(), invoiceRunsBeforeDelete-1);
+
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        waitForText("Invoiced Items");
+        clickAndWait(Locator.bodyLinkContainingText("Invoiced Items"));
+        invoicedItems = new DataRegionTable("query", getDriver());
+        assertEquals("Invoiced Items were not deleted", invoicedItems.getDataRowCount(), invoicedItemsBeforeDelete-1);
+
     }
 
     private void waitForMprPageLoad()

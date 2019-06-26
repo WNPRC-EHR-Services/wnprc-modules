@@ -502,7 +502,7 @@ public class WNPRC_BillingController extends SpringActionController
         @Override
         public void export(InvoicePdfForm invoicePdfForm, HttpServletResponse response, BindException errors) throws Exception
         {
-            Set<String> selectedInvoices = DataRegionSelection.getSelected(HttpView.currentContext(), true);
+            Set<String> selectedInvoices = DataRegionSelection.getSelected(HttpView.currentContext(), null, true, true);
 
             response.reset();
             response.setContentType("application/zip");
@@ -623,7 +623,7 @@ public class WNPRC_BillingController extends SpringActionController
             pdf.createLineItems(invoicedItems, false);
         }
 
-        SimpleDateFormat dateFormatBillingFor = new SimpleDateFormat("MM_yyyy");
+        SimpleDateFormat dateFormatBillingFor = new SimpleDateFormat("MM_dd_yyyy");
         String filename = alias.getGrantNumber() + "_" + dateFormatBillingFor.format(invoiceRun.getBillingPeriodStart()) + "_Invoice.pdf";
 
         PDFFile pdfFile = new PDFFile();

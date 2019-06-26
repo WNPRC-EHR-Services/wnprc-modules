@@ -513,7 +513,7 @@ public class WNPRC_BillingController extends SpringActionController
                 selectedInvoices.forEach(invoiceNumber-> {
                     try
                     {
-                        PDFFile pdfFile = getInvoicePDF(invoiceNumber, "Download PDF");
+                        PDFFile pdfFile = getInvoicePDF(invoiceNumber, "Download Invoices");
                         ZipEntry entry = new ZipEntry(pdfFile.getFileName());
                         zout.putNextEntry(entry);
                         pdfFile.getInvoicePDF().output(zout);
@@ -606,13 +606,13 @@ public class WNPRC_BillingController extends SpringActionController
         }
 
         double tierRate = accountTierRate != null ? accountTierRate.getTierRate() : 0;
-        InvoicePDF pdf = formName.equals("Invoice PDF") ? new InvoicePDF(invoice, alias, invoiceRun, tierRate, contactEmail, billingAddress, creditToAccount, chargeLine) :
+        InvoicePDF pdf = (formName.equalsIgnoreCase("Invoice PDF") || formName.equalsIgnoreCase("Download Invoices")) ? new InvoicePDF(invoice, alias, invoiceRun, tierRate, contactEmail, billingAddress, creditToAccount, chargeLine) :
                 new SummaryPDF(invoice, alias, invoiceRun, tierRate, contactEmail, billingAddress, creditToAccount, chargeLine);
 
         pdf.addPage();
         List<InvoicedItem> invoicedItems;
 
-        if (formName.equalsIgnoreCase("Invoice PDF"))
+        if (formName.equalsIgnoreCase("Invoice PDF") || formName.equalsIgnoreCase("Download Invoices"))
         {
             invoicedItems = getInvoicedItems(invoiceNumber);
             pdf.createLineItems(invoicedItems, true);

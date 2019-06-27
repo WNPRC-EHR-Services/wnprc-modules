@@ -1560,15 +1560,11 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     @Test
     public void testDeleteInvoiceRuns()
     {
-        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
-        waitForText("Invoiced Items");
-        clickAndWait(Locator.bodyLinkContainingText("Invoiced Items"));
+        goToFinanceFolderTable("Invoiced Items");
         DataRegionTable invoicedItems = new DataRegionTable("query", getDriver());
         int invoicedItemsBeforeDelete = invoicedItems.getDataRowCount();
 
-        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
-        waitForText("Invoice Runs");
-        clickAndWait(Locator.linkContainingText("Invoice Runs"));
+        goToFinanceFolderTable("Invoice Runs");
         DataRegionTable invoiceRuns = new DataRegionTable("query", getDriver());
         int invoiceRunsBeforeDelete = invoiceRuns.getDataRowCount();
         invoiceRuns.checkCheckbox(0);
@@ -1580,12 +1576,17 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         invoiceRuns = new DataRegionTable("query", getDriver());
         assertEquals("Invoiced Run was not deleted", invoiceRuns.getDataRowCount(), invoiceRunsBeforeDelete-1);
 
-        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
-        waitForText("Invoiced Items");
-        clickAndWait(Locator.bodyLinkContainingText("Invoiced Items"));
+        goToFinanceFolderTable("Invoiced Items");
         invoicedItems = new DataRegionTable("query", getDriver());
         assertEquals("Invoiced Items were not deleted", invoicedItems.getDataRowCount(), invoicedItemsBeforeDelete-1);
 
+    }
+
+    private void goToFinanceFolderTable(String tableName)
+    {
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        waitForText(tableName);
+        clickAndWait(Locator.bodyLinkContainingText(tableName));
     }
 
     private void waitForMprPageLoad()

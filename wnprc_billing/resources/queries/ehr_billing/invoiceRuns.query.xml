@@ -16,8 +16,21 @@
                     </column>
                 </columns>
                 <buttonBarOptions includeStandardButtons="false">
-                    <item text="Delete" permission="ADMIN" requiresSelection="true">
-                        <target method="GET">ehr_billing/DeleteBillingPeriod.view?</target>
+                    <item text="Grid Views">
+                        <originalText>Grid Views</originalText>
+                    </item>
+                    <item text="Charts">
+                        <originalText>Charts</originalText>
+                    </item>
+                    <item text="Export">
+                        <originalText>Export</originalText>
+                    </item>
+                    <item text="Delete" permission="DELETE" requiresSelection="true" insertBefore="Print" iconCls="trash" >
+                        <originalText>Delete</originalText>
+                        <target method="POST">ehr_billing/DeleteBillingPeriod.view?</target>
+                    </item>
+                    <item text="Print">
+                        <originalText>Print</originalText>
                     </item>
                 </buttonBarOptions>
             </table>

@@ -25,7 +25,7 @@
                     <item text="Export">
                         <originalText>Export</originalText>
                     </item>
-                    <item text="Delete" permission="DELETE" requiresSelection="true" insertBefore="Print" iconCls="trash" >
+                    <item text="Delete" permission="DELETE" requiresSelection="true" insertBefore="Export" iconCls="trash" >
                         <originalText>Delete</originalText>
                         <target method="POST">ehr_billing/DeleteBillingPeriod.view?</target>
                     </item>

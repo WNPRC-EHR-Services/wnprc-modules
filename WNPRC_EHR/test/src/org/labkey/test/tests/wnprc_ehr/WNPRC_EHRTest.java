@@ -15,6 +15,7 @@
  */
 package org.labkey.test.tests.wnprc_ehr;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -1545,6 +1546,25 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
         performBillingRun("11/01/2010", "11/15/2010", 2);
+
+        log("Enter Misc Charges");
+        Map<String, String> mapWithAnimalId = new LinkedHashMap<>();
+        mapWithAnimalId.put("Id", PROJECT_MEMBER_ID);
+        mapWithAnimalId.put("date", "2010-11-18");
+        mapWithAnimalId.put("project", PROJECT_ID);
+        mapWithAnimalId.put("chargetype", "Clinical Pathology");
+        mapWithAnimalId.put("chargeId", "vaccine supplies");
+        mapWithAnimalId.put("quantity", "10");
+        mapWithAnimalId.put("chargecategory", "Adjustment");
+        mapWithAnimalId.put("comment", "charge 1 with animal id");
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        log("Enter Misc. Charges with animal Id.");
+        clickAndWait(Locator.bodyLinkContainingText("Enter Charges with Animal Ids"));
+        enterChargesInGrid(1, mapWithAnimalId);
+        log("Submit the form");
+        sleep(5000);
+        submitForm();
+
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
         performBillingRun("11/16/2010", "11/30/2010", 3);
 
@@ -1570,7 +1590,10 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         invoiceRuns.checkCheckbox(0);
         invoiceRuns.clickHeaderButton("Delete");
 
-        assertTextPresent("This will also delete");
+        assertTextPresent("2 records from invoiced items");
+        assertTextPresent("1 records from invoice");
+        assertTextPresent("1 invoice records from misc charges");
+
         clickButton("OK");
 
         invoiceRuns = new DataRegionTable("query", getDriver());
@@ -1578,8 +1601,14 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         goToFinanceFolderTable("Invoiced Items");
         invoicedItems = new DataRegionTable("query", getDriver());
-        assertEquals("Invoiced Items were not deleted", invoicedItems.getDataRowCount(), invoicedItemsBeforeDelete-1);
+        assertEquals("Invoiced Items were not deleted", invoicedItems.getDataRowCount(), invoicedItemsBeforeDelete-2);
 
+        navigateToFolder(PROJECT_NAME, EHR_FOLDER);
+        goToSchemaBrowser();
+        DataRegionTable miscCharges = viewQueryData("ehr_billing", "miscCharges");
+        miscCharges.setFilter("date", "Equals", "2010-11-18");
+        List<String> invoiceId = miscCharges.getColumnDataAsText("invoiceId");
+        assertTrue("invoiceId should be blank after invoice deletion", StringUtils.isBlank(invoiceId.get(0)));
     }
 
     private void goToFinanceFolderTable(String tableName)

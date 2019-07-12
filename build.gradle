@@ -84,7 +84,8 @@ def modules  = [
     project('wnprc_billingpublic'),
     project('WebUtils'),
     project('WNPRC_Compliance'),
-    project('WNPRC_EHR')]
+    project('WNPRC_EHR'), 
+    project('SelfRegistration')]
 configure(modules) {
     // tell IntelliJ to ignore any build directories
     apply plugin: 'idea'

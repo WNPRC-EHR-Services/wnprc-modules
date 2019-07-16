@@ -5,10 +5,12 @@ import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager;
 import org.labkey.api.module.CodeOnlyModule;
 import org.labkey.api.module.ModuleContext;
+import org.labkey.api.util.PageFlowUtil;
 import org.labkey.api.view.WebPartFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 public class SelfRegistrationModule extends CodeOnlyModule
 {
@@ -47,9 +49,9 @@ public class SelfRegistrationModule extends CodeOnlyModule
         return Collections.emptyList();
     }
 
-    /*@Override
+    @Override
     public @NotNull Set<Class> getIntegrationTests()
     {
         return PageFlowUtil.set(SelfRegistrationController.TestCase.class);
-    }*/
+    }
 }

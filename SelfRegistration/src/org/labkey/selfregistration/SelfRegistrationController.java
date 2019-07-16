@@ -1,6 +1,7 @@
 package org.labkey.selfregistration;
 
 import org.apache.log4j.Logger;
+import org.junit.*;
 import org.labkey.api.action.ApiResponse;
 import org.labkey.api.action.ApiSimpleResponse;
 import org.labkey.api.action.MutatingApiAction;
@@ -9,25 +10,47 @@ import org.labkey.api.action.SpringActionController;
 import org.labkey.api.collections.CaseInsensitiveHashMap;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager;
+import org.labkey.api.data.Sort;
 import org.labkey.api.data.TableInfo;
+import org.labkey.api.data.TableSelector;
+import org.labkey.api.exp.ChangePropertyDescriptorException;
+import org.labkey.api.exp.property.Domain;
+import org.labkey.api.exp.property.DomainProperty;
+import org.labkey.api.gwt.client.model.PropertyValidatorType;
+import org.labkey.api.issues.IssuesListDefService;
 import org.labkey.api.module.AllowedDuringUpgrade;
+import org.labkey.api.module.Module;
+import org.labkey.api.module.ModuleLoader;
 import org.labkey.api.query.BatchValidationException;
 import org.labkey.api.query.QueryService;
 import org.labkey.api.query.QueryUpdateService;
+import org.labkey.api.security.Group;
+import org.labkey.api.security.GroupManager;
 import org.labkey.api.security.IgnoresTermsOfUse;
+import org.labkey.api.security.MutableSecurityPolicy;
 import org.labkey.api.security.RequiresPermission;
+import org.labkey.api.security.SecurityPolicyManager;
 import org.labkey.api.security.User;
+import org.labkey.api.security.UserManager;
+import org.labkey.api.security.ValidEmail;
 import org.labkey.api.security.permissions.InsertPermission;
 import org.labkey.api.security.permissions.ReadPermission;
+import org.labkey.api.security.roles.RoleManager;
+import org.labkey.api.security.roles.SubmitterRole;
+import org.labkey.api.util.ConfigurationException;
+import org.labkey.api.util.PageFlowUtil;
 import org.labkey.api.view.JspView;
 import org.labkey.api.view.NavTree;
+import org.labkey.security.xml.GroupEnumType;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
 import org.labkey.api.query.UserSchema;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SelfRegistrationController extends SpringActionController
 {
@@ -55,27 +78,18 @@ public class SelfRegistrationController extends SpringActionController
     }
 
     public static class SelfRegistrationForm {
+
         private String assignedTo;
         private String title;
+        private String priority;
+        private String issueDefName;
+        private String containerPath;
         private String firstname;
         private String lastname;
         private String email;
         private String institution;
         private String reason;
-        private String comment;
-        private String issueDefId;
-        private String containerPath;
         private String hostname;
-
-        public String getHostname()
-        {
-            return hostname;
-        }
-
-        public void setHostname(String hostname)
-        {
-            this.hostname = hostname;
-        }
 
         public String getAssignedTo()
         {
@@ -95,6 +109,36 @@ public class SelfRegistrationController extends SpringActionController
         public void setTitle(String title)
         {
             this.title = title;
+        }
+
+        public String getPriority()
+        {
+            return priority;
+        }
+
+        public void setPriority(String priority)
+        {
+            this.priority = priority;
+        }
+
+        public String getIssueDefName()
+        {
+            return issueDefName;
+        }
+
+        public void setIssueDefName(String issueDefName)
+        {
+            this.issueDefName = issueDefName;
+        }
+
+        public String getContainerPath()
+        {
+            return containerPath;
+        }
+
+        public void setContainerPath(String containerPath)
+        {
+            this.containerPath = containerPath;
         }
 
         public String getFirstname()
@@ -147,33 +191,14 @@ public class SelfRegistrationController extends SpringActionController
             this.reason = reason;
         }
 
-        public String getComment()
+        public String getHostname()
         {
-            return comment;
+            return hostname;
         }
 
-        public void setComment(String comment)
+        public void setHostname(String hostname)
         {
-            this.comment = comment;
-        }
-
-        public String getIssueDefId()
-        {
-            return issueDefId;
-        }
-
-        public void setIssueDefId(String issueDefId)
-        {
-            this.issueDefId = issueDefId;
-        }
-
-        public void setContainerPath(String containerPath)
-        {
-            this.containerPath = containerPath;
-        }
-        public String getContainerPath()
-        {
-            return containerPath;
+            this.hostname = hostname;
         }
     }
 
@@ -182,9 +207,9 @@ public class SelfRegistrationController extends SpringActionController
     @RequiresPermission(InsertPermission.class)
     public static class UpdateSelfRegistrationListAction extends MutatingApiAction<SelfRegistrationForm>
     {
-        public static final String _issueDefName = "userregistrations";
         public static final String _issueStatus = "open";
         public static final String _schemaPath = "issues";
+
         @Override
         public ApiResponse execute(SelfRegistrationForm form, BindException errors)
         {
@@ -194,7 +219,7 @@ public class SelfRegistrationController extends SpringActionController
             return new ApiSimpleResponse();
         }
 
-        //Takes the form data and inserts a new issue into the User Registrations issue tracker
+        // takes the form data and inserts a new issue into the issue tracker (value of issueDefName)
         public static void saveIssue(User user, Container container, SelfRegistrationForm form)
         {
             String hostname = form.getHostname();
@@ -208,9 +233,11 @@ public class SelfRegistrationController extends SpringActionController
             row.put("email", form.getEmail());
             row.put("institution", form.getInstitution());
             row.put("reason", form.getReason());
+            row.put("priority", form.getPriority());
 
+            // get issue table and insert the issue row
             UserSchema userSchema = QueryService.get().getUserSchema(user, container, _schemaPath);
-            TableInfo table = userSchema.getTable(_issueDefName);
+            TableInfo table = userSchema.getTable(form.getIssueDefName());
             QueryService.get().getSelectSQL(table,null,null,null,100,0,false);
             QueryUpdateService qus = table.getUpdateService();
 
@@ -240,6 +267,117 @@ public class SelfRegistrationController extends SpringActionController
             }
 
 
+        }
+
+    }
+    public static class TestCase extends Assert
+    {
+        private static final String adminUser = "backup_user@wisc.edu";
+        private static final String containerPath = "/PrivateTest";
+        private static final String schemaName = "issues";
+        private static final String issueTable = "userregistrations";
+
+        // creates fields in issue tracker
+        public static void createTextFields(Domain d, String[] fields, User user) throws ChangePropertyDescriptorException
+        {
+            String typeUri = d.getTypeURI();
+            for (String field : fields){
+                DomainProperty prop = d.addProperty();
+                prop.setName(field);
+                prop.setPropertyURI(typeUri + "#" + field);
+            }
+            d.save(user);
+        }
+
+        @BeforeClass
+        public static void setUp() throws ValidEmail.InvalidEmailException, ChangePropertyDescriptorException
+        {
+            // create container
+            Container rootContainer = ContainerManager.getRoot();
+            Container container = ContainerManager.createContainer(rootContainer,"PrivateTest");
+            Group group = GroupManager.getGroup(rootContainer, "Guests", GroupEnumType.SITE);
+            if (null == group)
+            {
+                throw new ConfigurationException("Could not add group specified in startup properties GroupRoles: " + "Guest");
+            }
+            // give guest submit perms
+            MutableSecurityPolicy policy = new MutableSecurityPolicy(container);
+            RoleManager.getAllRoles();
+            //what is the roleName for submitter?
+            policy.addRoleAssignment(group, SubmitterRole.class);
+            SecurityPolicyManager.savePolicy(policy);
+
+            // ensure the issue module is enabled for this folder
+            Module issueModule = ModuleLoader.getInstance().getModule("Issues");
+            Set<Module> activeModules = container.getActiveModules();
+            if (!activeModules.contains(issueModule))
+            {
+                Set<Module> newActiveModules = new HashSet<>();
+                newActiveModules.addAll(activeModules);
+                newActiveModules.add(issueModule);
+
+                container.setActiveModules(newActiveModules);
+            }
+
+            User user = UserManager.getUser(new ValidEmail(adminUser));
+
+            User guestUser = UserManager.getGuestUser();
+
+            // create issue tracker
+            int issueDefId = IssuesListDefService.get().createIssueListDef(container, user ,"IssueDefinition","User Registrations", null,null);
+            // The Domain object is the definition of the "table" that contains the custom fields.
+            Domain d = IssuesListDefService.get().getDomainFromIssueDefId(issueDefId, container, user);
+            String[] fieldnames = {"firstname","lastname","email","institution","reason"};
+            createTextFields(d,fieldnames,user);
+
+            SelfRegistrationForm f = new SelfRegistrationForm();
+            f.setTitle("testtitle");
+            f.setAssignedTo("0");
+            f.setPriority("2");
+            f.setFirstname("testfirstname");
+            f.setLastname("testlastname");
+            f.setEmail("testemail@email.com");
+            f.setInstitution("testinstitution");
+            f.setReason("testreason");
+            f.setIssueDefName(issueTable);
+            f.setContainerPath(containerPath);
+
+            // create issue in issue tracker
+            UpdateSelfRegistrationListAction.saveIssue(guestUser, container, f);
+
+        }
+
+
+        @Test
+        public void testIssueWasCreated() throws Exception
+        {
+            //see if issue was created
+            User us = UserManager.getUser(new ValidEmail(adminUser));
+            Container container = ContainerManager.getForPath(containerPath);
+
+            UserSchema userSchema = QueryService.get().getUserSchema(us, container, schemaName);
+            TableInfo table = userSchema.getTable(issueTable);
+
+            TableSelector ts = new TableSelector(table, PageFlowUtil.set("firstname","issueid","title","assignedto","lastname","email","institution","reason"),null,new Sort("-issueid"));
+            Map<String, Object>[] mp = ts.getMapArray();
+            ts.getRowCount();
+
+            Assert.assertEquals("testfirstname",mp[0].get("firstname"));
+            Assert.assertEquals("testlastname",mp[0].get("lastname"));
+            Assert.assertEquals("testemail@email.com",mp[0].get("email"));
+            Assert.assertEquals("testinstitution",mp[0].get("institution"));
+            Assert.assertEquals("testreason",mp[0].get("reason"));
+            Assert.assertEquals(0,mp[0].get("assignedto"));
+            Assert.assertEquals("testtitle",mp[0].get("title"));
+
+        }
+
+        @AfterClass
+        public static void cleanUp() throws ValidEmail.InvalidEmailException
+        {
+            //remove the container, not really needed in TeamCity, but good for local testing
+            Container container = ContainerManager.getForPath(containerPath);
+            ContainerManager.delete(container,UserManager.getUser(new ValidEmail(adminUser)));
         }
     }
 

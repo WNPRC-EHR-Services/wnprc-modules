@@ -285,6 +285,8 @@ public class SelfRegistrationController extends SpringActionController
                 DomainProperty prop = d.addProperty();
                 prop.setName(field);
                 prop.setPropertyURI(typeUri + "#" + field);
+                //to test different field types:
+                //prop.setType(PropertyService.get().getType(c, PropertyType.MULTI_LINE.getXmlName()));
             }
             d.save(user);
         }
@@ -358,17 +360,18 @@ public class SelfRegistrationController extends SpringActionController
             UserSchema userSchema = QueryService.get().getUserSchema(us, container, schemaName);
             TableInfo table = userSchema.getTable(issueTable);
 
-            TableSelector ts = new TableSelector(table, PageFlowUtil.set("firstname","issueid","title","assignedto","lastname","email","institution","reason"),null,new Sort("-issueid"));
+            TableSelector ts = new TableSelector(table, PageFlowUtil.set("issueid","title","assignedto","firstname","lastname","email","institution","reason"),null,new Sort("-issueid"));
             Map<String, Object>[] mp = ts.getMapArray();
             ts.getRowCount();
+            Map<String,Object> issue = mp[0];
 
-            Assert.assertEquals("testfirstname",mp[0].get("firstname"));
-            Assert.assertEquals("testlastname",mp[0].get("lastname"));
-            Assert.assertEquals("testemail@email.com",mp[0].get("email"));
-            Assert.assertEquals("testinstitution",mp[0].get("institution"));
-            Assert.assertEquals("testreason",mp[0].get("reason"));
-            Assert.assertEquals(0,mp[0].get("assignedto"));
-            Assert.assertEquals("testtitle",mp[0].get("title"));
+            Assert.assertEquals("testfirstname",issue.get("firstname"));
+            Assert.assertEquals("testlastname",issue.get("lastname"));
+            Assert.assertEquals("testemail@email.com",issue.get("email"));
+            Assert.assertEquals("testinstitution",issue.get("institution"));
+            Assert.assertEquals("testreason",issue.get("reason"));
+            Assert.assertEquals(0,issue.get("assignedto"));
+            Assert.assertEquals("testtitle",issue.get("title"));
 
         }
 

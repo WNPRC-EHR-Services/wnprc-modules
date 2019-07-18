@@ -381,11 +381,15 @@ public class SelfRegistrationController extends SpringActionController
         }
 
         @AfterClass
-        public static void cleanUp() throws ValidEmail.InvalidEmailException
+        public static void cleanUp() throws ValidEmail.InvalidEmailException, SecurityManager.UserManagementException
         {
             //remove the container, not really needed in TeamCity, but good for local testing
+            User adminuser = UserManager.getUser(new ValidEmail(adminUser));
             Container container = ContainerManager.getForPath(containerPath);
             ContainerManager.delete(container,UserManager.getUser(new ValidEmail(adminUser)));
+
+            //also delete the admin user
+            UserManager.deleteUser(adminuser.getUserId());
         }
     }
 

@@ -27,8 +27,10 @@ import org.labkey.api.query.QueryUpdateService;
 import org.labkey.api.security.Group;
 import org.labkey.api.security.GroupManager;
 import org.labkey.api.security.IgnoresTermsOfUse;
+import org.labkey.api.security.InvalidGroupMembershipException;
 import org.labkey.api.security.MutableSecurityPolicy;
 import org.labkey.api.security.RequiresPermission;
+import org.labkey.api.security.SecurityManager;
 import org.labkey.api.security.SecurityPolicyManager;
 import org.labkey.api.security.User;
 import org.labkey.api.security.UserManager;
@@ -272,7 +274,7 @@ public class SelfRegistrationController extends SpringActionController
     }
     public static class TestCase extends Assert
     {
-        private static final String adminUser = "backup_user@wisc.edu";
+        private static final String adminUser = "admin_user_test@primate.wisc.edu";
         private static final String containerPath = "/PrivateTest";
         private static final String schemaName = "issues";
         private static final String issueTable = "userregistrations";
@@ -292,7 +294,7 @@ public class SelfRegistrationController extends SpringActionController
         }
 
         @BeforeClass
-        public static void setUp() throws ValidEmail.InvalidEmailException, ChangePropertyDescriptorException
+        public static void setUp() throws ValidEmail.InvalidEmailException, ChangePropertyDescriptorException, SecurityManager.UserManagementException, InvalidGroupMembershipException
         {
             // create container
             Container rootContainer = ContainerManager.getRoot();
@@ -321,16 +323,18 @@ public class SelfRegistrationController extends SpringActionController
                 container.setActiveModules(newActiveModules);
             }
 
-            User user = UserManager.getUser(new ValidEmail(adminUser));
-
-            User guestUser = UserManager.getGuestUser();
+            // teamcity doesn't know about this user since it's an ephemeral DB, need to create an admin user and assign admin role.
+            SecurityManager.NewUserStatus newUserStatus = SecurityManager.addUser(new ValidEmail(adminUser), null);
+            User adminUser = newUserStatus.getUser();
+            Group adminGroup = GroupManager.getGroup(rootContainer, "Administrators", GroupEnumType.SITE);
+            SecurityManager.addMember(adminGroup, adminUser);
 
             // create issue tracker
-            int issueDefId = IssuesListDefService.get().createIssueListDef(container, user ,"IssueDefinition","User Registrations", null,null);
+            int issueDefId = IssuesListDefService.get().createIssueListDef(container, adminUser,"IssueDefinition","User Registrations", null,null);
             // The Domain object is the definition of the "table" that contains the custom fields.
-            Domain d = IssuesListDefService.get().getDomainFromIssueDefId(issueDefId, container, user);
+            Domain d = IssuesListDefService.get().getDomainFromIssueDefId(issueDefId, container, adminUser);
             String[] fieldnames = {"firstname","lastname","email","institution","reason"};
-            createTextFields(d,fieldnames,user);
+            createTextFields(d,fieldnames,adminUser);
 
             SelfRegistrationForm f = new SelfRegistrationForm();
             f.setTitle("testtitle");
@@ -344,6 +348,7 @@ public class SelfRegistrationController extends SpringActionController
             f.setIssueDefName(issueTable);
             f.setContainerPath(containerPath);
 
+            User guestUser = UserManager.getGuestUser();
             // create issue in issue tracker
             UpdateSelfRegistrationListAction.saveIssue(guestUser, container, f);
 

@@ -90,6 +90,7 @@ public class SelfRegistrationController extends SpringActionController
         private String lastname;
         private String email;
         private String institution;
+        private String project;
         private String reason;
         private String hostname;
 
@@ -183,6 +184,16 @@ public class SelfRegistrationController extends SpringActionController
             this.institution = institution;
         }
 
+        public String getProject()
+        {
+            return project;
+        }
+
+        public void setProject(String project)
+        {
+            this.project = project;
+        }
+
         public String getReason()
         {
             return reason;
@@ -234,6 +245,7 @@ public class SelfRegistrationController extends SpringActionController
             row.put("lastname", form.getLastname());
             row.put("email", form.getEmail());
             row.put("institution", form.getInstitution());
+            row.put("project", form.getProject());
             row.put("reason", form.getReason());
             row.put("priority", form.getPriority());
 
@@ -333,7 +345,7 @@ public class SelfRegistrationController extends SpringActionController
             int issueDefId = IssuesListDefService.get().createIssueListDef(container, adminUser,"IssueDefinition","User Registrations", null,null);
             // The Domain object is the definition of the "table" that contains the custom fields.
             Domain d = IssuesListDefService.get().getDomainFromIssueDefId(issueDefId, container, adminUser);
-            String[] fieldnames = {"firstname","lastname","email","institution","reason"};
+            String[] fieldnames = {"firstname","lastname","email","institution","project","reason"};
             createTextFields(d,fieldnames,adminUser);
 
             SelfRegistrationForm f = new SelfRegistrationForm();
@@ -344,6 +356,7 @@ public class SelfRegistrationController extends SpringActionController
             f.setLastname("testlastname");
             f.setEmail("testemail@email.com");
             f.setInstitution("testinstitution");
+            f.setProject("testproject");
             f.setReason("testreason");
             f.setIssueDefName(issueTable);
             f.setContainerPath(containerPath);
@@ -365,7 +378,7 @@ public class SelfRegistrationController extends SpringActionController
             UserSchema userSchema = QueryService.get().getUserSchema(us, container, schemaName);
             TableInfo table = userSchema.getTable(issueTable);
 
-            TableSelector ts = new TableSelector(table, PageFlowUtil.set("issueid","title","assignedto","firstname","lastname","email","institution","reason"),null,new Sort("-issueid"));
+            TableSelector ts = new TableSelector(table, PageFlowUtil.set("issueid","title","assignedto","firstname","lastname","email","institution","project","reason"),null,new Sort("-issueid"));
             Map<String, Object>[] mp = ts.getMapArray();
             ts.getRowCount();
             Map<String,Object> issue = mp[0];
@@ -374,6 +387,7 @@ public class SelfRegistrationController extends SpringActionController
             Assert.assertEquals("testlastname",issue.get("lastname"));
             Assert.assertEquals("testemail@email.com",issue.get("email"));
             Assert.assertEquals("testinstitution",issue.get("institution"));
+            Assert.assertEquals("testproject",issue.get("project"));
             Assert.assertEquals("testreason",issue.get("reason"));
             Assert.assertEquals(0,issue.get("assignedto"));
             Assert.assertEquals("testtitle",issue.get("title"));

@@ -852,7 +852,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         waitForText("Import Lookups by Alternate Key");
 
         setFormElement(Locator.xpath("//div[@id='uploadFileDiv2']/descendant::input[@name='file']"), CHARGEABLE_ITEMS_RATES_ERROR_TSV.getPath());
-        click(Locator.button("Submit"));
+        waitAndClick(Ext4Helper.Locators.ext4Button("Submit"));
 
         waitForText("ERROR");
         assertTextPresent("ERROR: For charge Item Per diems: Charge item start date (2050-01-01) is after charge item end date (2049-12-31).");

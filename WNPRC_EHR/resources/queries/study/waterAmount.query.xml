@@ -1,7 +1,7 @@
 <query xmlns="http://labkey.org/data/xml/query">
     <metadata>
         <tables xmlns="http://labkey.org/data/xml">
-            <table tableName="waterOrders" tableDbType="TABLE" useColumnOrder="true">
+            <table tableName="waterAmount" tableDbType="TABLE" useColumnOrder="true">
                 <tableUrl />
                 <insertUrl />
                 <importUrl />
@@ -15,20 +15,10 @@
                         <columntitle>Date Ordered</columntitle>
                         <formatString>yyyy-MM-dd</formatString>
                     </column>
-                    <column columnName="startDate">
+                    <column columnName="date">
                         <formatString>yyyy-MM-dd</formatString>
                     </column>
-                    <column columnName="endDate">
-                        <formatString>yyyy-MM-dd</formatString>
-                    </column>
-                    <column columnName="frequency">
-                        <columnTitle>Frequency</columnTitle>
-                        <fk>
-                            <fkDbSchema>ehr_lookups</fkDbSchema>
-                            <fkTable>treatment_frequency</fkTable>
-                            <fkColumnName>rowid</fkColumnName>
-                        </fk>
-                    </column>
+                    <column columnName="volume"></column>
                     <column columnName="assignedTo">
                         <columnTitle>Assigned To</columnTitle>
                         <fk>
@@ -38,8 +28,8 @@
                         </fk>
                     </column>
 
-            </columns>
-        </table>
-    </tables>
-</metadata>
-        </query>
+                </columns>
+            </table>
+        </tables>
+    </metadata>
+</query>

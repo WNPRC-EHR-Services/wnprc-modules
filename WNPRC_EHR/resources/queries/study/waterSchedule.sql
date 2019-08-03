@@ -5,7 +5,7 @@
  */
 
 SELECT
-d.id AS animalid,
+d.id AS animalId,
 d.calculated_status,
 s.*,
 s.objectid as treatmentid
@@ -25,6 +25,7 @@ JOIN (
       timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1  as daysElapsed,
       t1.enddate,
       t1.enddateCoalescedFuture,    --debug column
+      t1.assignedTo,
       t1.project,
       t1.volume,
       t1.qcstate
@@ -33,7 +34,7 @@ JOIN (
 
     JOIN study.waterOrders t1
       --NOTE: should the enddate consider date/time?
-      ON dr.dateOnly >= t1.dateOnly and dr.dateOnly <= t1.enddateCoalescedFuture --AND
+      ON dr.dateOnly >= t1.dateOnly AND dr.dateOnly <= t1.enddateCoalescedFuture --AND
 
 
     --NOTE: if we run this report on a future interval, we want to include those treatments
@@ -45,4 +46,5 @@ WHERE (d.lastDayatCenter Is Null or d.lastDayAtCenter >= s.enddateCoalescedFutur
 
 
 --account for date/time in schedule
+--origDate has to have 00:00 a time otherwise it does not include the first day of the order
 and s.origDate >= s.startDate and s.origDate <= s.enddateCoalescedFuture

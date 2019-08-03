@@ -344,6 +344,10 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             }
 
         },
+        'study.waterOrders':{
+
+
+        },
         'ehr.requests':{
             priority:{
                 hidden: true

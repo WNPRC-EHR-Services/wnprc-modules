@@ -6,6 +6,7 @@
        <column name="endDate" />
        <column name="volume" />
        <column name="frequency" />
+       <column name="assignedTo"/>
        <column name="qcstate" />
        <column name="taskid" />
    </columns>

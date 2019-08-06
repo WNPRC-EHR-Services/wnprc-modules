@@ -14,6 +14,7 @@
 <%@ page import="org.labkey.api.security.Group" %>
 <%@ page import="org.labkey.api.security.GroupManager" %>
 <%@ page import="org.labkey.security.xml.GroupEnumType" %>
+<%@ page import="org.labkey.api.collections.CaseInsensitiveHashMap" %>
 <%@ page extends="org.labkey.api.jsp.JspBase" %>
 
 <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css' />
@@ -30,6 +31,26 @@
     //TODO: Query WaterCoalesce for all future water for the next 60 days
     SimpleQuery futureWaters = queryFactory.makeQuery("study", "waterScheduleCoalesced");
     List<JSONObject> waterList = JsonUtils.getListFromJSONArray(futureWaters.getResults().getJSONArray("rows"));
+
+    JSONObject husbandryAssignmentLookup = new JSONObject();
+    List<JSONObject> husbandryAssigned = JsonUtils.getListFromJSONArray(queryFactory.selectRows("ehr_lookups", "husbandry_assigned"));
+    for (JSONObject json : husbandryAssigned) {
+        CaseInsensitiveHashMap<String> map = new CaseInsensitiveHashMap(json);
+        JSONObject waterInfo = new JSONObject();
+
+        if (map.get("category") != null) {
+            waterInfo.put("color", map.get("category"));
+        } else {
+            waterInfo.put("color", "#F78181");
+        }
+
+        String title = map.get("title");
+        waterInfo.put("title", (title != null) ? title : map.get("value"));
+
+        husbandryAssignmentLookup.put(map.get("value"), waterInfo);
+    }
+
+
 
 %>
 
@@ -107,7 +128,7 @@
 
 
                     <dl class="dl-horizontal">
-                        <dt>DataSource:         </dt> <dd>{{dataSource}}</dd>
+                        <dt>DataSource:         </dt> <dd>{{datasetCoalesced}}</dd>
                         <dt>Task ID:            </dt> <dd>{{taskid}}</dd>
                         <dt>Animal ID:          </dt> <dd><a href="{{animalLink}}">{{animalId}}</a></dd>
                         <dt>Assigned to:        </dt> <dd>{{assignedToCoalesced}}</dd>
@@ -117,10 +138,10 @@
                     </dl>
 
                     <button class="btn btn-default" data-bind="click: $root.requestTableClickAction" data-toggle="collapse" data-target="#waterExceptionPanel"
-                                          id="waterInfo" params="" disabled>Enter Water Exception</button>
+                                          id="waterInfo" params="" disabled>Enter Single Day Water</button>
 
                     <button class="btn btn-default"  data-toggle="modal" data-target="#myModal"
-                            id="enterWaterOrder" params="" disabled>Modify Water Order</button>
+                            id="enterWaterOrder" params="" disabled>Edit Recurring Water Order</button>
 
                     <div class="modal fade" id="myModal" role="dialog">
                         <div class="modal-dialog modal-lg">
@@ -244,6 +265,12 @@
             <div class="panel-body">
                 <div id="calendar"></div>
 
+                <div class="pull-right">
+                    <!-- ko foreach: _.keys(husbandryAssignmentLookup) -->
+                    <span data-bind="style: {color: $root.husbandryAssignmentLookup[$data].color }">&#x2589;</span><span>{{$root.husbandryAssignmentLookup[$data].title}}</span>
+                    <!-- /ko -->
+                </div>
+
 
             </div>
         </div>
@@ -259,6 +286,9 @@
 
 <script>
     (function() {
+
+        var husbandryAssignmentLookup = <%= husbandryAssignmentLookup.toString() %>;
+        WebUtils.VM.husbandryAssignmentLookup = husbandryAssignmentLookup;
 
 
         var $calendar = $('#calendar');
@@ -289,15 +319,41 @@
                                     }else{
                                         volume = 0;
                                     }
+                                    var eventColor;
+                                    /*switch (row.assignedTo){
+                                        case "animalcare":
+                                            eventColor = '#00BFFF';
+                                            break;
+                                        case "researchstaff":
+                                            eventColor = '#80FF00'
+                                            break;
+                                        case "spi":
+                                            eventColor = '#F3F781'
+                                            break;
+                                        case "veterinarystaff":
+                                            eventColor = '#D0A9F5'
+                                            break;
+                                        default:
+                                            eventColor = '#F78181';
+
+
+                                    }*/
                                     var eventObj = {
                                         title: row.animalId + ' ' + volume + 'ml',
                                         start: row.date,
                                         allDay: true,
                                         // vol: row.volume,
                                         rawRowData: row,
-                                        color: '#00FFFF',
+                                        //color: eventColor,
                                         description: 'Water for animal ' + row.animalId
                                     };
+
+                                    if (row.assignedToCoalesced in husbandryAssignmentLookup){
+                                        eventObj.color = husbandryAssignmentLookup[row.assignedToCoalesced].color;
+
+                                    } else{
+                                        eventObj.color = '#F78181';
+                                    }
 
 
                                     return eventObj;
@@ -351,7 +407,7 @@
 
                             }
 
-                            if(key == "dataSource" && value == "waterOrder" && (momentDate.diff(today, 'days'))>= 0){
+                            if(key == "datasetCoalesced" && value == "waterOrders" && (momentDate.diff(today, 'days'))>= 0){
                                 $('#enterWaterOrder').removeAttr('disabled');
 
                             }
@@ -391,7 +447,7 @@
                 date:                 ko.observable(),
                 volumeCoalesced:      ko.observable(),
                 project:              ko.observable(),
-                dataSource:           ko.observable(),
+                datasetCoalesced:     ko.observable(),
                 assignedToCoalesced:  ko.observable(),
                 rawDate:              ko.observable(),
                 assignedTo:           ko.observable(),
@@ -441,12 +497,12 @@
 
                 LABKEY.Ajax.request({
                     url: LABKEY.ActionURL.buildURL("wnprc_ehr", "CloseWaterOrder", null, {
-                        lsid:           waterOrder.lsid,
-                        taskId:         waterOrder.taskid,
-                        objectId:       waterOrder.objectid,
-                        animalId:       waterOrder.animalId,
-                        endDate:        waterOrder.date,
-                        dataSource:     waterOrder.dataSource
+                        lsid:               waterOrder.lsid,
+                        taskId:             waterOrder.taskid,
+                        objectId:           waterOrder.objectid,
+                        animalId:           waterOrder.animalId,
+                        endDate:            waterOrder.date,
+                        datasetCoalesced:   waterOrder.datasetCoalesced
 
                     }),
                     success: LABKEY.Utils.getCallbackWrapper(function (response)
@@ -492,12 +548,12 @@
 
                 LABKEY.Ajax.request({
                     url: LABKEY.ActionURL.buildURL("wnprc_ehr", "EnterNewWaterOrder", null, {
-                        lsid:           waterOrder.lsid,
-                        taskId:         waterOrder.taskid,
-                        objectId:       waterOrder.objectid,
-                        animalId:       waterOrder.animalId,
-                        endDate:        waterOrder.date,
-                        dataSource:     waterOrder.dataSource
+                        lsid:                   waterOrder.lsid,
+                        taskId:                 waterOrder.taskid,
+                        objectId:               waterOrder.objectid,
+                        animalId:               waterOrder.animalId,
+                        endDate:                waterOrder.date,
+                        datasetCoalesced:       waterOrder.datasetCoalesced
 
                     }),
                     success: LABKEY.Utils.getCallbackWrapper(function (response)
@@ -600,6 +656,19 @@
             },*/
             submitForm: function(){
 
+                $('#calendar').block({
+                    message: '<img src="<%=getContextPath()%>/webutils/icons/loading.svg">Updating Calendar...',
+                    css: {
+                        border: 'none',
+                        padding: '15px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: .5,
+                        color: '#fff'
+                    }
+                });
+
                 var form = ko.mapping.toJS(WebUtils.VM.taskDetails);
                 var taskid = LABKEY.Utils.generateUUID();
                 //var date = form.date.format("Y-m-d H:i:s");
@@ -617,6 +686,12 @@
 
                 // Refresh the calendar view.
                 $calendar.fullCalendar('refetchEvents');
+
+                sleep(1000);
+
+                //Unblock
+                $('#calendar').unblock();
+
             },
             ViewModel: function (){
                 var self = this;
@@ -652,6 +727,11 @@
             }
         }
 
+    }
+
+    function sleep(delay) {
+        var start = new Date().getTime();
+        while (new Date().getTime() < start + delay);
     }
 
 

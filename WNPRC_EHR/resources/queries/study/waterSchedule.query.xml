@@ -57,11 +57,11 @@
                         <!--</fk>-->
                     </column>
                     <column columnName="frequency">
-                        <isHidden>true</isHidden>
+                        <isHidden>false</isHidden>
                         <fk>
                           <fkDbSchema>ehr_lookups</fkDbSchema>
                           <fkTable>treatment_frequency</fkTable>
-                          <fkColumnName>key</fkColumnName>
+                          <fkColumnName>rowid</fkColumnName>
                         </fk>
                     </column>
                     <column columnName="remark">

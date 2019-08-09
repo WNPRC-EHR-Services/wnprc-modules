@@ -133,7 +133,7 @@
                         <dt>Animal ID:          </dt> <dd><a href="{{animalLink}}">{{animalId}}</a></dd>
                         <dt>Assigned to:        </dt> <dd>{{assignedToCoalesced}}</dd>
                         <dt>Volume:             </dt> <dd>{{volumeCoalesced}}</dd>
-                        <dt>Project (Account):  </dt> <dd>{{project}}</dd>
+                        <dt>Project (Account):  </dt> <dd>{{projectCoalesced}}</dd>
                         <dt>Date:               </dt> <dd>{{displayDate}}</dd>
                     </dl>
 
@@ -212,7 +212,7 @@
                             <div class="form-group">
                                 <label class="col-xs-4 control-label">Project</label>
                                 <div class="col-xs-8">
-                                    <p class="form-control-static">{{project}}</p>
+                                    <p class="form-control-static">{{projectCoalesced}}</p>
 
                                 </div>
                             </div>
@@ -221,7 +221,7 @@
                             <div class="form-group">
                                 <label class="col-xs-4 control-label">Assigned To</label>
                                 <div class="col-xs-8">
-                                    <select data-bind="value: assignedTo" class="form-control">
+                                    <select data-bind="value: assignedToCoalesced" class="form-control">
                                         <option value="">{{assignedToCoalesced}}</option>
                                         <%
                                             for(JSONObject assignedTo : assignedToList) {
@@ -248,7 +248,7 @@
 
                             <div style="text-align: right;">
                                 <button class="btn btn-default" data-bind="click: $root.clearForm">Cancel</button>
-                                <button class="btn btn-primary" data-bind="click: $root.submitForm">Insert Water Exception</button>
+                                <button class="btn btn-primary" data-bind="click: $root.submitForm">Insert Single Day Water</button>
                             </div>
                         </form>
 
@@ -286,6 +286,8 @@
 
 <script>
     (function() {
+        var previousCalendarEvent;
+        var previousCalendarColor;
 
         var husbandryAssignmentLookup = <%= husbandryAssignmentLookup.toString() %>;
         WebUtils.VM.husbandryAssignmentLookup = husbandryAssignmentLookup;
@@ -319,32 +321,14 @@
                                     }else{
                                         volume = 0;
                                     }
-                                    var eventColor;
-                                    /*switch (row.assignedTo){
-                                        case "animalcare":
-                                            eventColor = '#00BFFF';
-                                            break;
-                                        case "researchstaff":
-                                            eventColor = '#80FF00'
-                                            break;
-                                        case "spi":
-                                            eventColor = '#F3F781'
-                                            break;
-                                        case "veterinarystaff":
-                                            eventColor = '#D0A9F5'
-                                            break;
-                                        default:
-                                            eventColor = '#F78181';
 
-
-                                    }*/
                                     var eventObj = {
                                         title: row.animalId + ' ' + volume + 'ml',
                                         start: row.date,
                                         allDay: true,
                                         // vol: row.volume,
                                         rawRowData: row,
-                                        //color: eventColor,
+                                        //editable: true,
                                         description: 'Water for animal ' + row.animalId
                                     };
 
@@ -376,10 +360,20 @@
                 eventClick: function (calEvent, jsEvent, view) {
                     $('#waterInfo').attr('disabled', 'disabled');
                     $('#enterWaterOrder').attr('disabled', 'disabled');
+                    $('#waterInfo').text('Enter Single Day Water');
+
+                    if (previousCalendarEvent){
+                        previousCalendarEvent.color = previousCalendarColor;
+                        $calendar.fullCalendar('updateEvent', previousCalendarEvent )
+                    }
+                    previousCalendarEvent = calEvent;
+                    previousCalendarColor = calEvent.color;
+                    calEvent.color = '#848484';
+                    $calendar.fullCalendar('updateEvent', calEvent )
+
+
                     var momentDate;
                     jQuery.each(calEvent.rawRowData, function (key, value) {
-                       //debugger;
-
 
                         if (key in WebUtils.VM.taskDetails) {
                             if (key == "date") {
@@ -409,11 +403,19 @@
 
                             if(key == "datasetCoalesced" && value == "waterOrders" && (momentDate.diff(today, 'days'))>= 0){
                                 $('#enterWaterOrder').removeAttr('disabled');
-
                             }
+
+                            if(key == "datasetCoalesced" && value == "waterAmount" && (momentDate.diff(today, 'days'))>= 0){
+                                $('#enterWaterOrder').removeAttr('disabled');
+                                $('#waterInfo').text('Edit Single Day Water');
+                            }
+
 
                         }
                     });
+
+
+
 
 
 
@@ -441,16 +443,16 @@
 
             taskDetails: {
                 lsid:                 ko.observable(),
-                objectid:             ko.observable(),
+                objectIdCoalesced:    ko.observable(),
                 taskid:               ko.observable(),
+                projectCoalesced:     ko.observable(),
                 animalId:             ko.observable(),
                 date:                 ko.observable(),
                 volumeCoalesced:      ko.observable(),
-                project:              ko.observable(),
                 datasetCoalesced:     ko.observable(),
                 assignedToCoalesced:  ko.observable(),
+                frequency:            ko.observable(),
                 rawDate:              ko.observable(),
-                assignedTo:           ko.observable(),
                 wantsSpam:            ko.observable(),
 
             },
@@ -499,10 +501,10 @@
                     url: LABKEY.ActionURL.buildURL("wnprc_ehr", "CloseWaterOrder", null, {
                         lsid:               waterOrder.lsid,
                         taskId:             waterOrder.taskid,
-                        objectId:           waterOrder.objectid,
+                        objectId:           waterOrder.objectIdCoalesced,
                         animalId:           waterOrder.animalId,
                         endDate:            waterOrder.date,
-                        datasetCoalesced:   waterOrder.datasetCoalesced
+                        dataSource:         waterOrder.datasetCoalesced
 
                     }),
                     success: LABKEY.Utils.getCallbackWrapper(function (response)
@@ -550,10 +552,14 @@
                     url: LABKEY.ActionURL.buildURL("wnprc_ehr", "EnterNewWaterOrder", null, {
                         lsid:                   waterOrder.lsid,
                         taskId:                 waterOrder.taskid,
-                        objectId:               waterOrder.objectid,
+                        objectId:               waterOrder.objectIdCoalesced,
                         animalId:               waterOrder.animalId,
                         endDate:                waterOrder.date,
-                        datasetCoalesced:       waterOrder.datasetCoalesced
+                        dataSource:             waterOrder.datasetCoalesced,
+                        project:                waterOrder.projectCoalesced,
+                        frequency:              waterOrder.frequency,
+                        assignedTo:             waterOrder.assignedToCoalesced,
+                        volume:                 waterOrder.volumeCoalesced
 
                     }),
                     success: LABKEY.Utils.getCallbackWrapper(function (response)
@@ -562,12 +568,20 @@
 
                             // Refresh the calendar view.
                             $calendar.fullCalendar('refetchEvents');
+                            debugger;
 
                             $('#waterInfoPanel').unblock();
-                            console.log(response.success);
+                            console.log(response.taskId);
+
+                                                                            //('ehr', 'dataEntryForm.view', null, {formType: LABKEY.ActionURL.getParameter('formType')})
+                            var newWaterOrder =  LABKEY.ActionURL.buildURL('ehr', 'dataEntryForm', null, {formType: 'Enter Water Daily Amount', 'taskid': response.taskId});
+                                                                            //schemaName: 'study', 'query.queryName': 'demographicsParentStatus', 'query.Id~eq': this.subjectId})
+
+                            window.open(newWaterOrder,'_blank');
 
                         } else {
                             alert('Water cannot be closed')
+                            $('#waterInfoPanel').unblock();
                         }
 
 
@@ -671,23 +685,60 @@
 
                 var form = ko.mapping.toJS(WebUtils.VM.taskDetails);
                 var taskid = LABKEY.Utils.generateUUID();
-                //var date = form.date.format("Y-m-d H:i:s");
                 debugger;
+                //var date = form.date.format("Y-m-d H:i:s");
 
-                WebUtils.API.insertRows('study', 'waterAmount', [{
-                    taskid:     taskid,
-                    Id:         form.animalId,
-                    date:       form.date,
-                    assignedTo: form.assignedTo,
-                    project:    form.project,
-                    volume:     form.volumeCoalesced
-                }])
+                if (form.datasetCoalesced == "waterOrders"){
+                    WebUtils.API.insertRows('study', 'waterAmount', [{
+                        taskid:     taskid,
+                        Id:         form.animalId,
+                        date:       form.date,
+                        assignedTo: form.assignedToCoalesced,
+                        project:    form.project,
+                        volume:     form.volumeCoalesced
+                    }])
+
+                } else if (form.datasetCoalesced == "waterAmount"){
+
+                    LABKEY.Ajax.request({
+                        url: LABKEY.ActionURL.buildURL("wnprc_ehr", "UpdateWaterAmount", null, {
+                            lsid:               form.lsid,
+                            taskId:             form.taskid,
+                            objectId:           form.objectIdCoalesced,
+                            date:               form.date,
+                            animalId:           form.animalId,
+                            assignedTo:         form.assignedToCoalesced,
+                            volume:             form.volumeCoalesced,
+                            dataSource:         form.datasetCoalesced
+
+
+                        }),
+                        success: LABKEY.Utils.getCallbackWrapper(function (response)
+                        {
+                            if (response.success){
+
+                                // Refresh the calendar view.
+                                $calendar.fullCalendar('refetchEvents');
+
+                                //$('#waterInfoPanel').unblock();
+
+                            } else {
+                                alert('Water cannot be closed')
+                            }
+
+
+                        }, this)
+
+                    });
+
+
+                }
+
+
                 $('#waterExceptionPanel').collapse('hide')
 
                 // Refresh the calendar view.
                 $calendar.fullCalendar('refetchEvents');
-
-                sleep(1000);
 
                 //Unblock
                 $('#calendar').unblock();

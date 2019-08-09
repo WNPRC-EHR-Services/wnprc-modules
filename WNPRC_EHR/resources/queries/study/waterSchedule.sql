@@ -25,6 +25,7 @@ JOIN (
       timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1  as daysElapsed,
       t1.enddate,
       t1.enddateCoalescedFuture,    --debug column
+      t1.frequency,
       t1.assignedTo,
       t1.project,
       t1.volume,

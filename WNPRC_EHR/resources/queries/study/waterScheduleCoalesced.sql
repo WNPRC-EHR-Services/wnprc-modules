@@ -13,11 +13,9 @@ WS.startDate,*/
 COALESCE (WA.volume, CAST (WS.volume AS DOUBLE))AS volumeCoalesced,
 COALESCE (WA.assignedTo, WS.assignedTo) AS assignedToCoalesced,
 COALESCE (WA.dataset.label, WS.dataset.label) AS datasetCoalesced,
+COALESCE (WA.objectid, WS.objectid) AS objectIdCoalesced,
+COALESCE (WA.project, WS.project) AS projectCoalesced,
 
-CASE
-WHEN WA.volume IS NOT NULL THEN 'waterAmount'
-WHEN WS.volume IS NOT NULL THEN 'waterOrder'
-END AS dataSource
 
 
 FROM waterSchedule WS

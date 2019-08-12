@@ -684,7 +684,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
         log("Enter Misc. Charges with animal Id.");
-        clickAndWait(Locator.bodyLinkContainingText("Enter Charges with Animal Ids"));
+        waitAndClickAndWait(Locator.bodyLinkContainingText("Enter Charges with Animal Ids"));
         enterChargesInGrid(1, mapWithAnimalId);
 
         log("Submit the form");
@@ -692,7 +692,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         submitForm();
 
         log("Enter Misc. Charges with debit account");
-        clickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
+        waitAndClickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
         enterChargesInGrid(1, mapWithDebitAcct);
 
         log("Submit the form");
@@ -700,7 +700,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         submitForm();
 
         log("Enter another Misc. Charges with debit account");
-        clickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
+        waitAndClickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
         enterChargesInGrid(1, mapWithDebitAcct2);
 
         log("Submit the form");

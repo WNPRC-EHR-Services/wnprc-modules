@@ -14,7 +14,7 @@
                         <isKeyField>true</isKeyField>
                     </column>
                     <column columnName="lsid">
-                        <isHidden>true</isHidden>
+                        <isHidden>false</isHidden>
                     </column>
                     <column columnName="objectid">
                         <isHidden>true</isHidden>
@@ -38,7 +38,7 @@
                     </column>
                     <column columnName="StartDate">
                         <columnTitle>Treatment Start Date</columnTitle>
-                        <formatString>yyyy-MM-dd hh:mm</formatString>
+                        <formatString>yyyy-MM-dd</formatString>
                     </column>
                     <column columnName="code">
                         <nullable>false</nullable>
@@ -60,7 +60,7 @@
                         <isHidden>false</isHidden>
                         <fk>
                           <fkDbSchema>ehr_lookups</fkDbSchema>
-                          <fkTable>treatment_frequency</fkTable>
+                          <fkTable>husbandry_frequency</fkTable>
                           <fkColumnName>rowid</fkColumnName>
                         </fk>
                     </column>

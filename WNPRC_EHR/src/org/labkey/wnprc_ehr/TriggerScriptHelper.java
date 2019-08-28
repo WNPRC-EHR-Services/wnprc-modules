@@ -2,13 +2,17 @@ package org.labkey.wnprc_ehr;
 
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.log4j.Logger;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.labkey.api.collections.CaseInsensitiveHashMap;
 import org.labkey.api.data.CompareType;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager;
 import org.labkey.api.data.ConvertHelper;
+import org.labkey.api.data.JdbcType;
+import org.labkey.api.data.Results;
 import org.labkey.api.data.Selector;
 import org.labkey.api.data.SimpleFilter;
 import org.labkey.api.data.Table;
@@ -19,12 +23,15 @@ import org.labkey.api.ldk.notification.NotificationSection;
 import org.labkey.api.ldk.notification.NotificationService;
 import org.labkey.api.module.Module;
 import org.labkey.api.module.ModuleLoader;
+import org.labkey.api.query.DetailsURL;
 import org.labkey.api.query.FieldKey;
 import org.labkey.api.query.QueryService;
 import org.labkey.api.query.UserSchema;
 import org.labkey.api.security.User;
 import org.labkey.api.security.UserManager;
+import org.labkey.api.settings.AppProps;
 import org.labkey.api.util.PageFlowUtil;
+import org.labkey.api.util.Result;
 import org.labkey.dbutils.api.SimpleQueryFactory;
 import org.labkey.dbutils.api.SimplerFilter;
 import org.labkey.ehr.EHRSchema;
@@ -33,6 +40,8 @@ import org.labkey.wnprc_ehr.notification.VvcNotification;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -98,6 +107,34 @@ public class TriggerScriptHelper {
         }
 
         TableInfo ti = us.getTable(query);
+        if (ti == null)
+        {
+            if (!suppressError)
+                throw new IllegalArgumentException("Unable to find table: " + schema + "." + query);
+
+            return null;
+        }
+
+        return ti;
+    }
+
+    private TableInfo getTableInfo(String schema, String query, boolean suppressError, String Parameters)
+    {
+        //getTableInfo(schema,query, suppressError);
+        new QueryService.ParameterDeclaration("StartDate", JdbcType.DATE, Parameters);
+        new QueryService.ParameterDeclaration("NumDays", JdbcType.INTEGER, "60");
+
+        UserSchema us = QueryService.get().getUserSchema(getUser(), getContainer(), schema);
+        if (us == null)
+        {
+            if (!suppressError)
+                throw new IllegalArgumentException("Unable to find schema: " + schema);
+
+            return null;
+        }
+
+        TableInfo ti = us.getTable(query);
+
         if (ti == null)
         {
             if (!suppressError)
@@ -483,6 +520,125 @@ public class TriggerScriptHelper {
 
     }
 
+    public JSONArray checkWaterRegulation(String animalId, Date clientStartDate, String frequency, String objectId){
+
+        JSONArray arrayOfErrors = new JSONArray();
+
+        Calendar startInterval = Calendar.getInstance();
+        startInterval.setTime(clientStartDate);
+        startInterval.add(Calendar.DATE, -30);
+        startInterval = DateUtils.truncate(startInterval, Calendar.DATE);
+
+        final String intervalLength = "180";
+
+        Map<String, Object> parameters = new CaseInsensitiveHashMap<>();
+        parameters.put("NumDays",intervalLength);
+        parameters.put("StartDate", startInterval.getTime());
+
+        List<WaterDataBaseRecord> waterRecords = new ArrayList<>();
+
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(clientStartDate);
+
+        //Look for any orders that overlap in the waterScheduleCoalesced table
+        TableInfo waterSchedule = getTableInfo("study","waterScheduleCoalesced");
+        SimpleFilter filter = new SimpleFilter(FieldKey.fromString("animalId"), animalId);
+        filter.addCondition(FieldKey.fromString("date"), startDate.getTime(),CompareType.DATE_GTE);
+        filter.addCondition(FieldKey.fromString("frequency"), frequency);
+
+        TableSelector waterOrdersFromDatabase = new TableSelector(waterSchedule, PageFlowUtil.set("objectidcoalesced","animalId", "StartDate","endDateCoalescedFuture", "frequency", "dataSource", "lsidCoalesced"), filter, null);
+        waterOrdersFromDatabase.setNamedParameters(parameters);
+        waterRecords.addAll(waterOrdersFromDatabase.getArrayList(WaterDataBaseRecord.class));
+
+
+
+        /*if (waterSchedule != null){
+            try (Results rs  = QueryService.get().select(waterSchedule, waterSchedule.getColumns(), filter, null, parameters, false))
+            {
+                Map<String, Object> rowMap = new CaseInsensitiveHashMap<>();
+                while (rs.next())
+                {
+                    for (String colName : waterSchedule.getColumnNameSet())
+                    {
+                        Object value = rs.getObject(FieldKey.fromParts(colName));
+                        if (value != null)
+                            rowMap.put(colName, value);
+                    }
+
+                    WaterDataBaseRecord addRecord = new WaterDataBaseRecord();
+                    addRecord.setFromMap(rowMap);
+                    waterRecords.add(addRecord);
+
+                }
+
+            }
+            catch (SQLException e){
+                throw new RuntimeException(e);
+
+            }
+        }*/
+
+       // TableSelector waterOrdersFromDatabase = new TableSelector(waterSchedule, PageFlowUtil.set("animalId", "date","endDate", "frequency"), filter, null);
+
+        //waterRecords.addAll(waterOrdersFromDatabase.getArrayList(WaterDataBaseRecord.class));
+
+        for (WaterDataBaseRecord waterRecord : waterRecords)
+        {
+            //If the record is updated it should allow to enter new information.
+            if (waterRecord.getobjectIdCoalesced().compareTo(objectId) != 0){
+                if (clientStartDate.compareTo(waterRecord.getStartDate()) >= 0 && clientStartDate.compareTo(waterRecord.getEnddateCoalescedFuture()) <= 0){
+
+                    DateTimeFormatter dateFormatted = DateTimeFormatter.ISO_LOCAL_DATE;
+                    String startFormatDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getStartDate()));
+                    String endFormattedDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getEnddateCoalescedFuture()));
+
+                    StringBuilder editLink = new StringBuilder();
+                    DetailsURL editURL = DetailsURL.fromString("/EHR/manageRecord.view", container);
+
+                    Map<String, Object> editParameters = new CaseInsensitiveHashMap<>();
+                    editParameters.put("schemaName","study");
+                    editParameters.put("queryName", waterRecord.getDataSource());
+                    editParameters.put("keyField", "lsid");
+                    editParameters.put("key",waterRecord.getLsidCoalesced());
+
+                    editURL.addParameter("schemaName","study");
+                    editURL.addParameter("queryName", waterRecord.getDataSource());
+                    editURL.addParameter("keyField", "lsid");
+                    editURL.addParameter("key", waterRecord.getLsidCoalesced());
+                    //editURL.addParameter("schemaName","study");
+
+
+                    editLink.append(AppProps.getInstance().getBaseServerUrl() + editURL.getActionURL().toString());
+                    /*editLink.append("schemaName=study");
+                    editLink.append("&queryName=");
+                    editLink.append(waterRecord.getDataSource());
+                    editLink.append("&keyField=lsid&key=" + waterRecord.getLsidCoalesced());*/
+
+                    JSONObject returnErrors = new JSONObject();
+                    returnErrors.put("dataSource", waterRecord.getDataSource());
+                    returnErrors.put("field", "date");
+                    returnErrors.put("message", "Overlapping Water Order already in the system. Start date: " + startFormatDate +
+                            " EndDate: " + endFormattedDate + " <a href='"+ editLink.toString()+ "'><b> EDIT</b></a>");
+                    returnErrors.put("objectId", waterRecord.getobjectIdCoalesced());
+                    returnErrors.put("severity", "ERROR");
+                    arrayOfErrors.put(returnErrors);
+                }
+
+            }
+
+
+        }
+
+
+
+
+        return arrayOfErrors;
+    }
+
+    public LocalDate convertToLocalDateViaSqlDate(Date dateToConvert) {
+        return new java.sql.Date(dateToConvert.getTime()).toLocalDate();
+    }
+
 
 
     public static class WaterInfo implements Comparable<org.labkey.ehr.utils.TriggerScriptHelper.BloodInfo>
@@ -553,6 +709,155 @@ public class TriggerScriptHelper {
         }
 
 
+    }
+
+    public static class WaterDataBaseRecord {
+
+        private String taskId;
+        private String objectIdCoalesced;
+        private String lsidCoalesced;
+        private String animalId;
+        private Date startDate;
+        private Date enddateCoalescedFuture;
+        private String dataSource;
+        private String project;
+        private String frequency;
+        private String assignedTo;
+        private Double volume;
+
+        public void setTaskId(String taskId)
+        {
+            this.taskId = taskId;
+        }
+
+        public void setobjectIdCoalesced(String objectIdCoalesced)
+        {
+            this.objectIdCoalesced = objectIdCoalesced;
+        }
+
+        public void setLsidCoalesced(String lsidCoalesced)
+        {
+            this.lsidCoalesced = lsidCoalesced;
+        }
+
+        public void setAnimalId(String animalId)
+        {
+            this.animalId = animalId;
+        }
+
+        public void setEnddateCoalescedFuture(Date enddateCoalescedFuture)
+        {
+            this.enddateCoalescedFuture = enddateCoalescedFuture;
+        }
+
+        public void setDataSource(String dataSource)
+        {
+            this.dataSource = dataSource;
+        }
+
+        public void setProject(String project)
+        {
+            this.project = project;
+        }
+
+        public void setFrequency(String frequency)
+        {
+            this.frequency = frequency;
+        }
+
+        public void setVolume(Double volume)
+        {
+            this.volume = volume;
+        }
+
+        public void setAssignedTo(String assignedTo)
+        {
+            this.assignedTo = assignedTo;
+        }
+
+        public void setStartDate(Date date)
+        {
+            this.startDate = date;
+        }
+
+        public String getTaskId()
+        {
+            return taskId;
+        }
+
+        public String getobjectIdCoalesced()
+        {
+            return objectIdCoalesced;
+        }
+
+        public String getLsidCoalesced()
+        {
+            return lsidCoalesced;
+        }
+
+        public String getAnimalId()
+        {
+            return animalId;
+        }
+
+        public Date getStartDate()
+        {
+            return startDate;
+        }
+
+        public Date getEnddateCoalescedFuture()
+        {
+            return enddateCoalescedFuture;
+        }
+
+        public String getDataSource()
+        {
+            return dataSource;
+        }
+
+        public String getProject()
+        {
+            return project;
+        }
+
+        public String getFrequency()
+        {
+            return frequency;
+        }
+
+        public Double getVolume()
+        {
+            return volume;
+        }
+
+        public String getAssignedTo()
+        {
+            return assignedTo;
+        }
+
+        public void setFromMap (Map<String, Object> propertiesMap){
+
+            for (Map.Entry<String, Object> prop : propertiesMap.entrySet())
+            {
+                if (prop.getKey().equalsIgnoreCase("taskId") && prop.getValue() instanceof String)
+                    setTaskId((String)prop.getValue());
+                else if (prop.getKey().equalsIgnoreCase("objectIdCoalesced") && prop.getValue() instanceof String)
+                    setobjectIdCoalesced((String)prop.getValue());
+                else if (prop.getKey().equalsIgnoreCase("animalId") && prop.getValue() instanceof String)
+                    setAnimalId((String)prop.getValue());
+                else if (prop.getKey().equalsIgnoreCase("startDate") && prop.getValue() instanceof Date)
+                    setStartDate((Date)prop.getValue());
+                else if (prop.getKey().equalsIgnoreCase("endDate") && prop.getValue() instanceof Date)
+                    setEnddateCoalescedFuture((Date)prop.getValue());
+                else if (prop.getKey().equalsIgnoreCase("dataSource") && prop.getValue() instanceof String)
+                    setDataSource((String)prop.getValue());
+                else if (prop.getKey().equalsIgnoreCase("frequency") && prop.getValue() instanceof String)
+                    setFrequency((String)prop.getValue());
+
+            }
+
+
+        }
     }
 
 

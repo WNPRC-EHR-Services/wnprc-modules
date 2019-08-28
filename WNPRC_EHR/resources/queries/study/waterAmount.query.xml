@@ -27,6 +27,14 @@
                             <fkColumnName>Value</fkColumnName>
                         </fk>
                     </column>
+                    <column columnName="frequency">
+                        <columnTitle>Frequency</columnTitle>
+                        <fk>
+                            <fkDbSchema>ehr_lookups</fkDbSchema>
+                            <fkTable>treatment_frequency</fkTable>
+                            <fkColumnName>rowid</fkColumnName>
+                        </fk>
+                    </column>
 
                 </columns>
             </table>

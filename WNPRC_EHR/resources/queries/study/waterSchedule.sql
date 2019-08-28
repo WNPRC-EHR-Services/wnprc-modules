@@ -18,6 +18,7 @@ JOIN (
 
       t1.objectid,
       t1.taskid,
+      t1.lsid,
       t1.dataset,
       t1.id as wanimalid,
       dr.date as origDate,
@@ -39,7 +40,7 @@ JOIN (
 
 
     --NOTE: if we run this report on a future interval, we want to include those treatments
-    WHERE t1.date is not null
+    WHERE t1.date is not null --AND QCState = '1'
 
 ) s ON (s.wanimalid = d.id)
 

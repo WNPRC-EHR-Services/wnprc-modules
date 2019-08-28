@@ -156,7 +156,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal" data-bind="click: $root.endWaterOrder">End Water Order</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal" data-bind="click: $root.enterNewWaterOrder">End and Star New Water Order</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" data-bind="click: $root.enterNewWaterOrder">End and Start New Water Order</button>
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close Window</button>
                                 </div>
                             </div>

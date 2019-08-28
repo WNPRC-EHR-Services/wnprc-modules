@@ -1679,15 +1679,15 @@ public class WNPRC_EHRController extends SpringActionController
 
         SimpleFilter filter = new SimpleFilter(FieldKey.fromString("objectid"), objectId);
         QueryHelper waterOrderQuery = new QueryHelper(getContainer(), getUser(), "study","waterOrders");
-        Results rs = waterOrderQuery.select(columns, filter);
-
         List<Map<String, Object>> woRows = new ArrayList<>();
-        while (rs.next())
+        try (Results rs = waterOrderQuery.select(columns, filter))
         {
-            woRows.add(rs.getRowMap());
+            while (rs.next())
+            {
+                woRows.add(rs.getRowMap());
+            }
         }
         return woRows;
-
     }
 
     public static class WaterAmountRecord {

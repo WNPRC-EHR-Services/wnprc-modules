@@ -345,6 +345,50 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
 
         },
         'study.waterOrders':{
+            date:{
+                xtype: 'datefield',
+                header: 'Start Date',
+                extFormat: 'Y-m-d',
+                allowBlank: false,
+                editable: true,
+                columnConfig: {
+                    width:110
+                },
+                editorConfig: {
+                    minValue: new Date()
+                }
+            },
+            enddate:{
+                xtype: 'datefield',
+                header: 'End Date',
+                extFormat: 'Y-m-d',
+              //  allowBlank: false,
+                editable: true,
+                columnConfig: {
+                    width:110
+                },
+                editorConfig: {
+                    minValue: Ext4.Date.add(new Date(), Ext4.Date.DAY, 1)
+                }
+            },
+            waterSource:{
+                defaultValue: 'regulated',
+                allowBlank: 'false'
+
+            },
+            volume:{
+                xtype: 'textfield',
+                header: 'Volume'
+
+
+            },
+            assignedTo:{
+                allowBlank: false
+            },
+            frequency:{
+                allowBlank: false
+            }
+
 
 
         },

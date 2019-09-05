@@ -13,38 +13,66 @@ s.objectid as treatmentid
 FROM study.demographics d
 
 JOIN (
-
     SELECT
+        s.*,
+        timestampadd('SQL_TSI_MINUTE', ((s.hours * 60) + s.minutes), s.origDate) as date,
+        CASE
+            WHEN (hours >= 6 AND hours < 12) THEN 'AM'
+            WHEN (hours < 20 OR hours >= 12) THEN 'PM'
+            ELSE 'Other'
+        END as timeOfDay,
 
-      t1.objectid,
-      t1.taskid,
-      t1.lsid,
-      t1.dataset,
-      t1.id as wanimalid,
-      dr.date as origDate,
-      t1.date as startDate,
-      timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1  as daysElapsed,
-      t1.enddate,
-      t1.enddateCoalescedFuture,    --debug column
-      t1.frequency,
-      t1.assignedTo,
-      t1.project,
-      t1.volume,
-      t1.qcstate
+        ((s.hours * 60) + s.minutes) as timeOffset
 
-    FROM ehr_lookups.dateRange dr
+    FROM (
 
-    JOIN study.waterOrders t1
-      --NOTE: should the enddate consider date/time?
-      ON dr.dateOnly >= t1.dateOnly AND dr.dateOnly <= t1.enddateCoalescedFuture --AND
+        SELECT
+
+          t1.objectid,
+          t1.taskid,
+          t1.lsid,
+          t1.dataset,
+          t1.id as wanimalid,
+
+          COALESCE ( ft.hourofday, ((hour(t1.date) * 100) + minute(t1.date))) as time,
+          (coalesce( ft.hourofday, (hour(t1.date) * 100)) / 100) as hours,
+          CASE
+            WHEN ( ft.hourofday IS NOT NULL)
+            THEN (((coalesce(ft.hourofday) / 100.0) - floor(coalesce(ft.hourofday) / 100)) * 100)
+            ELSE minute(t1.date)
+          END as minutes,
+
+          dr.date as origDate,
+          t1.date as startDate,
+          timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1  as daysElapsed,
+          t1.enddate,
+          t1.enddateCoalescedFuture,    --debug column
+          t1.frequency.meaning AS frequency,
+          t1.assignedTo,
+          t1.waterSource,
+          t1.project,
+          t1.volume,
+          t1.qcstate
+
+        FROM ehr_lookups.dateRange dr
+
+        JOIN study.waterOrders t1
+          --NOTE: should the enddate consider date/time?
+          ON dr.dateOnly >= t1.dateOnly AND dr.dateOnly <= t1.enddateCoalescedFuture --AND
+
+        LEFT JOIN ehr_lookups.treatment_frequency_times ft ON (ft.frequency = t1.frequency.meaning)
 
 
-    --NOTE: if we run this report on a future interval, we want to include those treatments
-    WHERE t1.date is not null --AND QCState = '1'
+        --NOTE: if we run this report on a future interval, we want to include those treatments
+        WHERE t1.date is not null --AND QCState = '1'
+
+    ) s
 
 ) s ON (s.wanimalid = d.id)
 
 WHERE (d.lastDayatCenter Is Null or d.lastDayAtCenter >= s.enddateCoalescedFuture)
+
+--Adding differet frequecies time
 
 
 --account for date/time in schedule

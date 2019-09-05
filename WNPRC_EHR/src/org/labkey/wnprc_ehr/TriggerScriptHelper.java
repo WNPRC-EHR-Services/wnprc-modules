@@ -3,7 +3,9 @@ package org.labkey.wnprc_ehr;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.time.DateUtils;
+import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.labkey.api.collections.CaseInsensitiveHashMap;
@@ -32,6 +34,7 @@ import org.labkey.api.security.UserManager;
 import org.labkey.api.settings.AppProps;
 import org.labkey.api.util.PageFlowUtil;
 import org.labkey.api.util.Result;
+import org.labkey.api.view.ActionURL;
 import org.labkey.dbutils.api.SimpleQueryFactory;
 import org.labkey.dbutils.api.SimplerFilter;
 import org.labkey.ehr.EHRSchema;
@@ -40,6 +43,7 @@ import org.labkey.wnprc_ehr.notification.VvcNotification;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -520,9 +524,11 @@ public class TriggerScriptHelper {
 
     }
 
-    public JSONArray checkWaterRegulation(String animalId, Date clientStartDate, String frequency, String objectId){
+    public JSONArray checkWaterRegulation(String animalId, Date clientStartDate, Date clientEndDate, String frequency, String objectId){
 
         JSONArray arrayOfErrors = new JSONArray();
+
+        Map<String, JSONObject> errorMap = new HashMap<>();
 
         Calendar startInterval = Calendar.getInstance();
         startInterval.setTime(clientStartDate);
@@ -544,90 +550,69 @@ public class TriggerScriptHelper {
         TableInfo waterSchedule = getTableInfo("study","waterScheduleCoalesced");
         SimpleFilter filter = new SimpleFilter(FieldKey.fromString("animalId"), animalId);
         filter.addCondition(FieldKey.fromString("date"), startDate.getTime(),CompareType.DATE_GTE);
-        filter.addCondition(FieldKey.fromString("frequency"), frequency);
+        //filter.addCondition(FieldKey.fromString("frequency"), frequency);
 
-        TableSelector waterOrdersFromDatabase = new TableSelector(waterSchedule, PageFlowUtil.set("objectidcoalesced","animalId", "StartDate","endDateCoalescedFuture", "frequency", "dataSource", "lsidCoalesced"), filter, null);
+        TableSelector waterOrdersFromDatabase = new TableSelector(waterSchedule, PageFlowUtil.set("objectidcoalesced","animalId", "date", "StartDate","endDateCoalescedFuture", "frequency", "dataSource", "lsidCoalesced"), filter, null);
         waterOrdersFromDatabase.setNamedParameters(parameters);
         waterRecords.addAll(waterOrdersFromDatabase.getArrayList(WaterDataBaseRecord.class));
 
-
-
-        /*if (waterSchedule != null){
-            try (Results rs  = QueryService.get().select(waterSchedule, waterSchedule.getColumns(), filter, null, parameters, false))
-            {
-                Map<String, Object> rowMap = new CaseInsensitiveHashMap<>();
-                while (rs.next())
-                {
-                    for (String colName : waterSchedule.getColumnNameSet())
-                    {
-                        Object value = rs.getObject(FieldKey.fromParts(colName));
-                        if (value != null)
-                            rowMap.put(colName, value);
-                    }
-
-                    WaterDataBaseRecord addRecord = new WaterDataBaseRecord();
-                    addRecord.setFromMap(rowMap);
-                    waterRecords.add(addRecord);
-
-                }
-
-            }
-            catch (SQLException e){
-                throw new RuntimeException(e);
-
-            }
-        }*/
-
-       // TableSelector waterOrdersFromDatabase = new TableSelector(waterSchedule, PageFlowUtil.set("animalId", "date","endDate", "frequency"), filter, null);
-
-        //waterRecords.addAll(waterOrdersFromDatabase.getArrayList(WaterDataBaseRecord.class));
 
         for (WaterDataBaseRecord waterRecord : waterRecords)
         {
             //If the record is updated it should allow to enter new information.
             if (waterRecord.getobjectIdCoalesced().compareTo(objectId) != 0){
-                if (clientStartDate.compareTo(waterRecord.getStartDate()) >= 0 && clientStartDate.compareTo(waterRecord.getEnddateCoalescedFuture()) <= 0){
 
-                    DateTimeFormatter dateFormatted = DateTimeFormatter.ISO_LOCAL_DATE;
-                    String startFormatDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getStartDate()));
-                    String endFormattedDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getEnddateCoalescedFuture()));
+                LocalDate startLoop = convertToLocalDateViaSqlDate(clientStartDate);
+                LocalDate endOfLoop;
 
-                    StringBuilder editLink = new StringBuilder();
-                    DetailsURL editURL = DetailsURL.fromString("/EHR/manageRecord.view", container);
+                if (clientEndDate ==  null){
+                    endOfLoop = convertToLocalDateViaSqlDate(clientStartDate).plusDays(Integer.parseInt(intervalLength));
 
-                    Map<String, Object> editParameters = new CaseInsensitiveHashMap<>();
-                    editParameters.put("schemaName","study");
-                    editParameters.put("queryName", waterRecord.getDataSource());
-                    editParameters.put("keyField", "lsid");
-                    editParameters.put("key",waterRecord.getLsidCoalesced());
+                }else{
 
-                    editURL.addParameter("schemaName","study");
-                    editURL.addParameter("queryName", waterRecord.getDataSource());
-                    editURL.addParameter("keyField", "lsid");
-                    editURL.addParameter("key", waterRecord.getLsidCoalesced());
-                    //editURL.addParameter("schemaName","study");
-
-
-                    editLink.append(AppProps.getInstance().getBaseServerUrl() + editURL.getActionURL().toString());
-                    /*editLink.append("schemaName=study");
-                    editLink.append("&queryName=");
-                    editLink.append(waterRecord.getDataSource());
-                    editLink.append("&keyField=lsid&key=" + waterRecord.getLsidCoalesced());*/
-
-                    JSONObject returnErrors = new JSONObject();
-                    returnErrors.put("dataSource", waterRecord.getDataSource());
-                    returnErrors.put("field", "date");
-                    returnErrors.put("message", "Overlapping Water Order already in the system. Start date: " + startFormatDate +
-                            " EndDate: " + endFormattedDate + " <a href='"+ editLink.toString()+ "'><b> EDIT</b></a>");
-                    returnErrors.put("objectId", waterRecord.getobjectIdCoalesced());
-                    returnErrors.put("severity", "ERROR");
-                    arrayOfErrors.put(returnErrors);
+                    endOfLoop = convertToLocalDateViaSqlDate(clientEndDate);
                 }
 
+
+                for (LocalDate loopDate = startLoop ; loopDate.isBefore(endOfLoop); loopDate = loopDate.plusDays(1)){
+
+                    if (loopDate.compareTo(convertToLocalDateViaSqlDate(waterRecord.getDate()))==0){
+
+                        if (!checkFrequencyCompatibility(waterRecord.getFrequency(), frequency))
+                        {
+
+                            DateTimeFormatter dateFormatted = DateTimeFormatter.ISO_LOCAL_DATE;
+                            String startFormatDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getStartDate()));
+                            String endFormattedDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getEnddateCoalescedFuture()));
+
+                            ActionURL editURL = new ActionURL("EHR", "manageRecord", container);
+
+                            editURL.addParameter("schemaName", "study");
+                            editURL.addParameter("queryName", waterRecord.getDataSource());
+                            editURL.addParameter("keyField", "lsid");
+                            editURL.addParameter("key", waterRecord.getLsidCoalesced());
+
+                            JSONObject returnErrors = new JSONObject();
+                            returnErrors.put("dataSource", waterRecord.getDataSource());
+                            returnErrors.put("field", "date");
+                            returnErrors.put("message", "Overlapping Water Order already in the system. Start date: " + startFormatDate +
+                                    " EndDate: " + endFormattedDate + " <a href='" + editURL.toString() + "'><b> EDIT</b></a>");
+                            returnErrors.put("objectId", waterRecord.getobjectIdCoalesced());
+                            returnErrors.put("severity", "ERROR");
+
+                            errorMap.put(waterRecord.getobjectIdCoalesced(), returnErrors);
+                        }
+
+                    }
+
+
+                }
             }
-
-
         }
+
+        errorMap.forEach((objectIdString, JSONObject)->{
+            arrayOfErrors.put(JSONObject);
+        });
 
 
 
@@ -637,6 +622,37 @@ public class TriggerScriptHelper {
 
     public LocalDate convertToLocalDateViaSqlDate(Date dateToConvert) {
         return new java.sql.Date(dateToConvert.getTime()).toLocalDate();
+    }
+
+    public boolean checkFrequencyCompatibility(String serverRecord, String clientRecord){
+        boolean validation;
+        switch (clientRecord){
+            case "AM/PM":
+                if (serverRecord.compareTo("AM")==0){
+                    validation = false;
+                }
+                if (serverRecord.compareTo("PM")==0){
+                    validation = false;
+                }
+            case "Monday":
+                if (serverRecord.compareTo("Daily")==0){
+                    validation = false;
+                }
+            case "Daily":
+                if(serverRecord.compareTo("Monday") == 0 || serverRecord.compareTo("Tuesday") == 0 ||
+                        serverRecord.compareTo("Wednesday") == 0 || serverRecord.compareTo("Thursday") == 0 ||
+                        serverRecord.compareTo("Friday") == 0 || serverRecord.compareTo("Saturday") == 0 ||
+                        serverRecord.compareTo("Sunday") == 0)  {
+                    validation = false;
+                }
+
+            default:
+                validation = true;
+
+        }
+
+        return validation;
+
     }
 
 
@@ -717,6 +733,7 @@ public class TriggerScriptHelper {
         private String objectIdCoalesced;
         private String lsidCoalesced;
         private String animalId;
+        private Date date;
         private Date startDate;
         private Date enddateCoalescedFuture;
         private String dataSource;
@@ -745,10 +762,17 @@ public class TriggerScriptHelper {
             this.animalId = animalId;
         }
 
-        public void setEnddateCoalescedFuture(Date enddateCoalescedFuture)
+        public void setDate(Date date)
         {
-            this.enddateCoalescedFuture = enddateCoalescedFuture;
+            this.date = date;
         }
+
+        public void setStartDate(Date date)
+        {
+            this.startDate = date;
+        }
+
+        public void setEnddateCoalescedFuture(Date enddateCoalescedFuture){ this.enddateCoalescedFuture = enddateCoalescedFuture; }
 
         public void setDataSource(String dataSource)
         {
@@ -775,10 +799,7 @@ public class TriggerScriptHelper {
             this.assignedTo = assignedTo;
         }
 
-        public void setStartDate(Date date)
-        {
-            this.startDate = date;
-        }
+
 
         public String getTaskId()
         {
@@ -798,6 +819,11 @@ public class TriggerScriptHelper {
         public String getAnimalId()
         {
             return animalId;
+        }
+
+        public Date getDate()
+        {
+            return date;
         }
 
         public Date getStartDate()

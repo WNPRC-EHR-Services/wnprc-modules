@@ -60,8 +60,8 @@
                         <isHidden>false</isHidden>
                         <fk>
                           <fkDbSchema>ehr_lookups</fkDbSchema>
-                          <fkTable>husbandry_frequency</fkTable>
-                          <fkColumnName>rowid</fkColumnName>
+                          <fkTable>treatment_frequency</fkTable>
+                          <fkColumnName>key</fkColumnName>
                         </fk>
                     </column>
                     <column columnName="remark">

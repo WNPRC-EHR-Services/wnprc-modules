@@ -42,20 +42,28 @@ function onUpsert(helper, scriptErrors, row, oldRow){
         EHR.Server.Utils.addError(scriptErrors, 'date', 'Only Dates in the Future Allow', 'ERROR');
     }
 
-    var endDate = new Date(row.endDate);
+    /*var endDate = new Date(row.enddate);
     endDate.setHours(0,0,0,0);
 
+    //TODO: remove triggers.js already checks this data
     if (rowDate.getTime() > endDate.getTime()){
         EHR.Server.Utils.addError(scriptErrors,'endDate', 'EndDate cannot be before StartDate', 'ERROR');
-    }
+    }*/
 
     if (row.date && row.Id && row.frequency){
-        let jsonArray = WNPRC.Utils.getJavaHelper().checkWaterRegulation(row.id, row.date, row.frequency, row.objectid);
+        console.log ("value of enddate before if statement "+ row.enddate);
+        if (!row.enddate || row.enddate === undefined){
+            console.log ("if statement 2");
+            row.enddate = null;
+        }
+        console.log ("value of enddate "+ row.enddate);
+        let jsonArray = WNPRC.Utils.getJavaHelper().checkWaterRegulation(row.id, row.date, row.enddate, row.frequency, row.objectid);
         if ( jsonArray != null){
+            console.log("number of errors "+ jsonArray.length);
 
             for (var i = 0; i < jsonArray.length; i++){
                 var errorObject = JSON.parse(jsonArray[i]);
-                console.log(errorObject.message);
+                console.log(i + " " + errorObject.message);
                 EHR.Server.Utils.addError(scriptErrors, errorObject.field, errorObject.message, errorObject.severity);
             }
 

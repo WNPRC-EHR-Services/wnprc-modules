@@ -6,7 +6,7 @@
 
 SELECT
 WS.*,
-COALESCE (WA.date, WS.origDate) AS date,
+COALESCE (WA.date, WS.origDate) AS dateCoalesce,
 /*WS.animalid,
 WS.origDate,
 WS.startDate,*/

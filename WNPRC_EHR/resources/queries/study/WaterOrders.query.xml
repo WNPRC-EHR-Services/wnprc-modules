@@ -12,20 +12,18 @@
 
                     </column>
                     <column columnName="date">
-                        <columntitle>Date Ordered</columntitle>
+                        <columntitle>Start Date</columntitle>
                         <formatString>yyyy-MM-dd</formatString>
                     </column>
-                    <column columnName="startDate">
-                        <formatString>yyyy-MM-dd</formatString>
-                    </column>
-                    <column columnName="endDate">
+                    <column columnName="enddate">
+                        <columntitle>End Date</columntitle>
                         <formatString>yyyy-MM-dd</formatString>
                     </column>
                     <column columnName="frequency">
                         <columnTitle>Frequency</columnTitle>
                         <fk>
                             <fkDbSchema>ehr_lookups</fkDbSchema>
-                            <fkTable>husbandry_frequency</fkTable>
+                            <fkTable>treatment_frequency</fkTable>
                             <fkColumnName>rowid</fkColumnName>
                         </fk>
                     </column>
@@ -34,7 +32,16 @@
                         <fk>
                             <fkDbSchema>ehr_lookups</fkDbSchema>
                             <fkTable>husbandry_assigned</fkTable>
-                            <fkColumnName>Value</fkColumnName>
+                            <fkColumnName>value</fkColumnName>
+                        </fk>
+                    </column>
+                    <column columnName="waterSource">
+                        <columnTitle>Water Source</columnTitle>
+                        <fk>
+                            <fkDbSchema>ehr_lookups</fkDbSchema>
+                            <fkTable>water_source</fkTable>
+                            <fkColumnName>value</fkColumnName>
+                            <fkDisplayColumn>Title</fkDisplayColumn>
                         </fk>
                     </column>
 

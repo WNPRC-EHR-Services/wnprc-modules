@@ -18,16 +18,17 @@ package org.labkey.wnprc_ehr;
 import au.com.bytecode.opencsv.CSVWriter;
 //import com.google.common.base.MoreObjects;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.labkey.api.action.ApiAction;
 import org.labkey.api.action.ApiResponse;
 import org.labkey.api.action.ApiSimpleResponse;
 import org.labkey.api.action.ApiUsageException;
 import org.labkey.api.action.ExportAction;
 import org.labkey.api.action.MutatingApiAction;
+import org.labkey.api.action.ReadOnlyApiAction;
 import org.labkey.api.action.RedirectAction;
 import org.labkey.api.action.SpringActionController;
 import org.labkey.api.data.Container;
@@ -80,6 +81,7 @@ import org.labkey.wnprc_ehr.email.EmailServerConfig;
 import org.labkey.wnprc_ehr.email.MessageIdentifier;
 import org.labkey.wnprc_ehr.service.dataentry.BehaviorDataEntryService;
 import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -455,7 +457,7 @@ public class WNPRC_EHRController extends SpringActionController
     }
 
     @RequiresLogin
-    public static class ReleaseAnimalFromBehaviorAssignmentAction extends ApiAction<ReleaseAnimalFromBehaviorAssignmentForm>
+    public static class ReleaseAnimalFromBehaviorAssignmentAction extends MutatingApiAction<ReleaseAnimalFromBehaviorAssignmentForm>
     {
 
         @Override
@@ -493,7 +495,7 @@ public class WNPRC_EHRController extends SpringActionController
     }
 
     @RequiresLogin
-    public static class ValidateAnimalIdAction extends ApiAction<ValidateAnimalIdForm>
+    public static class ValidateAnimalIdAction extends ReadOnlyApiAction<ValidateAnimalIdForm>
     {
         @Override
         public Object execute(ValidateAnimalIdForm form, BindException errors)
@@ -564,7 +566,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @RequiresLogin
     @ActionNames("checkIfAnimalIsAssigned")
-    public static class CheckIfAnimalIsAssigned extends ApiAction<CheckAnimalAssignment>
+    public static class CheckIfAnimalIsAssigned extends ReadOnlyApiAction<CheckAnimalAssignment>
     {
         @Override
         public Object execute(CheckAnimalAssignment form, BindException errors)
@@ -614,7 +616,7 @@ public class WNPRC_EHRController extends SpringActionController
     @RequiresPermission(ReadPermission.class)
     @ActionNames("getChanges")
     @CSRF(CSRF.Method.POST)
-    public class GetChangeLists extends ApiAction<Void>
+    public class GetChangeLists extends ReadOnlyApiAction<Void>
     {
         public ApiResponse execute(Void form, BindException errors) throws Exception
         {
@@ -658,7 +660,7 @@ public class WNPRC_EHRController extends SpringActionController
     @RequiresPermission(ReadPermission.class)
     @RequiresLogin
     @ActionNames("getColonyPopulationPerMonth")
-    public class GetPopulationPerMonth extends ApiAction<Void>
+    public class GetPopulationPerMonth extends ReadOnlyApiAction<Void>
     {
         public ApiResponse execute(Void form, BindException errors)
         {
@@ -762,7 +764,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @RequiresLogin()
     @ActionNames("billablePerDiems")
-    public class BillablePerDiemsAction extends ApiAction<BillablePerDiemsForm>
+    public class BillablePerDiemsAction extends ReadOnlyApiAction<BillablePerDiemsForm>
     {
         @Override
         public Object execute(BillablePerDiemsForm form, BindException errors)
@@ -869,7 +871,7 @@ public class WNPRC_EHRController extends SpringActionController
     }
 
     @RequiresNoPermission()
-    public class ExampleEmailAction extends ApiAction<EmailForm>
+    public class ExampleEmailAction extends MutatingApiAction<EmailForm>
     {
         @Override
         public ApiResponse execute(EmailForm form, BindException errors) throws Exception
@@ -893,7 +895,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @ActionNames("listEmails")
     @RequiresNoPermission()
-    public class ListEmailsAction extends ApiAction<EmailServerForm>
+    public class ListEmailsAction extends ReadOnlyApiAction<EmailServerForm>
     {
         @Override
         public ApiResponse execute(EmailServerForm form, BindException errors) throws Exception
@@ -904,7 +906,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @ActionNames("getVirologyResultsFromEmail")
     @RequiresNoPermission()
-    public class GetVirologyResultsFromEmailAction extends ApiAction<VirologyResultsForm>
+    public class GetVirologyResultsFromEmailAction extends ReadOnlyApiAction<VirologyResultsForm>
     {
         @Override
         public ApiResponse execute(VirologyResultsForm form, BindException errors) throws Exception
@@ -920,7 +922,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @ActionNames("deleteEmail")
     @RequiresNoPermission()
-    public class deleteEmailAction extends ApiAction<VirologyResultsForm>
+    public class deleteEmailAction extends MutatingApiAction<VirologyResultsForm>
     {
         @Override
         public ApiResponse execute(VirologyResultsForm form, BindException errors) throws Exception
@@ -935,7 +937,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @ActionNames("previewEmailExcelAttachment")
     @RequiresNoPermission()
-    public class previewEmailAction extends ApiAction<VirologyResultsForm>
+    public class previewEmailAction extends ReadOnlyApiAction<VirologyResultsForm>
     {
         @Override
         public ApiResponse execute(VirologyResultsForm form, BindException errors) throws Exception
@@ -1110,7 +1112,7 @@ public class WNPRC_EHRController extends SpringActionController
     }
 
     @RequiresLogin
-    public class AddBehaviorAssignmentAction extends ApiAction<AddBehaviorAssignmentForm>
+    public class AddBehaviorAssignmentAction extends MutatingApiAction<AddBehaviorAssignmentForm>
     {
 
         @Override
@@ -1130,7 +1132,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @RequiresSiteAdmin
     @ActionNames("UploadBCReports")
-    public class uploadBCReportAction extends ApiAction<Void>
+    public class uploadBCReportAction extends MutatingApiAction<Void>
     {
         @Override
         public Object execute(Void form, BindException errors) throws NotFoundException
@@ -1144,7 +1146,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @RequiresSiteAdmin
     @ActionNames("MakeUserWriterForBCReports")
-    public class ShareBCReportsWithUserAction extends ApiAction<UserForm>
+    public class ShareBCReportsWithUserAction extends MutatingApiAction<UserForm>
     {
         @Override
         public Object execute(UserForm form, BindException errors) throws Exception
@@ -1163,7 +1165,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @RequiresSiteAdmin
     @ActionNames("ScheduleBCReports")
-    public class ScheduleBCReportsAction extends ApiAction<Void>
+    public class ScheduleBCReportsAction extends MutatingApiAction<Void>
     {
         @Override
         public Object execute(Void form, BindException errors)
@@ -1175,7 +1177,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @RequiresSiteAdmin
     @ActionNames("UnscheduleBCReports")
-    public class UnscheduleBCReportsAction extends ApiAction<Void>
+    public class UnscheduleBCReportsAction extends MutatingApiAction<Void>
     {
         @Override
         public Object execute(Void form, BindException errors)
@@ -1201,7 +1203,7 @@ public class WNPRC_EHRController extends SpringActionController
         private static final String LOWERCASE_FORMTYPE = "formtype";
 
         @Override
-        public URLHelper getSuccessURL(java.lang.Void aVoid)
+        public @Nullable URLHelper getURL(Void aVoid, Errors errors)
         {
             ActionURL oldUrl = getViewContext().getActionURL();
             ActionURL newUrl;
@@ -1238,10 +1240,42 @@ public class WNPRC_EHRController extends SpringActionController
             return newUrl;
         }
 
+    }
+
+    /**
+     * Action definition to import historical/test data for the breeding datasets. Called from the web application,
+     * not from Java.
+     */
+    @SuppressWarnings("unused")
+    @RequiresPermission(AdminPermission.class)
+    public static class ImportDatasetDataAction extends MutatingApiAction<java.lang.Void>
+    {
         @Override
-        public boolean doAction(java.lang.Void aVoid, BindException errors)
+        public Object execute(java.lang.Void aVoid, BindException errors)
         {
-            return true;
+            // TODO: create, parse, and load some test data
+            return new ApiSimpleResponse("success", true);
+        }
+    }
+
+    /**
+     * Action definition for the import dataset test API action. Executes the import based on a pre-defined study
+     * definition. Called from the web application, not from Java.
+     */
+    @SuppressWarnings("unused")
+    @RequiresPermission(AdminPermission.class)
+    public static class ImportDatasetMetadataAction extends MutatingApiAction<java.lang.Void>
+    {
+        @Override
+        public Object execute(java.lang.Void aVoid, BindException errors) throws Exception
+        {
+            Module module = ModuleLoader.getInstance().getModule(WNPRC_EHRModule.class);
+            assert module != null;
+
+            File file = new File(Paths.get(module.getExplodedPath().getAbsolutePath(), "referenceStudy", "study").toFile(),
+                    "study.xml");
+            DatasetImportHelper.importDatasetMetadata(getUser(), getContainer(), file);
+            return new ApiSimpleResponse("success", true);
         }
     }
 }

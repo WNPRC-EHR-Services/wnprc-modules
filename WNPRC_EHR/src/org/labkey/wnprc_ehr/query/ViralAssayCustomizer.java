@@ -166,7 +166,7 @@ public class ViralAssayCustomizer implements TableCustomizer {
             }
         }
 
-        ColumnInfo batchedColumn = ti.getColumn("batched");
+        BaseColumnInfo batchedColumn = ti.getMutableColumn("batched");
 
         if (batchedColumn != null) {
             batchedColumn.setDisplayColumnFactory(new DisplayColumnFactory() {

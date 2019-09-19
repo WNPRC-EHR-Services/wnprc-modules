@@ -12,7 +12,7 @@ WS.origDate,
 WS.startDate,*/
 COALESCE (WA.volume, CAST (WS.volume AS DOUBLE))AS volumeCoalesced,
 COALESCE (WA.assignedTo, WS.assignedTo) AS assignedToCoalesced,
-COALESCE (WA.dataset.label, WS.dataset.label) AS dataSource,
+COALESCE (WA.dataset.name, WS.dataset.name) AS dataSource,
 COALESCE (WA.objectid, WS.objectid) AS objectIdCoalesced,
 COALESCE (WA.lsid, WS.lsid) AS lsidCoalesced,
 COALESCE (WA.project, WS.project) AS projectCoalesced,

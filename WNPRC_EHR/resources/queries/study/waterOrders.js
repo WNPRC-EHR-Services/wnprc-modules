@@ -51,16 +51,9 @@ function onUpsert(helper, scriptErrors, row, oldRow){
     }*/
 
     if (row.date && row.Id && row.frequency){
-        console.log ("value of enddate before if statement "+ row.enddate);
-        if (!row.enddate || row.enddate === undefined){
-            console.log ("if statement 2");
-            row.enddate = null;
-        }
-        console.log ("value of enddate "+ row.enddate);
+
         let jsonArray = WNPRC.Utils.getJavaHelper().checkWaterRegulation(row.id, row.date, row.enddate ? row.enddate : null, row.frequency, row.objectid);
         if ( jsonArray != null){
-            console.log("number of errors "+ jsonArray.length);
-
             for (var i = 0; i < jsonArray.length; i++){
                 var errorObject = JSON.parse(jsonArray[i]);
                 console.log(i + " " + errorObject.message);

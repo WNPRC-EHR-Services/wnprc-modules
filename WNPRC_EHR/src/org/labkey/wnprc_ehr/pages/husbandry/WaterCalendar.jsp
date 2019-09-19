@@ -128,7 +128,7 @@
 
 
                     <dl class="dl-horizontal">
-                        <dt>DataSource:         </dt> <dd>{{datasetCoalesced}}</dd>
+                        <dt>DataSource:         </dt> <dd>{{dataSource}}</dd>
                         <dt>Task ID:            </dt> <dd>{{taskid}}</dd>
                         <dt>Animal ID:          </dt> <dd><a href="{{animalLink}}">{{animalId}}</a></dd>
                         <dt>Assigned to:        </dt> <dd>{{assignedToCoalesced}}</dd>
@@ -173,7 +173,7 @@
             <div class="collapse" id="waterExceptionPanel">
 
                 <div class="panel panel-primary">
-                    <div class="panel-heading"><span>Enter Water Exception</span></div>
+                    <div class="panel-heading"><span>Enter Single Day Water</span></div>
                     <div class="panel-body" id="waterException" data-bind="with: taskDetails">
                         <!-- ko if: lsid() == '' -->
                         <p style="text-align: center">
@@ -401,11 +401,11 @@
 
                             }
 
-                            if(key == "datasetCoalesced" && value == "waterOrders" && (momentDate.diff(today, 'days'))>= 0){
+                            if(key == "dataSource" && value == "waterOrders" && (momentDate.diff(today, 'days'))>= 0){
                                 $('#enterWaterOrder').removeAttr('disabled');
                             }
 
-                            if(key == "datasetCoalesced" && value == "waterAmount" && (momentDate.diff(today, 'days'))>= 0){
+                            if(key == "dataSource" && value == "waterAmount" && (momentDate.diff(today, 'days'))>= 0){
                                 $('#enterWaterOrder').removeAttr('disabled');
                                 $('#waterInfo').text('Edit Single Day Water');
                             }
@@ -449,7 +449,7 @@
                 animalId:             ko.observable(),
                 date:                 ko.observable(),
                 volumeCoalesced:      ko.observable(),
-                datasetCoalesced:     ko.observable(),
+                dataSource:           ko.observable(),
                 assignedToCoalesced:  ko.observable(),
                 frequency:            ko.observable(),
                 rawDate:              ko.observable(),
@@ -504,7 +504,7 @@
                         objectId:           waterOrder.objectIdCoalesced,
                         animalId:           waterOrder.animalId,
                         endDate:            waterOrder.date,
-                        dataSource:         waterOrder.datasetCoalesced
+                        dataSource:         waterOrder.dataSource
 
                     }),
                     success: LABKEY.Utils.getCallbackWrapper(function (response)
@@ -555,7 +555,7 @@
                         objectId:               waterOrder.objectIdCoalesced,
                         animalId:               waterOrder.animalId,
                         endDate:                waterOrder.date,
-                        dataSource:             waterOrder.datasetCoalesced,
+                        dataSource:             waterOrder.dataSource,
                         project:                waterOrder.projectCoalesced,
                         frequency:              waterOrder.frequency,
                         assignedTo:             waterOrder.assignedToCoalesced,
@@ -688,7 +688,7 @@
                 debugger;
                 //var date = form.date.format("Y-m-d H:i:s");
 
-                if (form.datasetCoalesced == "waterOrders"){
+                if (form.dataSource == "waterOrders"){
                     WebUtils.API.insertRows('study', 'waterAmount', [{
                         taskid:     taskid,
                         Id:         form.animalId,
@@ -698,7 +698,7 @@
                         volume:     form.volumeCoalesced
                     }])
 
-                } else if (form.datasetCoalesced == "waterAmount"){
+                } else if (form.dataSource == "waterAmount"){
 
                     LABKEY.Ajax.request({
                         url: LABKEY.ActionURL.buildURL("wnprc_ehr", "UpdateWaterAmount", null, {
@@ -709,7 +709,7 @@
                             animalId:           form.animalId,
                             assignedTo:         form.assignedToCoalesced,
                             volume:             form.volumeCoalesced,
-                            dataSource:         form.datasetCoalesced
+                            dataSource:         form.dataSource
 
 
                         }),

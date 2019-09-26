@@ -386,7 +386,14 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
                 allowBlank: false
             },
             frequency:{
-                allowBlank: false
+                allowBlank: false,
+                lookup:{
+                    schemaName: 'ehr_lookups',
+                    queryName: 'husbandry_frequency',
+                    keyColumn: 'rowid',
+                    displayColumn: 'meaning',
+                    sort: 'sort_order'
+                }
             }
 
 

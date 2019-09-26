@@ -526,6 +526,8 @@ public class TriggerScriptHelper {
 
     public JSONArray checkWaterRegulation(String animalId, Date clientStartDate, Date clientEndDate, String frequency, String objectId){
 
+        //TODO: query the table to find the meaning - from the rowid
+
         JSONArray arrayOfErrors = new JSONArray();
 
         Map<String, JSONObject> errorMap = new HashMap<>();
@@ -627,16 +629,14 @@ public class TriggerScriptHelper {
     public boolean checkFrequencyCompatibility(String serverRecord, String clientRecord){
         boolean validation;
         switch (clientRecord){
-            case "AM/PM":
-                if (serverRecord.compareTo("AM")==0){
+            case "Daily - AM/PM":
+                if (serverRecord.compareTo("Daily - AM")==0){
                     validation = false;
+                    break;
                 }
-                if (serverRecord.compareTo("PM")==0){
+                if (serverRecord.compareTo("Daily - PM")==0){
                     validation = false;
-                }
-            case "Monday":
-                if (serverRecord.compareTo("Daily")==0){
-                    validation = false;
+                    break;
                 }
             case "Daily":
                 if(serverRecord.compareTo("Monday") == 0 || serverRecord.compareTo("Tuesday") == 0 ||
@@ -644,11 +644,31 @@ public class TriggerScriptHelper {
                         serverRecord.compareTo("Friday") == 0 || serverRecord.compareTo("Saturday") == 0 ||
                         serverRecord.compareTo("Sunday") == 0)  {
                     validation = false;
+                    break;
                 }
 
             default:
                 validation = true;
 
+        }
+        if (validation)
+        {
+            switch (serverRecord)
+            {
+                case "Daily":
+                    if (clientRecord.compareTo("Monday") == 0 || clientRecord.compareTo("Tuesday") == 0 ||
+                            clientRecord.compareTo("Wednesday") == 0 || clientRecord.compareTo("Thursday") == 0 ||
+                            clientRecord.compareTo("Friday") == 0 || clientRecord.compareTo("Saturday") == 0 ||
+                            clientRecord.compareTo("Sunday") == 0)
+                    {
+                        validation = false;
+                        break;
+                    }
+
+                default:
+                    validation = true;
+
+            }
         }
 
         return validation;

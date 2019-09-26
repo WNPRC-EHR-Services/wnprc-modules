@@ -10,6 +10,7 @@ public class WaterAmountFormSection extends SimpleGridSection
     public WaterAmountFormSection(){
         super ("study", "waterOrders", "Water Daily Amount");
         this.setAllowBulkAdd(true);
+        addClientDependency(ClientDependency.fromPath("wnprc_ehr/data/HusbandryClientStore.js"));
         addClientDependency(ClientDependency.fromPath("wnprc_ehr/ext4/windows/AddWaterWindow.js"));
         setClientStoreClass("WNPRC.ext.data.SingleAnimal.WaterClientStore");
     }

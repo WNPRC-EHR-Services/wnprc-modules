@@ -2,7 +2,6 @@
    <columns>
        <column name="Id" />
        <column name="date" />
-       <column name="startDate" />
        <column name="endDate" />
        <column name="volume" />
        <column name="frequency" />

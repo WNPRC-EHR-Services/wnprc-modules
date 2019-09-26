@@ -51,6 +51,8 @@ function onUpsert(helper, scriptErrors, row, oldRow){
     }*/
 
     if (row.date && row.Id && row.frequency){
+        console.log ("frequency sent to server " + row.frequency);
+        console.log ("frequency sent to server " + row.frequency.meaning);
 
         let jsonArray = WNPRC.Utils.getJavaHelper().checkWaterRegulation(row.id, row.date, row.enddate ? row.enddate : null, row.frequency, row.objectid);
         if ( jsonArray != null){

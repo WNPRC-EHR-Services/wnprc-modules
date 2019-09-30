@@ -528,6 +528,7 @@ public class TriggerScriptHelper {
 
         //TODO: query the table to find the meaning - from the rowid
 
+        String meaningFrequency = getMeaningFromRowid( frequency, "husbandry_frequency" );
         JSONArray arrayOfErrors = new JSONArray();
 
         Map<String, JSONObject> errorMap = new HashMap<>();
@@ -580,7 +581,9 @@ public class TriggerScriptHelper {
 
                     if (loopDate.compareTo(convertToLocalDateViaSqlDate(waterRecord.getDate()))==0){
 
-                        if (!checkFrequencyCompatibility(waterRecord.getFrequency(), frequency))
+                        String serverMeaning = getMeaningFromRowid( waterRecord.getFrequency(), "husbandry_frequency" );
+
+                        if (!checkFrequencyCompatibility(serverMeaning, meaningFrequency))
                         {
 
                             DateTimeFormatter dateFormatted = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -904,6 +907,61 @@ public class TriggerScriptHelper {
 
 
         }
+    }
+
+    //Generic function to get lookup table to get meaning from rowid
+    //improvement to return a map with all the items in the table and only call the db once
+    public String getMeaningFromRowid (String rowid, String lookupTable){
+
+        TableInfo husbandryFrequency = getTableInfo("ehr_lookups",lookupTable);
+        SimpleFilter filter = new SimpleFilter(FieldKey.fromString("rowid"), rowid);
+        filter.addCondition(FieldKey.fromString("active"), "true");
+        TableSelector frequencyRecord = new TableSelector(husbandryFrequency, PageFlowUtil.set("rowid", "meaning", "sort", "active"),filter, null);
+        String returnMeaning = null;
+
+        Map <String,Object>[] frequencyObject = frequencyRecord.getMapArray();
+
+        if (frequencyObject.length > 0)
+        {
+            for (Map<String, Object> frequencyMap : frequencyObject)
+            {
+                returnMeaning = ConvertHelper.convert(frequencyMap.get("meaning"), String.class);
+
+            }
+        }
+
+
+       /* //Look for any orders that overlap in the waterScheduleCoalesced table
+        TableInfo waterSchedule = getTableInfo("study","waterScheduleCoalesced");
+        SimpleFilter filter = new SimpleFilter(FieldKey.fromString("animalId"), animalId);
+        //filter.addCondition(FieldKey.fromString("date"), startDate.getTime(),CompareType.DATE_GTE);
+        //filter.addCondition(FieldKey.fromString("frequency"), frequency);
+
+        if (waterSchedule != null){
+            try (Results rs  = QueryService.get().select(waterSchedule, waterSchedule.getColumns(), filter, null, parameters, false))
+            {
+                Map<String, Object> rowMap = new CaseInsensitiveHashMap<>();
+                if (rs.next())
+                {
+                    for (String colName : waterSchedule.getColumnNameSet())
+                    {
+                        Object value = rs.getObject(FieldKey.fromParts(colName));
+                        if (value != null)
+                            rowMap.put(colName, value);
+                    }
+                }
+                WaterDataBaseRecord addRecord = new WaterDataBaseRecord();
+                addRecord.setFromMap(rowMap);
+                waterRecords.add(addRecord);
+
+            }
+            catch (SQLException e){
+                throw new RuntimeException(e);
+
+            }
+        }*/
+
+        return returnMeaning;
     }
 
 

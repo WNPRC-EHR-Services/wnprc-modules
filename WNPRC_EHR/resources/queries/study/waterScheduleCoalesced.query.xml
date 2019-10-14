@@ -56,11 +56,11 @@
                           <!--<fkColumnName>objectid</fkColumnName>-->
                         <!--</fk>-->
                     </column>
-                    <column columnName="frequency">
+                    <column columnName="frequencyCoalesced">
                         <isHidden>false</isHidden>
                         <fk>
                           <fkDbSchema>ehr_lookups</fkDbSchema>
-                           <fkTable>husbandry_frequency</fkTable>
+                          <fkTable>husbandry_frequency</fkTable>
                           <fkColumnName>rowid</fkColumnName>
                         </fk>
                     </column>

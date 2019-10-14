@@ -28,12 +28,16 @@
     SimpleQuery assignedToOptions = queryFactory.makeQuery("ehr_lookups", "husbandry_assigned");
     List<JSONObject> assignedToList= JsonUtils.getSortedListFromJSONArray(assignedToOptions.getResults().getJSONArray("rows"),"title");
 
+    SimpleQuery husbandryFrequency = queryFactory.makeQuery("ehr_lookups", "husbandry_frequency");
+    List<JSONObject> husbandryFrequencyList= JsonUtils.getSortedListFromJSONArray(husbandryFrequency.getResults().getJSONArray("rows"),"meaning");
+
     //TODO: Query WaterCoalesce for all future water for the next 60 days
     SimpleQuery futureWaters = queryFactory.makeQuery("study", "waterScheduleCoalesced");
     List<JSONObject> waterList = JsonUtils.getListFromJSONArray(futureWaters.getResults().getJSONArray("rows"));
 
     JSONObject husbandryAssignmentLookup = new JSONObject();
     List<JSONObject> husbandryAssigned = JsonUtils.getListFromJSONArray(queryFactory.selectRows("ehr_lookups", "husbandry_assigned"));
+
     for (JSONObject json : husbandryAssigned) {
         CaseInsensitiveHashMap<String> map = new CaseInsensitiveHashMap(json);
         JSONObject waterInfo = new JSONObject();
@@ -49,6 +53,8 @@
 
         husbandryAssignmentLookup.put(map.get("value"), waterInfo);
     }
+
+    //List<JSONObject> husbandryFrequency = JsonUtils.getListFromJSONArray(queryFactory.selectRows("ehr_lookups", "husbandry_frequency"));
 
 
 
@@ -131,10 +137,11 @@
                         <dt>DataSource:         </dt> <dd>{{dataSource}}</dd>
                         <dt>Task ID:            </dt> <dd>{{taskid}}</dd>
                         <dt>Animal ID:          </dt> <dd><a href="{{animalLink}}">{{animalId}}</a></dd>
-                        <dt>Assigned to:        </dt> <dd>{{assignedToCoalesced}}</dd>
+                        <dt>Assigned to:        </dt> <dd>{{assignedToTitleCoalesced}}</dd>
                         <dt>Volume:             </dt> <dd>{{volumeCoalesced}}</dd>
                         <dt>Project (Account):  </dt> <dd>{{projectCoalesced}}</dd>
                         <dt>Date:               </dt> <dd>{{displayDate}}</dd>
+                        <dt>Frequency:          </dt> <dd>{{frequencyMeaningCoalesced}}</dd>
                     </dl>
 
                     <button class="btn btn-default" data-bind="click: $root.requestTableClickAction" data-toggle="collapse" data-target="#waterExceptionPanel"
@@ -184,22 +191,42 @@
                         <form class="form-horizontal scheduleForm">
                             <!-- ko if: lsid() != '' -->
                             <div class="form-group">
-                                <label class="col-xs-4 control-label">Animal ID</label>
+                                <label class="col-xs-4 control-label">Animal ID:</label>
                                 <div class="col-xs-8">
                                     <p class="form-control-static">{{animalId}}</p>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-xs-4 control-label">Date</label>
+                                <label class="col-xs-4 control-label">Date:</label>
                                 <div class="col-xs-8">
                                     <p class="form-control-static" type="date"> {{date}} </p>
 
                                 </div>
                             </div>
+                            <div class="from-group">
+                                <label class="col-xs-4 control-label">Frequency:</label>
+                                <div class="col-xs-8">
+                                   <p>
+                                       <select data-bind="value: frequencyCoalesced" class="form-control">
+                                        <%--<option value="">{{frequencyMeaningCoalesced}}</option>--%>
+                                        <%
+                                            for(JSONObject frequency : husbandryFrequencyList) {
+                                                String rowid = frequency.getString("rowid");
+                                                String meaning = frequency.getString("meaning");
+                                        %>
+                                        <option value="<%=rowid%>"><%=h(meaning)%></option>
+                                        <%
+                                            }
+                                        %>
+                                        </select>
+                                   </p>
+                                    <%--<p class="form-control-static" type="date">  </p>--%>
+                                </div>
+                            </div>
 
                             <div class="form-group">
-                                <label class="col-xs-4 control-label">Volume</label>
+                                <label class="col-xs-4 control-label">Volume:</label>
                                 <div class="col-xs-8">
                                     <%--<input type="hidden" class="hidden-assignedTo-field" data-bind="value: {{volumeCoalesced}}">--%>
                                     <input type="text" class="form-control" data-bind="value: volumeCoalesced"/>
@@ -210,7 +237,7 @@
                             <!-- /ko -->
 
                             <div class="form-group">
-                                <label class="col-xs-4 control-label">Project</label>
+                                <label class="col-xs-4 control-label">Project:</label>
                                 <div class="col-xs-8">
                                     <p class="form-control-static">{{projectCoalesced}}</p>
 
@@ -219,10 +246,10 @@
 
 
                             <div class="form-group">
-                                <label class="col-xs-4 control-label">Assigned To</label>
+                                <label class="col-xs-4 control-label">Assigned To:</label>
                                 <div class="col-xs-8">
                                     <select data-bind="value: assignedToCoalesced" class="form-control">
-                                        <option value="">{{assignedToCoalesced}}</option>
+<%--                                        <option value="">{{assignedToCoalesced}}</option>--%>
                                         <%
                                             for(JSONObject assignedTo : assignedToList) {
                                                 String value = assignedTo.getString("value");
@@ -236,6 +263,7 @@
 
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <div class="col-xs-4 control-label">Edit Multiple:</div>
                                 <div class="col-xs-2 control-label">
@@ -247,7 +275,8 @@
                             </div>
 
                             <div style="text-align: right;">
-                                <button class="btn btn-default" data-bind="click: $root.clearForm">Cancel</button>
+                                <button class="btn btn-default" data-bind="click: $root.collapseSingleWater" data-toggle="collapse" >Cancel</button>
+                                <%--<button class="btn btn-default" data-bind="click: $root.clearForm">Cancel</button>--%>
                                 <button class="btn btn-primary" data-bind="click: $root.submitForm">Insert Single Day Water</button>
                             </div>
                         </form>
@@ -309,8 +338,8 @@
                         WebUtils.API.selectRows("study", "waterScheduleCoalesced", {
                             "date~gte": startMoment.format('Y-MM-DD'),
                             "date~lte": endMoment.format('Y-MM-DD'),
-                            "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)}
-                            //  "wanimalid~eq": 'r18012'
+                            "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)},
+                              "wanimalid~eq": 'r12012'
                         }).then(function (data) {
                             var events = data.rows;
 
@@ -442,18 +471,20 @@
         _.extend(WebUtils.VM, {
 
             taskDetails: {
-                lsid:                 ko.observable(),
-                objectIdCoalesced:    ko.observable(),
-                taskid:               ko.observable(),
-                projectCoalesced:     ko.observable(),
-                animalId:             ko.observable(),
-                date:                 ko.observable(),
-                volumeCoalesced:      ko.observable(),
-                dataSource:           ko.observable(),
-                assignedToCoalesced:  ko.observable(),
-                frequency:            ko.observable(),
-                rawDate:              ko.observable(),
-                wantsSpam:            ko.observable(),
+                lsid:                       ko.observable(),
+                objectIdCoalesced:          ko.observable(),
+                taskid:                     ko.observable(),
+                projectCoalesced:           ko.observable(),
+                animalId:                   ko.observable(),
+                date:                       ko.observable(),
+                volumeCoalesced:            ko.observable(),
+                dataSource:                 ko.observable(),
+                assignedToCoalesced:        ko.observable(),
+                assignedToTitleCoalesced:   ko.observable(),
+                frequencyCoalesced:         ko.observable(),
+                frequencyMeaningCoalesced:  ko.observable(),
+                rawDate:                    ko.observable(),
+                wantsSpam:                  ko.observable(),
 
             },
             form: ko.mapping.fromJS({
@@ -473,6 +504,10 @@
                 });*/
                 WebUtils.VM.requestRowInForm = row;
                 //WebUtils.VM.updateForm(row.animalId);
+
+            },
+            collapseSingleWater: function(){
+                $('#waterExceptionPanel').collapse('hide');
 
             },
 

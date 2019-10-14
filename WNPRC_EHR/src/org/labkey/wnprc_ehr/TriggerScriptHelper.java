@@ -577,7 +577,7 @@ public class TriggerScriptHelper {
                 }
 
 
-                for (LocalDate loopDate = startLoop ; loopDate.isBefore(endOfLoop); loopDate = loopDate.plusDays(1)){
+                for (LocalDate loopDate = startLoop ; !loopDate.isAfter(endOfLoop); loopDate = loopDate.plusDays(1)){
 
                     if (loopDate.compareTo(convertToLocalDateViaSqlDate(waterRecord.getDate()))==0){
 
@@ -588,7 +588,16 @@ public class TriggerScriptHelper {
 
                             DateTimeFormatter dateFormatted = DateTimeFormatter.ISO_LOCAL_DATE;
                             String startFormatDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getStartDate()));
-                            String endFormattedDate = dateFormatted.format(convertToLocalDateViaSqlDate(waterRecord.getEnddateCoalescedFuture()));
+                            String endFormattedDate;
+
+                            LocalDate endDateFromServer =convertToLocalDateViaSqlDate(waterRecord.getEnddateCoalescedFuture());
+
+                            if (endDateFromServer.isAfter(endOfLoop))
+                            {
+                                endFormattedDate = "Future";
+                            }else {
+                                endFormattedDate = dateFormatted.format(endDateFromServer);
+                            }
 
                             ActionURL editURL = new ActionURL("EHR", "manageRecord", container);
 
@@ -599,9 +608,16 @@ public class TriggerScriptHelper {
 
                             JSONObject returnErrors = new JSONObject();
                             returnErrors.put("dataSource", waterRecord.getDataSource());
-                            returnErrors.put("field", "date");
+                            if (clientStartDate.getTime() > waterRecord.getStartDate().getTime()){
+                                returnErrors.put("field", "date");
+                            }else if (clientEndDate.getTime() > waterRecord.getStartDate().getTime()){
+                                returnErrors.put("field", "enddate");
+                            }else {
+                                returnErrors.put("field", "frequency");
+                            }
+
                             returnErrors.put("message", "Overlapping Water Order already in the system. Start date: " + startFormatDate +
-                                    " EndDate: " + endFormattedDate + " <a href='" + editURL.toString() + "'><b> EDIT</b></a>");
+                                    " End Date: " + endFormattedDate + " <a href='" + editURL.toString() + "'><b> EDIT</b></a>");
                             returnErrors.put("objectId", waterRecord.getobjectIdCoalesced());
                             returnErrors.put("severity", "ERROR");
 
@@ -631,6 +647,11 @@ public class TriggerScriptHelper {
 
     public boolean checkFrequencyCompatibility(String serverRecord, String clientRecord){
         boolean validation;
+
+        if (serverRecord.compareTo(clientRecord) == 0){
+            validation = false;
+            return validation;
+        }
         switch (clientRecord){
             case "Daily - AM/PM":
                 if (serverRecord.compareTo("Daily - AM")==0){
@@ -642,6 +663,7 @@ public class TriggerScriptHelper {
                     break;
                 }
             case "Daily":
+            //case "ˆDaily":
                 if(serverRecord.compareTo("Monday") == 0 || serverRecord.compareTo("Tuesday") == 0 ||
                         serverRecord.compareTo("Wednesday") == 0 || serverRecord.compareTo("Thursday") == 0 ||
                         serverRecord.compareTo("Friday") == 0 || serverRecord.compareTo("Saturday") == 0 ||
@@ -651,6 +673,17 @@ public class TriggerScriptHelper {
                 }
 
             default:
+                if (clientRecord.matches("Daily.*")){
+                    if(serverRecord.compareTo("Monday") == 0 || serverRecord.compareTo("Tuesday") == 0 ||
+                            serverRecord.compareTo("Wednesday") == 0 || serverRecord.compareTo("Thursday") == 0 ||
+                            serverRecord.compareTo("Friday") == 0 || serverRecord.compareTo("Saturday") == 0 ||
+                            serverRecord.compareTo("Sunday") == 0)  {
+                        validation = false;
+                        break;
+                    }
+
+                }
+
                 validation = true;
 
         }
@@ -914,9 +947,10 @@ public class TriggerScriptHelper {
     public String getMeaningFromRowid (String rowid, String lookupTable){
 
         TableInfo husbandryFrequency = getTableInfo("ehr_lookups",lookupTable);
-        SimpleFilter filter = new SimpleFilter(FieldKey.fromString("rowid"), rowid);
-        filter.addCondition(FieldKey.fromString("active"), "true");
-        TableSelector frequencyRecord = new TableSelector(husbandryFrequency, PageFlowUtil.set("rowid", "meaning", "sort", "active"),filter, null);
+        SimpleFilter filter = new SimpleFilter(FieldKey.fromString("rowid"), Integer.parseInt(rowid), CompareType.EQUAL);
+        filter.addCondition(FieldKey.fromString("active"), true);
+        //filter.addCondition(FieldKey.fromString("active"), true, CompareType.EQUAL);
+        TableSelector frequencyRecord = new TableSelector(husbandryFrequency, PageFlowUtil.set("rowid", "meaning", "sort_order", "active"),filter, null);
         String returnMeaning = null;
 
         Map <String,Object>[] frequencyObject = frequencyRecord.getMapArray();

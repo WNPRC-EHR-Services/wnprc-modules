@@ -12,13 +12,16 @@ WS.origDate,
 WS.startDate,*/
 COALESCE (WA.volume, CAST (WS.volume AS DOUBLE))AS volumeCoalesced,
 COALESCE (WA.assignedTo, WS.assignedTo) AS assignedToCoalesced,
+COALESCE (WA.assignedTo.title, WS.assignedToTittle) AS assignedToTitleCoalesced,
 COALESCE (WA.dataset.name, WS.dataset.name) AS dataSource,
 COALESCE (WA.objectid, WS.objectid) AS objectIdCoalesced,
 COALESCE (WA.lsid, WS.lsid) AS lsidCoalesced,
 COALESCE (WA.project, WS.project) AS projectCoalesced,
-COALESCE (WA.frequency, WS.frequency) AS frequencyCoalesced
+COALESCE (WA.frequency, WS.frequency) AS frequencyCoalesced,
+COALESCE (WA.frequency.meaning, WS.freqMeaning) AS frequencyMeaningCoalesced
+
 
 
 FROM waterSchedule WS
 
-LEFT JOIN  study.waterAmount WA ON ( WS.animalid = WA.id AND WS.origDate = WA.date)
+FULL JOIN  study.waterAmount WA ON ( WS.animalid = WA.id AND WS.origDate = WA.date)

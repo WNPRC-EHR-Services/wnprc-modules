@@ -47,8 +47,10 @@ JOIN (
           timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1  as daysElapsed,
           t1.enddate,
           t1.enddateCoalescedFuture,    --debug column
-          t1.frequency.meaning AS frequency,
+          t1.frequency AS frequency,
+          t1.frequency.meaning AS freqMeaning,
           t1.assignedTo,
+          t1.assignedTo.title AS assignedToTittle,
           t1.waterSource,
           t1.project,
           t1.volume,

@@ -64,6 +64,20 @@ JOIN (
 
         LEFT JOIN ehr_lookups.treatment_frequency_times ft ON (ft.frequency = t1.frequency.meaning)
 
+        INNER JOIN
+            ehr_lookups.husbandry_frequency hf
+            -- Frequencies that are not daily, we used the dayofweek tp populate schedule
+            ON (
+                ((hf.meaning = t1.frequency.meaning)
+                    AND (t1.frequency.meaning LIKE 'Daily%')
+                )
+            OR
+                ((hf.meaning = t1.frequency.meaning)
+                    AND (t1.frequency.meaning NOT LIKE 'Daily%')
+                    AND (dayofweek(dr.date) = hf.dayofweek)
+                )
+            )
+
 
         --NOTE: if we run this report on a future interval, we want to include those treatments
         WHERE t1.date is not null --AND QCState = '1'

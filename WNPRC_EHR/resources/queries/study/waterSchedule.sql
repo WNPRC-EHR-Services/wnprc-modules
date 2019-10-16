@@ -67,6 +67,7 @@ JOIN (
         INNER JOIN
             ehr_lookups.husbandry_frequency hf
             -- Frequencies that are not daily, we used the dayofweek tp populate schedule
+            -- If daily it shows every day.
             ON (
                 ((hf.meaning = t1.frequency.meaning)
                     AND (t1.frequency.meaning LIKE 'Daily%')

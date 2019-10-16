@@ -179,7 +179,7 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
                 hidden : true
             },
             date: {
-                hidden :true
+                hidden : true
             },
             location: {
                 editorConfig : {
@@ -398,6 +398,42 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
 
 
 
+        },
+        'study.waterAmount':{
+            Id:{
+                hidden: true,
+                shownInGrid: false
+            },
+            date:{
+                    xtype: 'datefield',
+                    header: 'Date',
+                    extFormat: 'Y-m-d',
+                    allowBlank: false,
+                    editable: true,
+                    columnConfig: {
+                        width:110
+                    },
+                    editorConfig: {
+                        minValue: new Date()
+                    }
+            },
+            project:{
+                hidden: true,
+                shownInGrid: false
+            },
+            assignedTo:{
+                allowBlank: false
+            },
+            frequency:{
+                allowBlank: false,
+                lookup:{
+                    schemaName: 'ehr_lookups',
+                    queryName: 'husbandry_frequency',
+                    keyColumn: 'rowid',
+                    displayColumn: 'meaning',
+                    sort: 'sort_order'
+                }
+            }
         },
         'ehr.requests':{
             priority:{

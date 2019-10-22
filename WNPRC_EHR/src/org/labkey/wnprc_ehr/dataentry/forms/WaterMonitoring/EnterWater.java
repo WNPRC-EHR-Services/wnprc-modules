@@ -40,7 +40,7 @@ public class EnterWater extends SimpleTaskForm
 
         for (FormSection section : this.getFormSections()){
             section.addConfigSource("Husbandry");
-            section.addConfigSource("Encounter");
+            //section.addConfigSource("Encounter");
         }
 
        // setStoreCollectionClass("EHR.data.WaterStore");

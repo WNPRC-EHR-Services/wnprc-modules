@@ -43,7 +43,7 @@ Ext4.define('WNPRC.ext.data.SingleAnimal.WaterClientStore', {
             }
         }
 
-        return null;
+        return extraContent;
 
 
     }

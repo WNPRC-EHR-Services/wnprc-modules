@@ -25,6 +25,7 @@ public class WaterWeightSection extends SlaveFormSection
         Set<String> fields = new HashSet<>();
 
         fields.add("Id");
+        fields.add("date");
 
         return fields;
     }

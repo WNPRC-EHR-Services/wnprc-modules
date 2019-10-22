@@ -338,8 +338,9 @@
                         WebUtils.API.selectRows("study", "waterScheduleCoalesced", {
                             "date~gte": startMoment.format('Y-MM-DD'),
                             "date~lte": endMoment.format('Y-MM-DD'),
+                            "volumeCoalesced~neq": "0",
                             "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)},
-                              "wanimalid~eq": 'r12012'
+                              "wanimalid~eq": 'r18023'
                         }).then(function (data) {
                             var events = data.rows;
 

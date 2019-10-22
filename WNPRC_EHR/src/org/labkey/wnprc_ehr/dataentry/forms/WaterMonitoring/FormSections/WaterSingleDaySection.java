@@ -13,7 +13,12 @@ public class WaterSingleDaySection extends SlaveGridSection
         super ("study", "waterAmount", "Order Additional Future Water");
         //setClientStoreClass("WNPRC.ext.data.SingleAnimal.WaterClientStore");
        // setAllowBulkAdd(true);
-        }
+    }
+    public WaterSingleDaySection (String title){
+        super ("study", "waterAmount", title);
+        //setClientStoreClass("WNPRC.ext.data.SingleAnimal.WaterClientStore");
+        // setAllowBulkAdd(true);
+    }
     @Override
     public Set<String> getSlaveFields(){
         Set<String> fields = new HashSet<>();

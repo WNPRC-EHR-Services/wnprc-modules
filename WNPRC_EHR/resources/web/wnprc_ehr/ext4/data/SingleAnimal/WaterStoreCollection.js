@@ -1,7 +1,7 @@
 Ext4.define('WNPRC.ext.data.WaterStoreCollection', {
     extend: 'WNPRC.ext.data.TaskStoreCollection',
 
-    //Set a custom type (wnprc-necropsyserverstore) for the storeConfig
+    //Set a custom type (wnprc-waterserverstore) for the storeConfig
     addServerStoreFromConfig: function(config){
         var storeConfig = Ext4.apply({}, config);
         Ext4.apply(storeConfig, {

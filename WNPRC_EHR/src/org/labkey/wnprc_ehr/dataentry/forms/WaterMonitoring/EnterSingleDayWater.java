@@ -1,5 +1,6 @@
 package org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring;
 
+import org.labkey.api.ehr.dataentry.AnimalDetailsFormSection;
 import org.labkey.api.ehr.dataentry.DataEntryFormContext;
 import org.labkey.api.ehr.dataentry.TaskFormSection;
 import org.labkey.api.module.Module;
@@ -16,7 +17,8 @@ public class EnterSingleDayWater extends SimpleTaskForm
     public EnterSingleDayWater(DataEntryFormContext ctx, Module owner){
         super (ctx, owner, NAME, NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
                 new TaskFormSection(),
-                new WaterSingleDaySection()
+                new AnimalDetailsFormSection(),
+                new WaterSingleDaySection("Enter Single Day Water")
         ));
 
     }

@@ -38,7 +38,7 @@ function onUpsert(helper, scriptErrors, row, oldRow){
 
 
     //TODO: allow updates of existing records.
-    if(!(rowDate.getTime() >= today.getTime())){
+    if(!(rowDate.getTime() >= today.getTime()) && (oldRow.objectid != row.objectid)){
         EHR.Server.Utils.addError(scriptErrors, 'date', 'Only Dates in the Future Allow', 'ERROR');
     }
 
@@ -50,7 +50,9 @@ function onUpsert(helper, scriptErrors, row, oldRow){
         EHR.Server.Utils.addError(scriptErrors,'endDate', 'EndDate cannot be before StartDate', 'ERROR');
     }*/
 
-    if (row.date && row.Id && row.frequency){
+    console.log ("value of ObjectId "+oldRow.objectid + " Value of new objectId "+ row.objectid);
+
+    if ( row.date && row.Id && row.frequency && (oldRow.objectid != row.objectid) ){
         console.log ("frequency sent to server " + row.frequency);
         console.log ("frequency sent to server " + row.frequency.meaning);
 

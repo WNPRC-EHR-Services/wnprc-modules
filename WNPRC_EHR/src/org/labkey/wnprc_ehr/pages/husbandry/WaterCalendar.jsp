@@ -138,7 +138,7 @@
                         <dt>Task ID:            </dt> <dd>{{taskid}}</dd>
                         <dt>Animal ID:          </dt> <dd><a href="{{animalLink}}">{{animalId}}</a></dd>
                         <dt>Assigned to:        </dt> <dd>{{assignedToTitleCoalesced}}</dd>
-                        <dt>Volume:             </dt> <dd>{{volumeCoalesced}}</dd>
+                        <dt>Volume:             </dt> <dd>{{volume}}</dd>
                         <dt>Project (Account):  </dt> <dd>{{projectCoalesced}}</dd>
                         <dt>Date:               </dt> <dd>{{displayDate}}</dd>
                         <dt>Frequency:          </dt> <dd>{{frequencyMeaningCoalesced}}</dd>
@@ -229,7 +229,7 @@
                                 <label class="col-xs-4 control-label">Volume:</label>
                                 <div class="col-xs-8">
                                     <%--<input type="hidden" class="hidden-assignedTo-field" data-bind="value: {{volumeCoalesced}}">--%>
-                                    <input type="text" class="form-control" data-bind="value: volumeCoalesced"/>
+                                    <input type="text" class="form-control" data-bind="value: volume"/>
                                     <%--<p class="form-control-static">{{volumeCoalesced}}</p>--%>
                                 </div>
 
@@ -338,16 +338,16 @@
                         WebUtils.API.selectRows("study", "waterScheduleCoalesced", {
                             "date~gte": startMoment.format('Y-MM-DD'),
                             "date~lte": endMoment.format('Y-MM-DD'),
-                            "volumeCoalesced~neq": "0",
+                            "volume~neq": "0",
                             "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)},
-                              "wanimalid~eq": 'r18023'
+                           //   "wanimalid~eq": 'r18023'
                         }).then(function (data) {
                             var events = data.rows;
 
                                 callback(events.map(function (row) {
                                     var volume;
-                                    if(row.volumeCoalesced) {
-                                        volume = row.volumeCoalesced;
+                                    if(row.volume) {
+                                        volume = row.volume;
                                     }else{
                                         volume = 0;
                                     }
@@ -379,8 +379,8 @@
                         events:[
                         {
                             title: 'Test123 this is a really long string to see what happens!',
-                            start: '2019-04-22',
-                            end:   '2019-04-23'
+                            start: '2019-11-22',
+                            end:   '2019-11-23'
                         }
                             ],
                             color: 'yellow',
@@ -478,7 +478,7 @@
                 projectCoalesced:           ko.observable(),
                 animalId:                   ko.observable(),
                 date:                       ko.observable(),
-                volumeCoalesced:            ko.observable(),
+                volume:                     ko.observable(),
                 dataSource:                 ko.observable(),
                 assignedToCoalesced:        ko.observable(),
                 assignedToTitleCoalesced:   ko.observable(),
@@ -595,7 +595,7 @@
                         project:                waterOrder.projectCoalesced,
                         frequency:              waterOrder.frequency,
                         assignedTo:             waterOrder.assignedToCoalesced,
-                        volume:                 waterOrder.volumeCoalesced
+                        volume:                 waterOrder.volume
 
                     }),
                     success: LABKEY.Utils.getCallbackWrapper(function (response)
@@ -731,7 +731,7 @@
                         date:       form.date,
                         assignedTo: form.assignedToCoalesced,
                         project:    form.project,
-                        volume:     form.volumeCoalesced
+                        volume:     form.volume
                     }])
 
                 } else if (form.dataSource == "waterAmount"){
@@ -744,7 +744,7 @@
                             date:               form.date,
                             animalId:           form.animalId,
                             assignedTo:         form.assignedToCoalesced,
-                            volume:             form.volumeCoalesced,
+                            volume:             form.volume,
                             dataSource:         form.dataSource
 
 

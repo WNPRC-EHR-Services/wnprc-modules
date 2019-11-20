@@ -1437,7 +1437,8 @@ public class WNPRC_EHRController extends SpringActionController
         }
 
     }
-
+    //Starts a new water order one day after the end of the currently selected water order
+    // This method is used on the WaterCalendar to easily modify existing water orders.
     @ActionNames("EnterNewWaterOrder")
     @RequiresLogin
     public class EnterNewWaterOrderAction extends ApiAction<WaterOrderRecord>
@@ -1698,6 +1699,8 @@ public class WNPRC_EHRController extends SpringActionController
         private Date date;
         private Double volume;
         private String dataSource;
+        private String frequency;
+        private String assignedTo;
 
         public void setTaskId(String taskId)
         {
@@ -1729,6 +1732,26 @@ public class WNPRC_EHRController extends SpringActionController
             this.volume = volume;
         }
 
+        public void setFrequency(String frequency)
+        {
+            this.frequency = frequency;
+        }
+
+        public void setAssignedTo(String assignedTo)
+        {
+            this.assignedTo = assignedTo;
+        }
+
+        public String getFrequency()
+        {
+            return frequency;
+        }
+
+        public String getAssignedTo()
+        {
+            return assignedTo;
+        }
+
         public String getTaskId()
         {
             return taskId;
@@ -1758,6 +1781,7 @@ public class WNPRC_EHRController extends SpringActionController
         {
             return volume;
         }
+
     }
 
     private List<Map<String, Object>> getWaterAmountRecord (String objectId) throws java.sql.SQLException{

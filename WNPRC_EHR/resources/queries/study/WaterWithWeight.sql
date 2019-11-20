@@ -1,1 +1,0 @@
-SELECT * FROM water_given

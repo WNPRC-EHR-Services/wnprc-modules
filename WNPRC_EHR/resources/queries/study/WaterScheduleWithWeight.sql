@@ -1,0 +1,29 @@
+SELECT
+    lsid AS lsid,
+    objectid AS objectIdCoalesced,
+    taskid AS taskid,
+    project AS projectCoalesced,
+    animalId AS animalId,
+    date AS date,
+    volume AS volume,
+    dataSource AS dataSource,
+    assignedTo AS assignedToCoalesced,
+    assignedToTitle AS assignedToTitleCoalesced,
+    frequency AS frequencyCoalesced,
+    frequencyMeaning AS frequencyMeaningCoalesced,
+
+    (SELECT wg.weight AS weightAtDate
+        FROM study.weight wg
+        WHERE wg.id = WCO.animalId AND CAST(substring(CAST(wg.date AS VARCHAR) , 1, 10) AS DATE) <= WCO.date
+        ORDER BY wg.date DESC
+        LIMIT 1
+    ) AS weightAtDate,
+
+    (SELECT wg.date AS weightDate
+        FROM study.weight wg
+        WHERE wg.id = WCO.animalId AND CAST(substring(CAST(wg.date AS VARCHAR) , 1, 10) AS DATE) <= WCO.date
+        ORDER BY wg.date DESC
+        LIMIT 1
+    ) AS weightDate
+
+FROM study.waterScheduleCoalesced WCO

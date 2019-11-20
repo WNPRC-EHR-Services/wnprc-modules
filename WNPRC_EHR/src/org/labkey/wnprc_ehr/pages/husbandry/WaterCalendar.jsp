@@ -179,14 +179,17 @@
         <div class="row">
             <div class="collapse" id="waterExceptionPanel">
 
-                <div class="panel panel-primary">
+                <div class="panel panel-primary" data-bind="with: taskDetails">
+                    <!-- ko if: dataSource() == 'waterAmount' -->
+                    <div class="panel-heading"><span>Edit Single Day Water</span></div>
+                    <!-- /ko -->
+                    <!-- ko if: dataSource() == 'waterOrders' -->
                     <div class="panel-heading"><span>Enter Single Day Water</span></div>
-                    <div class="panel-body" id="waterException" data-bind="with: taskDetails">
-                        <!-- ko if: lsid() == '' -->
-                        <p style="text-align: center">
-                            <em>Please click on a pending request to schedule it.</em>
-                        </p>
-                        <!-- /ko -->
+                    <!-- /ko -->
+                    <div class="panel-body" id="waterException" >
+
+
+
 
                         <form class="form-horizontal scheduleForm">
                             <!-- ko if: lsid() != '' -->
@@ -277,7 +280,15 @@
                             <div style="text-align: right;">
                                 <button class="btn btn-default" data-bind="click: $root.collapseSingleWater" data-toggle="collapse" >Cancel</button>
                                 <%--<button class="btn btn-default" data-bind="click: $root.clearForm">Cancel</button>--%>
+                                <!-- ko if: dataSource() == 'waterAmount' -->
+                                <button class="btn btn-primary" data-bind="click: $root.submitForm">Update Single Day Water</button>
+                                <!-- /ko -->
+                                <!-- ko if: dataSource() == 'waterOrders' -->
                                 <button class="btn btn-primary" data-bind="click: $root.submitForm">Insert Single Day Water</button>
+
+                                <!-- /ko -->
+
+
                             </div>
                         </form>
 
@@ -335,10 +346,9 @@
                         var date = new Date();
                         date.setDate(date.getDate()-60);
 
-                        WebUtils.API.selectRows("study", "waterScheduleCoalesced", {
+                        WebUtils.API.selectRows("study", "waterScheduleWithWeight", {
                             "date~gte": startMoment.format('Y-MM-DD'),
                             "date~lte": endMoment.format('Y-MM-DD'),
-                            "volume~neq": "0",
                             "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)},
                            //   "wanimalid~eq": 'r18023'
                         }).then(function (data) {
@@ -436,7 +446,7 @@
                             }
 
                             if(key == "dataSource" && value == "waterAmount" && (momentDate.diff(today, 'days'))>= 0){
-                                $('#enterWaterOrder').removeAttr('disabled');
+                               // $('#enterWaterOrder').removeAttr('disabled');
                                 $('#waterInfo').text('Edit Single Day Water');
                             }
 
@@ -454,8 +464,6 @@
             })
         });
 
-        //var viewModel =  new ViewModel();
-        //ko.applyBindings(viewModel);
 
         var displayDate = function(dateString) {
             return moment(dateString, "YYYY/MM/DD HH:mm:ss").calendar(null, {
@@ -467,7 +475,7 @@
         // by greying it out, we need to remove that property.
         //$assignedToField.css('background-color', '');
 
-        var $scheduleForm = $('.scheduleForm');
+       // var $scheduleForm = $('.scheduleForm');
 
         _.extend(WebUtils.VM, {
 
@@ -489,10 +497,14 @@
 
             },
             form: ko.mapping.fromJS({
-                lsid:        '',
-                animalId:    '',
-                date:        new Date(),
-                volume:      ''
+                lsid:           '',
+                animalId:       '',
+                date:           new Date(),
+                volume:         '',
+                dataSource:     '',
+                object:         '',
+                assignedTo:     '',
+                frequency:      ''
 
             }),
 
@@ -528,6 +540,7 @@
                 });
 
                 WebUtils.VM.requestRowInForm = row;
+                debugger;
                 var waterOrder = ko.mapping.toJS(row);
 
                 //TODO: escalate permission to close waterorder  older than 60 days or all ongoing water order
@@ -625,30 +638,9 @@
 
                 });
 
-
-
-
-
-
-
-
-
-
-
-
-
             },
 
 
-
-            viewCollectionListURL: ko.pureComputed(function() {
-                <% ActionURL collectionListURL = new ActionURL(WNPRC_EHRController.NecropsyCollectionListAction.class, getContainer()); %>
-
-                return LABKEY.ActionURL.buildURL('<%= collectionListURL.getController() %>', '<%= collectionListURL.getAction() %>', null, {
-                    reportMode: true,
-                    taskid: WebUtils.VM.taskDetails.lsid()
-                });
-            })
 
 
         });
@@ -730,8 +722,9 @@
                         Id:         form.animalId,
                         date:       form.date,
                         assignedTo: form.assignedToCoalesced,
-                        project:    form.project,
-                        volume:     form.volume
+                        project:    form.projectCoalesced,
+                        volume:     form.volume,
+                        frequency:  form.frequencyCoalesced
                     }])
 
                 } else if (form.dataSource == "waterAmount"){
@@ -742,8 +735,9 @@
                             taskId:             form.taskid,
                             objectId:           form.objectIdCoalesced,
                             date:               form.date,
+                            frequency:          form.frequency,
                             animalId:           form.animalId,
-                            assignedTo:         form.assignedToCoalesced,
+                            assignedTo:         form.assignedTo,
                             volume:             form.volume,
                             dataSource:         form.dataSource
 

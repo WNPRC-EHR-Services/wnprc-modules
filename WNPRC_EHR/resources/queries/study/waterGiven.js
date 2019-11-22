@@ -156,7 +156,7 @@ function onUpsert(helper, scriptErrors, row, oldRow) {
             WNPRC.Utils.WNPRC.Utils.getJavaHelper().updateWaterRow(row.performedby, row.parentid);
         }
 
-        console.log("value of qcstate "+ row.QCStateLabel+ "  QCState Using Secuirty "+ EHR.Server.Security.getQCState(row)['isPublicData']);
+        console.log("value of qcstate water given"+ row.QCStateLabel+ "  QCState Using Secuirty "+ EHR.Server.Security.getQCState(row)['isPublicData']);
         if (row.QCStateLabel=='Completed'){
             console.log ("one record completed "+ row.Id);
            // row.QCState = 1;

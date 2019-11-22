@@ -5,6 +5,7 @@ import org.labkey.api.ehr.dataentry.DataEntryFormContext;
 import org.labkey.api.ehr.dataentry.FormSection;
 import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterOrderFormSection;
 import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterSingleDaySection;
+import org.labkey.wnprc_ehr.dataentry.forms.WaterMonitoring.FormSections.WaterSingleDaySlaveSection;
 import org.labkey.wnprc_ehr.dataentry.generics.sections.TaskFormSection;
 import org.labkey.api.module.Module;
 import org.labkey.api.view.template.ClientDependency;
@@ -27,7 +28,7 @@ public class EnterWater extends SimpleTaskForm
         super(ctx, owner, NAME,  NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
                 new TaskFormSection(),
                 new WaterFormSections(),
-                new WaterSingleDaySection(),
+                new WaterSingleDaySlaveSection(),
                 new AnimalDetailsFormSection(),
                 new WaterWeightSection(),
                 new chairingFormSection(),

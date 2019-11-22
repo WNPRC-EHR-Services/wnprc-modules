@@ -46,6 +46,18 @@ Ext4.define('WNPRC.ext.data.WaterServerStore', {
             for (var i=0; i<records.length;i++){
                 r = records[i];
 
+                if (r.store.queryName == waterAmount) {
+
+
+                    var qcStatus = r.get('qcstatus');
+                    console.log('waterAmount qcStatus ' + qcStatus + ' value of ' + r);
+                    if (qcStatus == '2') {
+                        console.log('waterAmount qcStatus ' + qcStatus);
+                        r.modified('qcstatus', '10');
+                        recMap.create.push(r);
+                    }
+                }
+
 
                 if (r.phantom ) {
                     console.log ('waterSeverStore dataset '+ r.store.queryName);
@@ -79,14 +91,7 @@ Ext4.define('WNPRC.ext.data.WaterServerStore', {
                                 recMap.create.push(r);
                                 break;
                             }
-                        case 'waterAmount':
-                            var qcStatus = r.get('qcstatus');
-                            console.log ('waterAmount qcStatus '+ qcStatus+ ' value of '+r);
-                            if (qcStatus == '2'){
-                                console.log ('waterAmount qcStatus '+ qcStatus);
-                                r.modified('qcstatus', '10');
-                                recMap.create.push(r);
-                            }
+
 
                         default:
                             recMap.create.push(r);

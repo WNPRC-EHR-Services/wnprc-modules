@@ -1566,6 +1566,9 @@ public class WNPRC_EHRController extends SpringActionController
 
     }
 
+    // TODO: consolidate the water order and water amount class to have only a WaterInfo that can handle
+    // the two different scenarios
+
     public static class WaterOrderRecord {
 
         private String taskId;

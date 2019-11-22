@@ -42,6 +42,7 @@ import org.labkey.api.query.QuerySchema;
 import org.labkey.api.resource.Resource;
 import org.labkey.api.security.User;
 import org.labkey.api.security.roles.RoleManager;
+import org.labkey.api.view.WebPartFactory;
 import org.labkey.api.view.template.ClientDependency;
 import org.labkey.wnprc_ehr.bc.BCReportRunner;
 import org.labkey.wnprc_ehr.buttons.DuplicateTaskButton;
@@ -98,6 +99,7 @@ import org.labkey.wnprc_ehr.notification.FoodNotStartedNotification;
 import org.labkey.wnprc_ehr.notification.TreatmentAlertsNotification;
 import org.labkey.wnprc_ehr.notification.VvcNotification;
 import org.labkey.wnprc_ehr.notification.WaterMonitoringNotification;
+import org.labkey.wnprc_ehr.pages.husbandry.WaterCalendarWebPartFactory;
 import org.labkey.wnprc_ehr.schemas.TissueSampleTable;
 import org.labkey.wnprc_ehr.schemas.WNPRC_Schema;
 import org.labkey.wnprc_ehr.security.permissions.BehaviorAssignmentsPermission;
@@ -111,7 +113,9 @@ import org.reflections.Reflections;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -128,6 +132,8 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule {
     public static final String NAME = "WNPRC_EHR";
     public static final String CONTROLLER_NAME = "wnprc_ehr";
     public static final String WNPRC_Category_Name = NAME;
+
+    public static final WebPartFactory waterCalendarWebPart = new WaterCalendarWebPartFactory();
 
     /**
      * Logger for logging the logs
@@ -162,6 +168,12 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule {
         addController(CONTROLLER_NAME, WNPRC_EHRController.class);
     }
 
+    @NotNull
+    protected Collection<WebPartFactory> createWebPartFactories()
+    {
+        return new ArrayList<>(Arrays.asList(waterCalendarWebPart));
+    }
+
     @Override
     protected void doStartupAfterSpringConfig(ModuleContext moduleContext) {
         EHRService.get().registerModule(this);
@@ -174,6 +186,7 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule {
         EHRService.get().registerClientDependency(ClientDependency.fromPath("wnprc_ehr/wnprcReports.js"), this);
         EHRService.get().registerClientDependency(ClientDependency.fromPath("wnprc_ehr/datasetButtons.js"), this);
         EHRService.get().registerClientDependency(ClientDependency.fromPath("wnprc_ehr/animalPortal.js"), this);
+        EHRService.get().registerClientDependency(ClientDependency.fromPath("wnprc_ehr/animalWaterCalendar.js"), this);
         EHRService.get().registerClientDependency(ClientDependency.fromPath("wnprc_ehr/Inroom.js"), this);
 
         EHRService.get().registerReportLink(EHRService.REPORT_LINK_TYPE.housing, "List Single-housed Animals", this, DetailsURL.fromString("/query/executeQuery.view?schemaName=study&query.queryName=Demographics&query.viewName=Single%20Housed"), "Commonly Used Queries");

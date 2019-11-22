@@ -15,9 +15,9 @@
                         <columntitle>Date Ordered</columntitle>
                         <formatString>yyyy-MM-dd</formatString>
                     </column>
-                    <column columnName="date">
-                        <formatString>yyyy-MM-dd hh:mm</formatString>
-                    </column>
+                    <column columnName="project"></column>
+
+
                     <column columnName="volume"></column>
                     <column columnName="assignedTo">
                         <columnTitle>Assigned To</columnTitle>
@@ -35,6 +35,7 @@
                             <fkColumnName>rowid</fkColumnName>
                         </fk>
                     </column>
+                    <column columnName="qcstate"></column>
 
                 </columns>
             </table>

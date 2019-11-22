@@ -725,7 +725,16 @@
                         project:    form.projectCoalesced,
                         volume:     form.volume,
                         frequency:  form.frequencyCoalesced
+                    }]);
+                    WebUtils.API.insertRows('ehr', 'tasks', [{
+                        taskid:     taskid,
+                        title:      "Enter Water Daily Amount",
+                        category:   "task",
+                        qcstate:    1,
+                        formType:   "Enter Water Daily Amount"
+                       // assignedTo:
                     }])
+
 
                 } else if (form.dataSource == "waterAmount"){
 

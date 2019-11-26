@@ -21,6 +21,8 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js'></script>
 <script src= 'https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
 <script src= 'https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
+<%--<script src= '/labkey/webutils/lib/ko/core/knockout-3.4.0.js' type="text/javascript"></script>--%>
+
 
 <%
     SimpleQueryFactory queryFactory = new SimpleQueryFactory(getUser(), getContainer());

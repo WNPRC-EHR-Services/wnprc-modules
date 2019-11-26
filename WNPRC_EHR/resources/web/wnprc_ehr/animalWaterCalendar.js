@@ -17,6 +17,11 @@ EHR.reports.animalWaterCalendar = function (panel, tab){
         }
 
         if (animalIds.length > 0){
+            var waterCalendar = new LABKEY.WebPart({
+                partName: 'Water Calendar',
+                renderTo: 'panel-1326-innerCt'
+            });
+            waterCalendar.render();
 
         }
 

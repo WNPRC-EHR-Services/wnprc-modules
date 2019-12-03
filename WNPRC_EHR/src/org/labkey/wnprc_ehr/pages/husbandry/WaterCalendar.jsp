@@ -21,7 +21,10 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js'></script>
 <script src= 'https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
 <script src= 'https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
-<%--<script src= '/labkey/webutils/lib/ko/core/knockout-3.4.0.js' type="text/javascript"></script>--%>
+<script src= '/labkey/webutils/lib/ko/core/knockout-3.4.0.js' type="text/javascript"></script>
+<script src= '/labkey/webutils/lib/webutils_core/api.js' type="text/javascript"></script>
+<%--<script src= '/WebUtils/src/org/labkey/webutils/view/JspPage.jsp' type="text/jsp"></script>--%>
+
 
 
 <%
@@ -334,7 +337,7 @@
         var husbandryAssignmentLookup = <%= husbandryAssignmentLookup.toString() %>;
         WebUtils.VM.husbandryAssignmentLookup = husbandryAssignmentLookup;
 
-
+        debugger;
         var $calendar = $('#calendar');
         $(document).ready(function () {
             $calendar.fullCalendar({
@@ -347,6 +350,7 @@
                     {events: function (startMoment, endMoment, timezone, callback) {
                         var date = new Date();
                         date.setDate(date.getDate()-60);
+                        debugger;
 
                         WebUtils.API.selectRows("study", "waterScheduleWithWeight", {
                             "date~gte": startMoment.format('Y-MM-DD'),

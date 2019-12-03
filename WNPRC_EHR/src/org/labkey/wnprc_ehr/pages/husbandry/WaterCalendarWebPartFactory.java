@@ -28,8 +28,8 @@ public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
         view.setTitle("Water Calendar");
         view.setFrame(WebPartView.FrameType.PORTAL);
 
-        JspPage page = new JspPage(view);
-        page.setFrame(WebPartView.FrameType.PORTAL);
+        //JspPage page = new JspPage(view);
+        //page.setFrame(WebPartView.FrameType.PORTAL);
 
         /*// Add some Knockout templates.
         List<String> templates = Arrays.asList(
@@ -40,6 +40,6 @@ public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
         for( String name: templates ) {
             page.getModelBean().addTemplate(new JspView<>(_packagePathDir + "knockout_components/" + name + ".jsp"));
         }*/
-        return page;
+        return view;
     }
 }

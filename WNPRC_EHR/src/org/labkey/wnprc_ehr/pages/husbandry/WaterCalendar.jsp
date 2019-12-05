@@ -10,18 +10,35 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.text.ParseException" %>
 <%@ page import="org.labkey.api.view.ActionURL" %>
+<%@ page import="org.labkey.api.view.HttpView" %>
+
+<%@ page import="org.labkey.api.query.QueryAction"%>
+<%@ page import="org.labkey.api.query.QueryDefinition"%>
+<%@ page import="org.labkey.api.view.template.ClientDependencies" %>
+
 <%@ page import="org.labkey.wnprc_ehr.WNPRC_EHRController" %>
 <%@ page import="org.labkey.api.security.Group" %>
 <%@ page import="org.labkey.api.security.GroupManager" %>
 <%@ page import="org.labkey.security.xml.GroupEnumType" %>
 <%@ page import="org.labkey.api.collections.CaseInsensitiveHashMap" %>
 <%@ page extends="org.labkey.api.jsp.JspBase" %>
+<%!
+    @Override
+    public void addClientDependencies(ClientDependencies dependencies)
+    {
+        dependencies.add("clientapi/ext4");
+        dependencies.add("/webutils/lib/fullcalendar-3.10.0/fullcalendar.min.js");
+        //dependencies.add("/mypath/mydependency.js");
+    }
+%>
+
+
 
 <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css' />
 <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js'></script>
 <script src= 'https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
 <script src= 'https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
-<script src= '/labkey/webutils/lib/ko/core/knockout-3.4.0.js' type="text/javascript"></script>
+<%--<script src= '/labkey/webutils/lib/ko/core/knockout-3.4.0.js' type="text/javascript"></script>--%>
 <script src= '/labkey/webutils/lib/webutils_core/api.js' type="text/javascript"></script>
 <%--<script src= '/WebUtils/src/org/labkey/webutils/view/JspPage.jsp' type="text/jsp"></script>--%>
 
@@ -336,6 +353,7 @@
 
         var husbandryAssignmentLookup = <%= husbandryAssignmentLookup.toString() %>;
         WebUtils.VM.husbandryAssignmentLookup = husbandryAssignmentLookup;
+        var animalId = LABKEY.ActionURL.getParameter('subjects');
 
         debugger;
         var $calendar = $('#calendar');
@@ -468,7 +486,7 @@
                 }
 
             })
-        });
+        },this);
 
 
         var displayDate = function(dateString) {

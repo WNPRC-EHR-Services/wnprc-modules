@@ -112,16 +112,17 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
 
         },
         'study.waterGiven':{
+            Id: {
+                hidden :true,
+                shownInGrid: false
+            },
             date: {
-                xtype: 'xdatetime',
-                noSaveInTemplateByDefault: true,
-                columnConfig: {
-                    fixed: true,
-                    width: 130
-                }
+                hidden :true,
+                shownInGrid: false
             },
             project:{
-                allowBlank: false
+                hidden: true
+                //allowBlank: false
             },
             volume: {
                 allowBlank: false
@@ -161,13 +162,27 @@ EHR.model.DataModelManager.registerMetadata('Husbandry', {
             }
         },
         'study.weight':{
-            Id: {
-                hidden :true,
-                shownInGrid: false
+            project: {
+                xtype: 'wnprc-projectentryfield',
+                editable : true,
+                hidden: false,
+                disable: false,
+                shownInGrid: true,
+                useNull: true,
+                lookup: {
+                    columns: 'project,name,displayName,protocol'
+                },
+                columnConfig: {
+                    width: 120
+                }
             },
             date: {
-                hidden :true,
-                shownInGrid: false
+                xtype: 'xdatetime',
+                noSaveInTemplateByDefault: true,
+                columnConfig: {
+                    fixed: true,
+                    width: 130
+                }
             },
             weight:{
                 allowBlank :true

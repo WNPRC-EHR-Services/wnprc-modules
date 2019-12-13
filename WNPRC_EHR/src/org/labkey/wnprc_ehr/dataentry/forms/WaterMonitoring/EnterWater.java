@@ -27,12 +27,12 @@ public class EnterWater extends SimpleTaskForm
     {
         super(ctx, owner, NAME,  NAME, WNPRCConstants.DataEntrySections.CLINICAL_SPI, Arrays.asList(
                 new TaskFormSection(),
-                new WaterFormSections(),
-                new WaterSingleDaySlaveSection(),
-                new AnimalDetailsFormSection(),
                 new WaterWeightSection(),
+                new AnimalDetailsFormSection(),
                 new chairingFormSection(),
-                new restraintFormSection()
+                new restraintFormSection(),
+                new WaterFormSections(),
+                new WaterSingleDaySlaveSection()
         ));
         setStoreCollectionClass("WNPRC.ext.data.WaterStoreCollection");
         this.addClientDependency(ClientDependency.fromPath("wnprc_ehr/model/sources/Husbandry.js"));

@@ -46,15 +46,20 @@ Ext4.define('WNPRC.ext.data.WaterServerStore', {
             for (var i=0; i<records.length;i++){
                 r = records[i];
 
-                if (r.store.queryName == waterAmount) {
+                console.log('valuer of queryName '+ r.store.queryName);
+
+                if (r.store.queryName == 'waterAmount') {
 
 
-                    var qcStatus = r.get('qcstatus');
-                    console.log('waterAmount qcStatus ' + qcStatus + ' value of ' + r);
-                    if (qcStatus == '2') {
-                        console.log('waterAmount qcStatus ' + qcStatus);
-                        r.modified('qcstatus', '10');
-                        recMap.create.push(r);
+                    let qcState = r.get('qcstate');
+                    let qcStateLabel = EHR.Security.getQCStateByRowId(qcState).Label;
+                    console.log('waterAmount qcStatus ' + qcState + ' value of ' + r);
+                    if (qcStateLabel == 'In Progress' || qcStateLabel == 'Completed' ) {
+                        console.log('waterAmount qcStatus ' + qcState);
+                        let scheduleQC = EHR.Security.getQCStateByLabel('Scheduled');
+                        r.set('qcstate', scheduleQC);
+                        /*r.phantom  = true;
+                        recMap.create.push(r);*/
                     }
                 }
 

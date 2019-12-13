@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
         static private String _packagePathDir = WebUtilsServiceImpl.getPackageDirFromClass(JspPage.class);
@@ -24,6 +25,12 @@ public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
     public WaterCalendarWebPartFactory(){super ("Water Calendar");}
 
     public WebPartView getWebPartView (@NotNull ViewContext portalCtx, @NotNull Portal.WebPart webpart){
+
+        Map<String, String> props = webpart.getPropertyMap();
+
+        String animalIds = webpart.getPropertyMap().get("animalIds");
+
+
         JspView view = new JspView("/org/labkey/wnprc_ehr/pages/husbandry/WaterCalendar.jsp");
         view.setTitle("Water Calendar");
         view.setFrame(WebPartView.FrameType.PORTAL);

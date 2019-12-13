@@ -12,18 +12,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class WaterFormSections extends SimpleFormSection
+public class WaterFormSections extends SlaveFormSection
 {
     public WaterFormSections ()
     {
         super ("study", "watergiven", "Water Given");
 
-        setClientStoreClass("WNPRC.ext.data.SingleAnimal.WaterClientStore");
+
 
 
        /* this.addConfigSource("Task");
         _showLocation = true;*/
 
+    }
+    @Override
+    public Set<String> getSlaveFields(){
+        Set<String> fields = new HashSet<>();
+
+        fields.add("Id");
+        fields.add("date");
+
+        return fields;
     }
 
 }

@@ -45,6 +45,8 @@
 
 
 <%
+    String animalIds = request.getParameter("animalIds");
+
     SimpleQueryFactory queryFactory = new SimpleQueryFactory(getUser(), getContainer());
 
     SimpleQuery assignedToOptions = queryFactory.makeQuery("ehr_lookups", "husbandry_assigned");
@@ -353,7 +355,7 @@
 
         var husbandryAssignmentLookup = <%= husbandryAssignmentLookup.toString() %>;
         WebUtils.VM.husbandryAssignmentLookup = husbandryAssignmentLookup;
-        var animalId = LABKEY.ActionURL.getParameter('subjects');
+        var $animalId = "<%= animalIds %>";
 
         debugger;
         var $calendar = $('#calendar');
@@ -366,46 +368,111 @@
                 },
                 eventSources:[
                     {events: function (startMoment, endMoment, timezone, callback) {
-                        var date = new Date();
-                        date.setDate(date.getDate()-60);
+                            var date = new Date();
+                            date.setDate(date.getDate() - 60);
                         debugger;
 
-                        WebUtils.API.selectRows("study", "waterScheduleWithWeight", {
-                            "date~gte": startMoment.format('Y-MM-DD'),
-                            "date~lte": endMoment.format('Y-MM-DD'),
-                            "parameters": {NumDays: 180,StartDate: date.format(LABKEY.extDefaultDateFormat)},
-                           //   "wanimalid~eq": 'r18023'
-                        }).then(function (data) {
-                            var events = data.rows;
+                            if ($animalId == 'undefined' || $animalId == "null"){
+
+                                WebUtils.API.selectRows("study", "waterScheduleWithWeight", {
+                                    "date~gte": startMoment.format('Y-MM-DD'),
+                                    "date~lte": endMoment.format('Y-MM-DD'),
+                                    "parameters": {NumDays: 180, StartDate: date.format(LABKEY.extDefaultDateFormat)}
+                                }).then(function (data) {
+                                    var events = data.rows;
+
+                                    callback(events.map(function (row) {
+                                        var volume;
+                                        if (row.volume) {
+                                            volume = row.volume;
+                                        }
+                                        else {
+                                            volume = 0;
+                                        }
+
+                                        var eventObj = {
+                                            title: row.animalId + ' ' + volume + 'ml',
+                                            start: row.date,
+                                            allDay: true,
+                                            // vol: row.volume,
+                                            rawRowData: row,
+                                            //editable: true,
+                                            description: 'Water for animal ' + row.animalId
+                                        };
+
+                                        if (row.assignedToCoalesced in husbandryAssignmentLookup) {
+                                            eventObj.color = husbandryAssignmentLookup[row.assignedToCoalesced].color;
+
+                                        }
+                                        else {
+                                            eventObj.color = '#F78181';
+                                        }
+
+
+                                        return eventObj;
+                                    }))
+                                })
+                            }else{
+                                WebUtils.API.selectRows("study", "waterScheduleWithWeight", {
+                                    "date~gte": startMoment.format('Y-MM-DD'),
+                                    "date~lte": endMoment.format('Y-MM-DD'),
+                                    "parameters": {NumDays: 180, StartDate: date.format(LABKEY.extDefaultDateFormat)},
+                                    "animalid~in": $animalId
+                                }).then(function (data) {
+                                    var events = data.rows;
+
+                                    callback(events.map(function (row) {
+                                        var volume;
+                                        if (row.volume) {
+                                            volume = row.volume;
+                                        }
+                                        else {
+                                            volume = 0;
+                                        }
+
+                                        var eventObj = {
+                                            title: row.animalId + ' ' + volume + 'ml',
+                                            start: row.date,
+                                            allDay: true,
+                                            // vol: row.volume,
+                                            rawRowData: row,
+                                            //editable: true,
+                                            description: 'Water for animal ' + row.animalId
+                                        };
+
+                                        if (row.assignedToCoalesced in husbandryAssignmentLookup) {
+                                            eventObj.color = husbandryAssignmentLookup[row.assignedToCoalesced].color;
+
+                                        }
+                                        else {
+                                            eventObj.color = '#F78181';
+                                        }
+
+
+                                        return eventObj;
+                                    }))
+                                })
+
+                            }
+                        }
+                    },
+                    {
+                        events:function (startMoment, endMoment, timezone, callback) {
+                            WebUtils.API.selectRows("study", "waterPrePivot", {
+                                "date~gte": startMoment.format('Y-MM-DD'),
+                                "date~lte": endMoment.format('Y-MM-DD')
+                            }).then(function (data) {
+                                var events = data.rows;
 
                                 callback(events.map(function (row) {
-                                    var volume;
-                                    if(row.volume) {
-                                        volume = row.volume;
-                                    }else{
-                                        volume = 0;
-                                    }
-
                                     var eventObj = {
-                                        title: row.animalId + ' ' + volume + 'ml',
-                                        start: row.date,
-                                        allDay: true,
-                                        // vol: row.volume,
-                                        rawRowData: row,
-                                        //editable: true,
-                                        description: 'Water for animal ' + row.animalId
+                                        title: row.Id + " Total: " + row.TotalWater,
+                                        start: row.Date,
+                                        allDay: true
                                     };
-
-                                    if (row.assignedToCoalesced in husbandryAssignmentLookup){
-                                        eventObj.color = husbandryAssignmentLookup[row.assignedToCoalesced].color;
-
-                                    } else{
-                                        eventObj.color = '#F78181';
-                                    }
-
-
                                     return eventObj;
                                 }))
+
                             })
                         }
                     },
@@ -486,7 +553,7 @@
                 }
 
             })
-        },this);
+        });
 
 
         var displayDate = function(dateString) {

@@ -23,7 +23,6 @@ EHR.reports.animalWaterCalendar = function (panel, tab){
                 border: false
             })
         }
-        debugger;
         var concatAnimals = "";
 
         if (animalIds.length > 0){
@@ -34,14 +33,33 @@ EHR.reports.animalWaterCalendar = function (panel, tab){
                 id: 'waterCal'
 
             })
+
+            // Find the element to manipulate
+            var parentId = tab.getEl().id;
+            var child = Ext4.get(parentId + '-innerCt');
+
+            // Remove any old tab content from previous animal selections
+            var childToRemove = child.down('.labkeyWaterMonitoringDiv');
+            if (childToRemove) {
+                Ext4.destroy(childToRemove);
+            }
+
+            // Inject a div to render into
+            var targetElement = child.createChild({tag: 'div'});
+            targetElement.addCls('labkeyWaterMonitoringDiv');
+            var id = Ext4.id(targetElement, "waterMonitoring");
+
+            // Render the web part to the div
             var waterCalendar = new LABKEY.WebPart({
                 partName: 'Water Calendar',
-                renderTo: 'panel-1326-innerCt',
-                //renderTo: 'waterCal',
+                renderTo: id,
                 partConfig: {animalIds : concatAnimals}
             });
             waterCalendar.render();
 
+            // We know the height of the component, so just set it explicitly instead of making ExtJS get the layout
+            // and sizing correct
+            tab.setHeight(600);
         }
 
 

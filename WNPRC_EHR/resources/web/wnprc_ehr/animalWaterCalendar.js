@@ -1,4 +1,5 @@
 Ext4.namespace('EHR.Reports');
+let calendarRender = 0;
 
 EHR.reports.animalWaterCalendar = function (panel, tab){
 
@@ -8,6 +9,7 @@ EHR.reports.animalWaterCalendar = function (panel, tab){
         // animalIds = animalIds.substring(0, animalIds.length-1);
         animalIds = tab.filters.subjects;
         renderCalendar (animalIds, tab);
+        calendarRender++;
     }
     else{
         panel.resolveSubjectsFromHousing(tab,renderCalendar,this);
@@ -53,7 +55,7 @@ EHR.reports.animalWaterCalendar = function (panel, tab){
             var waterCalendar = new LABKEY.WebPart({
                 partName: 'Water Calendar',
                 renderTo: id,
-                partConfig: {animalIds : concatAnimals}
+                partConfig: {animalIds : concatAnimals,numberOfRenders: calendarRender}
             });
             waterCalendar.render();
 

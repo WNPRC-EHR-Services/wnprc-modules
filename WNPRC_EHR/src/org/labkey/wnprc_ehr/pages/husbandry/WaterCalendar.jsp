@@ -369,7 +369,7 @@
                 eventSources:[
                     {events: function (startMoment, endMoment, timezone, callback) {
                             var date = new Date();
-                            date.setDate(date.getDate() - 60);
+                           // date.setDate(date.getDate() - 60);
                         debugger;
 
                             if ($animalId == 'undefined' || $animalId == "null"){
@@ -458,22 +458,52 @@
                     },
                     {
                         events:function (startMoment, endMoment, timezone, callback) {
-                            WebUtils.API.selectRows("study", "waterPrePivot", {
-                                "date~gte": startMoment.format('Y-MM-DD'),
-                                "date~lte": endMoment.format('Y-MM-DD')
-                            }).then(function (data) {
-                                var events = data.rows;
+                            if ($animalId == 'undefined' || $animalId == "null"){
+                                WebUtils.API.selectRows("study", "waterPrePivot", {
+                                    "date~gte": startMoment.format('Y-MM-DD'),
+                                    "date~lte": endMoment.format('Y-MM-DD')
+                                }).then(function (data) {
+                                    var events = data.rows;
 
-                                callback(events.map(function (row) {
-                                    var eventObj = {
-                                        title: row.Id + " Total: " + row.TotalWater,
-                                        start: row.Date,
-                                        allDay: true
-                                    };
-                                    return eventObj;
-                                }))
+                                    callback(events.map(function (row) {
+                                        var eventObj = {
+                                            title: row.animalId + " Total: " + row.TotalWater,
+                                            start: row.Date,
+                                            allDay: true,
+                                            rawRowData: row
+                                        };
 
-                            })
+                                        if (row.mlsPerKg >= 20){
+                                            eventObj.color = '#000CFF';
+                                        }else{
+                                            eventObj.color = '#EE2020'
+                                        }
+                                        return eventObj;
+                                    }))
+
+                                })
+
+                            }else{
+
+                                WebUtils.API.selectRows("study", "waterPrePivot", {
+                                    "date~gte": startMoment.format('Y-MM-DD'),
+                                    "date~lte": endMoment.format('Y-MM-DD'),
+                                    "animalId~in": $animalId
+                                }).then(function (data) {
+                                    var events = data.rows;
+
+                                    callback(events.map(function (row) {
+                                        var eventObj = {
+                                            title: row.animalId + " Total: " + row.TotalWater,
+                                            start: row.Date,
+                                            allDay: true,
+                                            rawRowData: row
+                                        };
+                                        return eventObj;
+                                    }))
+
+                                })
+                            }
                         }
                     },
                     {

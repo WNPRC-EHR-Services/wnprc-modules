@@ -6,7 +6,7 @@
                 <pkColumnName>primaryKey</pkColumnName>
                 <columns>
                     <column columnName="primaryKey">
-                        <isHidden>true</isHidden>
+                        <isHidden>false</isHidden>
                         <isKeyField>true</isKeyField>
                     </column>
                     <column columnName="primaryKey2">

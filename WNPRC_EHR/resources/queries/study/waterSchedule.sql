@@ -43,6 +43,10 @@ JOIN (
           END as minutes,
 
           dr.date as origDate,
+          t1.created AS created,
+          t1.id.curLocation.area as area,
+          t1.id.curLocation.room as room,
+          dr.startDate AS dateRangeStartDate,
           t1.date as startDate,
           timestampdiff('SQL_TSI_DAY', cast(t1.dateOnly as timestamp), dr.dateOnly) + 1  as daysElapsed,
           t1.enddate,

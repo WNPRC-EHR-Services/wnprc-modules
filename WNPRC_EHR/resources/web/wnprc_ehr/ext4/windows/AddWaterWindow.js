@@ -362,7 +362,14 @@ Ext4.define('EHR.window.AddWaterWindow', {
     },
 
     getAnimals: function(){
-        this.down('#theForm').getAnimals.call(this);
+        let animalIds = this.down('#theForm').getAnimals.call(this);
+        debugger;
+        this.getScheduleWaters(animalIds);
+
+
+    },
+    getScheduleWaters: function(animalIds){
+
     },
 
     doQuery: function(config){

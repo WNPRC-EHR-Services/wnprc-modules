@@ -29,14 +29,19 @@ public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
         Map<String, String> props = webpart.getPropertyMap();
 
         String animalIds = webpart.getPropertyMap().get("animalIds");
+        Integer numberOfRenders  = Integer.parseInt(webpart.getPropertyMap().get("numberOfRenders"));
 
 
         JspView view = new JspView("/org/labkey/wnprc_ehr/pages/husbandry/WaterCalendar.jsp");
         view.setTitle("Water Calendar");
         view.setFrame(WebPartView.FrameType.PORTAL);
 
-        JspPage page = new JspPage(view);
+
+
+        JspPage page = new JspPage(view, numberOfRenders);
         page.setFrame(WebPartView.FrameType.PORTAL);
+
+
 
         /*// Add some Knockout templates.
         List<String> templates = Arrays.asList(

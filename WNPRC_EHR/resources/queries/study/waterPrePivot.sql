@@ -1,5 +1,5 @@
 SELECT DISTINCT
-voGi.id,
+voGi.id as animalId,
 CAST (voGi.date AS DATE) AS Date,
 
 --max(wa.volume) AS goal,
@@ -8,10 +8,12 @@ voGi.volumeGivenInLabSub,
 voGi.volumeGivenInCage,
 
 voGi.TotalWater AS TotalWater,
+voGi.TotalWater AS volume,
 voGi.RecentWeight,
 voGi.InnerWeight,
 TRUNCATE(ROUND(CAST(voGi.TotalWater /voGi.InnerWeight AS NUMERIC),2),2) AS mlsPerKg,
-voGi.InnerWeight*20 - voGi.TotalWater AS WaterReamining
+voGi.InnerWeight*20 - voGi.TotalWater AS WaterReamining,
+'waterGiven' AS dataSource
 --voGi.Innerweight*20 - voGi.TotalSub AS waterRemaining
 --COALESCE ((SELECT SUM (CAST (iwg.volume AS NUMERIC)) FROM study.water_given iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'animalcare'),0) AS volumeGivenInCage,
 
@@ -28,8 +30,8 @@ FROM (
 SELECT
     wa.id AS id,
     wa.date AS date,
-    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'laboratory'),0) AS volumeGivenInLabSub,
-    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignto LIKE 'animalcare'),0) AS volumeGivenInCage,
+    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignedto LIKE 'laboratory'),0) AS volumeGivenInLabSub,
+    COALESCE ((SELECT SUM(CAST(iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0 AND iwg.assignedto LIKE 'animalcare'),0) AS volumeGivenInCage,
     COALESCE ((SELECT SUM (CAST (iwg.volume AS NUMERIC)) FROM study.waterGiven iwg WHERE iwg.id=wa.id AND (dayofyear(iwg.date)-dayofyear(wa.date)) =0),0) AS TotalWater,
     (SELECT we.weight
         FROM study.weight we

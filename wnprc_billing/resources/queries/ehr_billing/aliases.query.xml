@@ -28,7 +28,7 @@
                     <nullable>false</nullable>
                     <fk>
                         <fkDbSchema>wnprc_billing</fkDbSchema>
-                        <fkTable>tierRates</fkTable>
+                        <fkTable>activeTierRates</fkTable>
                         <fkColumnName>tierRateType</fkColumnName>
                         <fkDisplayColumnName>tierRate</fkDisplayColumnName>
                     </fk>

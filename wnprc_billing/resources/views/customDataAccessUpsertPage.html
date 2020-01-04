@@ -1,0 +1,179 @@
+<div id="custom_data_access_form"></div>
+
+<script type="text/javascript">
+
+    Ext4.onReady(function() {
+
+        var rowid = LABKEY.ActionURL.getParameter("rowid");
+
+        var userId = undefined;
+        var project = undefined;
+        var investigatorId = undefined;
+        var accessToAllProjects = undefined;
+
+        //update existing row
+        if (rowid) {
+            LABKEY.Query.selectRows({
+                schemaName: 'ehr_billing',
+                queryName: 'dataAccess',
+                columns: 'userId, investigatorid, project, alldata',
+                filterArray: [
+                    LABKEY.Filter.create('rowid', rowid, LABKEY.Filter.Types.EQUAL)
+                ],
+                scope: this,
+                success: function (data) {
+                    if (data && data.rows.length === 1) {
+                        userId = data.rows[0].userId;
+                        project = data.rows[0].project;
+                        investigatorId = data.rows[0].investigatorid;
+                        accessToAllProjects = data.rows[0].alldata;
+                        createCustomDataAccessForm(updateHandler, userId, project, investigatorId, accessToAllProjects);
+                    }
+                },
+                failure: LDK.Utils.getErrorCallback()
+            });
+        }
+        //insert new row
+        else {
+            createCustomDataAccessForm(insertHandler);
+        }
+    });
+
+    var insertHandler = function (schema, query, rows) {
+
+        LABKEY.Query.insertRows({
+            method: 'POST',
+            schemaName: schema,
+            queryName: query,
+            rows: rows,
+            scope: this,
+            success: onSuccess(schema, query),
+            failure: LDK.Utils.getErrorCallback()
+        });
+    };
+
+    var updateHandler = function(schema, query, rows) {
+
+        var rowid = LABKEY.ActionURL.getParameter("rowid");
+        if (rowid) {
+            rows[0].rowid = rowid;
+
+            LABKEY.Query.updateRows({
+                method: 'POST',
+                schemaName: schema,
+                queryName: query,
+                rows: rows,
+                scope: this,
+                success: onSuccess(schema, query),
+                failure: LDK.Utils.getErrorCallback()
+            });
+        }
+    };
+
+    var onSuccess = function(schema, query) {
+        window.location = LABKEY.ActionURL.buildURL('query', 'executeQuery', null, {schemaName:schema,'query.queryName':query});
+    };
+
+    var createCustomDataAccessForm = function(submitHandler, userId, project, investigatorId, accessToAllProjects) {
+        Ext4.create('Ext.form.Panel', {
+            renderTo: 'custom_data_access_form',
+            border: false,
+            bodyStyle: 'background-color: transparent;',
+            defaults: {
+                labelWidth: 125,
+                width: 350
+            },
+            items: [{
+                xtype: 'combo',
+                name: 'userId',
+                fieldLabel: 'User With Access',
+                allowBlank: false,
+                displayField: 'DisplayName',
+                valueField: 'UserId',
+                value: userId,
+                store: {
+                    type: 'labkey-store',
+                    schemaName: 'coreLinked',
+                    queryName: 'Users',
+                    columns: 'UserId, DisplayName',
+                    sort: 'DisplayName',
+                    autoLoad: true
+                }
+            },{
+                xtype: 'combo',
+                name: 'investigatorid',
+                fieldLabel: 'Investigator',
+                allowBlank: true,
+                displayField: 'lastName',
+                valueField: 'rowid',
+                value: investigatorId,
+                store: {
+                    type: 'labkey-store',
+                    schemaName: 'ehrLinked',
+                    queryName: 'investigators',
+                    columns: 'rowid, lastName',
+                    sort: 'lastname',
+                    autoLoad: true
+                }
+            }, {
+                xtype: 'combo',
+                fieldLabel: 'Project',
+                labelWidth: 125,
+                name: 'project',
+                displayField: 'project',
+                value: project,
+                store: {
+                    type: 'labkey-store',
+                    schemaName: 'ehrLinked',
+                    queryName: 'project',
+                    columns: 'project',
+                    sort: 'project',
+                    autoLoad: true
+                }
+            }, {
+                xtype: 'checkbox',
+                fieldLabel: 'Access to all projects?',
+                labelWidth: 125,
+                name: 'alldata',
+                checked: (accessToAllProjects === true)
+            }],
+            dockedItems: [{
+                xtype: 'toolbar',
+                dock: 'bottom',
+                ui: 'footer',
+                style: 'background-color: transparent; padding: 10px 0;',
+                items: [{
+                    text: 'Submit',
+                    formBind: true,
+                    handler: function (btn) {
+                        var values = btn.up('form').getForm().getValues();
+
+                        if (!values.project && !values.alldata) {
+                            Ext4.Msg.alert('Error', "Must choose a 'Project' or check 'Access to all projects'");
+                            return;
+                        }
+                        else if (values.project && values.alldata) {
+                            Ext4.Msg.alert('Error', "Must choose 'Project' or check 'Access to all projects' but not both.");
+                            return;
+                        }
+                        else {
+                            var rows = [{
+                                userId: values.userId,
+                                project: values.project,
+                                investigatorid: values.investigatorid,
+                                alldata: values.alldata === "on" || values.alldata === 'true'|| values.alldata === '1' || values.alldata === true
+                            }];
+
+                            submitHandler.call(this, "ehr_billing", "dataAccess", rows);
+                        }
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function(btn) {
+                        window.history.back();
+                    }
+                }]
+            }],
+        }, this);
+    }
+</script>

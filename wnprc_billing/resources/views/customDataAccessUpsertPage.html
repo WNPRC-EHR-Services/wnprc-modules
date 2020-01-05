@@ -6,11 +6,6 @@
 
         var rowid = LABKEY.ActionURL.getParameter("rowid");
 
-        var userId = undefined;
-        var project = undefined;
-        var investigatorId = undefined;
-        var accessToAllProjects = undefined;
-
         //update existing row
         if (rowid) {
             LABKEY.Query.selectRows({
@@ -23,10 +18,10 @@
                 scope: this,
                 success: function (data) {
                     if (data && data.rows.length === 1) {
-                        userId = data.rows[0].userId;
-                        project = data.rows[0].project;
-                        investigatorId = data.rows[0].investigatorid;
-                        accessToAllProjects = data.rows[0].alldata;
+                        var userId = data.rows[0].userId;
+                        var project = data.rows[0].project;
+                        var investigatorId = data.rows[0].investigatorid;
+                        var accessToAllProjects = data.rows[0].alldata;
                         createCustomDataAccessForm(updateHandler, userId, project, investigatorId, accessToAllProjects);
                     }
                 },
@@ -114,6 +109,19 @@
                     columns: 'rowid, lastName',
                     sort: 'lastname',
                     autoLoad: true
+                },
+                listeners: {
+                    change: function(field, newValue, oldValue, eOpts){
+                        var projectField = field.up("form").getForm().findField("project");
+                        var filter = LABKEY.Filter.create('investigatorId', newValue, LABKEY.Filter.Types.EQUAL);
+                        projectField.store.filterArray = [filter];
+                        projectField.store.load();
+                        projectField.store.on('load', function(){
+                            projectField.store.fireEvent('datachanged');
+                            projectField.bindStore(projectField.store);
+                            projectField.setDisabled(false);
+                        }, this, {single: true});
+                    }
                 }
             }, {
                 xtype: 'combo',
@@ -129,6 +137,15 @@
                     columns: 'project',
                     sort: 'project',
                     autoLoad: true
+                },
+                listeners : {
+                    scope: this,
+                    render: function(field) {
+                        var invesVal = field.up("form").getForm().findField("investigatorid").value;
+                        var filter = LABKEY.Filter.create('investigatorId', invesVal, LABKEY.Filter.Types.EQUAL);
+                        field.store.filterArray = [filter];
+                        field.store.load();
+                    }
                 }
             }, {
                 xtype: 'checkbox',

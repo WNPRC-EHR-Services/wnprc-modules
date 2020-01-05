@@ -174,6 +174,24 @@
                             return;
                         }
                         else {
+
+                            if (values.project && !values.alldata) {
+
+                                var projectField = btn.up('form').getForm().findField('project');
+
+                                //identify whether the project entered belongs to the investigator
+                                var isValidProject = projectField.getStore().data.items.map(function (val) {
+                                    return val.data.project;
+                                }).filter(function (prj) {
+                                    return prj === values.project;
+                                }).length === 1;
+
+                                if (!isValidProject) {
+                                    Ext4.Msg.alert('Error', "Project '" + values.project + "' is not associated with the selected Investigator. Please select a different project.");
+                                    return;
+                                }
+                            }
+
                             var rows = [{
                                 userId: values.userId,
                                 project: values.project,

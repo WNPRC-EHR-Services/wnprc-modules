@@ -48,13 +48,9 @@ WHERE (
                  isMemberOf(da.userid)
                  AND
                  (
-                    ( da.allData = true OR da.project = i.project )
-                    AND
-                    (
-                        da.investigatorid = i.debitedaccount.investigatorId
-                        OR
-                        da.investigatorid = i.project.investigatorId
-                    )
+                    (da.allData = true AND (da.investigatorid = i.project.investigatorId OR da.investigatorid = i.debitedaccount.investigatorId))
+                    OR
+                    da.project = i.project
                  )
           ) IS NOT NULL
 

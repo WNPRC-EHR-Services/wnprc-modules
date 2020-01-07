@@ -23,6 +23,8 @@ public class ChargesFormSection extends SimpleFormSection
         _allowRowEditing = false;
 
         addClientDependency(ClientDependency.fromPath("wnprc_billing/model/sources/MiscCharges.js"));
+        addClientDependency(ClientDependency.fromPath("wnprc_billing/panel/WNPRC_Billing_BulkEditPanel.js"));
+        addClientDependency(ClientDependency.fromPath("wnprc_billing/window/WNPRC_Billing_BulkEditWindow.js"));
 
         setConfigSources(Collections.singletonList("Task"));
     }
@@ -35,8 +37,6 @@ public class ChargesFormSection extends SimpleFormSection
         // Remove the default buttons that don't make sense for charges with animal ids
         defaultButtons.remove("COPYFROMSECTION");
         defaultButtons.remove("TEMPLATE");
-        defaultButtons.remove("ADDANIMALS");
-        defaultButtons.add(1, "ADDANIMALS_BULK_DISABLED");
 
         return defaultButtons;
     }
@@ -46,6 +46,7 @@ public class ChargesFormSection extends SimpleFormSection
     {
         List<String> defaultMoreActionButtons = super.getTbarMoreActionButtons();
         defaultMoreActionButtons.remove("BULKEDIT");
+        defaultMoreActionButtons.add("WNPRC_BILLING_BULKEDIT");
         return defaultMoreActionButtons;
     }
 }

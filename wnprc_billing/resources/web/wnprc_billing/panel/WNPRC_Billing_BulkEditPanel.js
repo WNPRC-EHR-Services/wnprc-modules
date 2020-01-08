@@ -12,7 +12,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
         Ext4.Array.forEach(items, function(item){
             item.cfg.allowBlank = true;
 
-            if (item.cfg.xtype === 'wnprc_billing-investigatorfield' || item.cfg.xtype === 'wnprc_billing-chargeitemfield' || item.cfg.xtype === 'wnprc_billing-chargetypeentryfield') {
+            if (item.cfg.xtype === 'wnprc_billing-investigatorfield' || item.cfg.xtype === 'wnprc_billing-chargeitemfield') {
                 item.cfg.xtype = 'combo';
             }
 
@@ -71,15 +71,42 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
             if (item.name === 'chargeId') {
 
-                item.valueField = 'rowId';
+                item.valueField = 'rowid';
                 item.displayField = 'name';
 
-                item.on('afterrender', function(field){
+                item.on('afterrender', function (field) {
 
                     var chargeTypeVal = field.up("form").getForm().findField("chargetype").value;
                     var filter = LABKEY.Filter.create('departmentCode', chargeTypeVal, LABKEY.Filter.Types.EQUAL);
                     field.store.filterArray = [filter];
                     field.store.load();
+                });
+
+                item.on('select', function (combo, recs) {
+
+                    if (recs && recs[0]) {
+
+                        var chargeId = recs[0].data.rowid;
+                        var chargeDateValue = item.up("form").getForm().findField("date").value;
+
+                        LABKEY.Query.selectRows({
+                            schemaName: 'ehr_billing_public',
+                            queryName: 'chargeRates',
+                            filterArray: [
+                                LABKEY.Filter.create('chargeId', chargeId, LABKEY.Filter.Types.EQUAL),
+                                LABKEY.Filter.create('startDate', chargeDateValue.format("Y-m-d"), LABKEY.Filter.Types.DATE_LESS_THAN_OR_EQUAL),
+                                LABKEY.Filter.create('endDate', chargeDateValue.format("Y-m-d"), LABKEY.Filter.Types.DATE_GREATER_THAN_OR_EQUAL)
+                            ],
+                            columns: 'chargeId, unitCost',
+                            failure: LDK.Utils.getErrorCallback(),
+                            scope: this,
+                            success: function (results) {
+                                var unitCostField = item.up("form").getForm().findField("unitCost");
+                                unitCostField.disabled = false;
+                                unitCostField.setValue(results.rows[0] != null ? results.rows[0].unitCost : null);
+                            }
+                        });
+                    }
                 });
             }
 

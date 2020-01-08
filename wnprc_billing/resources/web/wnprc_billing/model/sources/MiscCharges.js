@@ -56,12 +56,12 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                     width: 200
                 },
                 lookup: {
-                    columns: 'rowId, name, chargeCategoryId, departmentCode, startDate, endDate'
+                    columns: 'rowid, name, chargeCategoryId, departmentCode, startDate, endDate'
                 },
                 editorConfig: {
                     caseSensitive: false,
                     id: 'ehr_billing-Misc-charges-chargeId',
-                    valueField: 'rowId',
+                    valueField: 'rowid',
                     displayField: 'name',
                     observedField: 'chargetype',
                     observerLookupField: 'departmentCode'

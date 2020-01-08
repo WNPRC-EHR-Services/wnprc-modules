@@ -11,6 +11,14 @@ Ext4.define('WNPRC_Billing.form.field.MiscChargesDebitAcctEntryField', {
                 scope:this,
                 select: function (combo, recs) {
 
+                    //For Bulk Edit window
+                    if (this.up("form") && this.up("form").getForm()) {
+
+                        var investigatorField = this.up("form").getForm().findField("investigator");
+                        if (investigatorField) {
+                            investigatorField.setValue(null);
+                        }
+                    }
                     //clear the investigator field if alias (labeled as 'Debited Account' on data entry form) value is changed
                     EHR.DataEntryUtils.setSiblingFields(combo, {
                         investigator: null

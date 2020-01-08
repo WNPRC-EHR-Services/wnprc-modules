@@ -12,7 +12,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
         Ext4.Array.forEach(items, function(item){
             item.cfg.allowBlank = true;
 
-            if (item.cfg.xtype === 'wnprc_billing-investigatorfield' || item.cfg.xtype === 'wnprc_billing-chargeitemfield') {
+            if (item.cfg.xtype === 'wnprc_billing-investigatorfield' || item.cfg.xtype === 'wnprc_billing-chargeitemfield' || item.cfg.xtype === 'ehr_billingRowObserverEntryField') {
                 item.cfg.xtype = 'combo';
             }
 
@@ -48,10 +48,20 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
                 item.on('beforerender', function(field){
 
-                    var projectVal = field.up("form").getForm().findField("project").value;
-                    var filter = LABKEY.Filter.create('project', projectVal, LABKEY.Filter.Types.EQUAL);
-                    field.store.filterArray = [filter];
-                    field.store.load();
+                    var projectField = field.up("form").getForm().findField("project");
+                    if (projectField) {
+                        var filter = LABKEY.Filter.create('project', projectField.value, LABKEY.Filter.Types.EQUAL);
+                        field.store.filterArray = [filter];
+                        field.store.load();
+                    }
+
+                    var debitedAcctField = field.up("form").getForm().findField("debitedAccount");
+                    if (debitedAcctField) {
+                        var filter = LABKEY.Filter.create('alias', debitedAcctField.value, LABKEY.Filter.Types.EQUAL);
+                        field.store.filterArray = [filter];
+                        field.store.load();
+                    }
+
                 });
             }
 

@@ -23,6 +23,8 @@ public class NonAnimalChargesFormSection extends SimpleFormSection {
         _allowRowEditing = false;
 
         addClientDependency(ClientDependency.fromPath("wnprc_billing/model/sources/NonAnimalCharges.js"));
+        addClientDependency(ClientDependency.fromPath("wnprc_billing/panel/WNPRC_Billing_BulkEditPanel.js"));
+        addClientDependency(ClientDependency.fromPath("wnprc_billing/window/WNPRC_Billing_BulkEditWindow.js"));
 
         setConfigSources(Collections.singletonList("Task"));
     }
@@ -47,6 +49,8 @@ public class NonAnimalChargesFormSection extends SimpleFormSection {
         defaultMoreActionButtons.remove("BULKEDIT");
         defaultMoreActionButtons.remove("GUESSPROJECT");
         defaultMoreActionButtons.remove("COPY_IDS");
+
+        defaultMoreActionButtons.add("WNPRC_BILLING_BULKEDIT");
         return defaultMoreActionButtons;
     }
 }

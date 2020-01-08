@@ -30,21 +30,23 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
             if (item.name === 'project') {
 
-                item.on('change', function(field, newValue){
-                     var investigatorField = field.up("form").getForm().findField("investigator");
-                     investigatorField.setValue(null);
-                        var filter = LABKEY.Filter.create('project', newValue, LABKEY.Filter.Types.EQUAL);
-                        investigatorField.store.filterArray = [filter];
-                        investigatorField.store.load();
-                        investigatorField.store.on('load', function(){
-                            investigatorField.store.fireEvent('datachanged');
-                            investigatorField.bindStore(investigatorField.store);
-                            investigatorField.setDisabled(false);
-                        }, this, {single: true});
-                    });
+                item.on('change', function (field, newValue) {
+                    this.loadStoreOnValueChange(field, "investigator", "project", newValue);
+                }, this);
             }
+            else if (item.name === 'debitedaccount') {
 
-            if (item.name === 'investigator') {
+                item.on('change', function(field, newValue){
+                    this.loadStoreOnValueChange(field, "investigator", "alias", newValue);
+                }, this);
+            }
+            else if (item.name === 'chargetype') {
+
+                item.on('change', function(field, newValue){
+                    this.loadStoreOnValueChange(field, "chargeId", "departmentCode", newValue);
+                }, this);
+            }
+            else if (item.name === 'investigator') {
 
                 item.on('beforerender', function(field){
 
@@ -55,42 +57,35 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
                         field.store.load();
                     }
 
-                    var debitedAcctField = field.up("form").getForm().findField("debitedAccount");
+                    var debitedAcctField = field.up("form").getForm().findField("debitedaccount");
                     if (debitedAcctField) {
-                        var filter = LABKEY.Filter.create('alias', debitedAcctField.value, LABKEY.Filter.Types.EQUAL);
-                        field.store.filterArray = [filter];
+                        var aliasFilter = LABKEY.Filter.create('alias', debitedAcctField.value, LABKEY.Filter.Types.EQUAL);
+                        field.store = Ext4.create('LABKEY.ext4.data.Store', {
+                            type: 'labkey-store',
+                            schemaName: 'ehr_billing_public',
+                            queryName: 'aliases',
+                            columns: 'alias, investigatorId, investigatorName',
+                            sort: 'alias',
+                            filterArray: aliasFilter
+                        });
                         field.store.load();
                     }
-
                 });
             }
-
-            if (item.name === 'chargetype') {
-
-                item.on('change', function(field, newValue){
-                    var chargeIdField = field.up("form").getForm().findField("chargeId");
-                    var filter = LABKEY.Filter.create('departmentCode', newValue, LABKEY.Filter.Types.EQUAL);
-                    chargeIdField.store.filterArray = [filter];
-                    chargeIdField.store.load();
-                    chargeIdField.store.on('load', function(){
-                        chargeIdField.store.fireEvent('datachanged');
-                        chargeIdField.bindStore(chargeIdField.store);
-                        chargeIdField.setDisabled(false);
-                    }, this, {single: true});
-                });
-            }
-
-            if (item.name === 'chargeId') {
+            else if (item.name === 'chargeId') {
 
                 item.valueField = 'rowid';
                 item.displayField = 'name';
 
                 item.on('beforerender', function (field) {
 
-                    var chargeTypeVal = field.up("form").getForm().findField("chargetype").value;
-                    var filter = LABKEY.Filter.create('departmentCode', chargeTypeVal, LABKEY.Filter.Types.EQUAL);
-                    field.store.filterArray = [filter];
-                    field.store.load();
+                    var chargeTypeField = field.up("form").getForm().findField("chargetype");
+
+                    if (chargeTypeField) {
+                        var filter = LABKEY.Filter.create('departmentCode', chargeTypeField.value, LABKEY.Filter.Types.EQUAL);
+                        field.store.filterArray = [filter];
+                        field.store.load();
+                    }
                 });
 
                 item.on('select', function (combo, recs) {
@@ -126,4 +121,12 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
         return newItems;
     },
+
+    loadStoreOnValueChange : function (sourceField, targetFieldName, filterOn, newValue) {
+        var targetField = sourceField.up("form").getForm().findField(targetFieldName);
+        targetField.setValue(null);//reset
+        var filter = LABKEY.Filter.create(filterOn, newValue, LABKEY.Filter.Types.EQUAL);
+        targetField.store.filterArray = [filter];
+        targetField.store.load();
+    }
 });

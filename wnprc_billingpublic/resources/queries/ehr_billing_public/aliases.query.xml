@@ -16,7 +16,7 @@
                 <column columnName="tier_rate">
                     <fk>
                         <fkDbSchema>wnprc_billingLinked</fkDbSchema>
-                        <fkTable>tierRates</fkTable>
+                        <fkTable>activeTierRates</fkTable>
                         <fkColumnName>tierRateType</fkColumnName>
                         <fkDisplayColumnName>tierRate</fkDisplayColumnName>
                     </fk>

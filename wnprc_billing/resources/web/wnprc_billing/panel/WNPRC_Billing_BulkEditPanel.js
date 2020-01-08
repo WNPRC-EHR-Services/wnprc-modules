@@ -32,6 +32,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
                 item.on('change', function(field, newValue){
                      var investigatorField = field.up("form").getForm().findField("investigator");
+                     investigatorField.setValue(null);
                         var filter = LABKEY.Filter.create('project', newValue, LABKEY.Filter.Types.EQUAL);
                         investigatorField.store.filterArray = [filter];
                         investigatorField.store.load();
@@ -45,7 +46,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
             if (item.name === 'investigator') {
 
-                item.on('afterrender', function(field){
+                item.on('beforerender', function(field){
 
                     var projectVal = field.up("form").getForm().findField("project").value;
                     var filter = LABKEY.Filter.create('project', projectVal, LABKEY.Filter.Types.EQUAL);
@@ -74,7 +75,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
                 item.valueField = 'rowid';
                 item.displayField = 'name';
 
-                item.on('afterrender', function (field) {
+                item.on('beforerender', function (field) {
 
                     var chargeTypeVal = field.up("form").getForm().findField("chargetype").value;
                     var filter = LABKEY.Filter.create('departmentCode', chargeTypeVal, LABKEY.Filter.Types.EQUAL);
@@ -84,7 +85,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
                 item.on('select', function (combo, recs) {
 
-                    if (recs && recs[0]) {
+                    if (recs && recs[0] && recs[0].data) {
 
                         var chargeId = recs[0].data.rowid;
                         var chargeDateValue = item.up("form").getForm().findField("date").value;

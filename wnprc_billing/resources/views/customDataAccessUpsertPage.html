@@ -118,11 +118,6 @@
                         var filter = LABKEY.Filter.create('investigatorId', newValue, LABKEY.Filter.Types.EQUAL);
                         projectField.store.filterArray = [filter];
                         projectField.store.load();
-                        projectField.store.on('load', function(){
-                            projectField.store.fireEvent('datachanged');
-                            projectField.bindStore(projectField.store);
-                            projectField.setDisabled(false);
-                        }, this, {single: true});
                     }
                 }
             }, {
@@ -137,17 +132,20 @@
                     type: 'labkey-store',
                     schemaName: 'ehrLinked',
                     queryName: 'project',
-                    columns: 'project',
+                    columns: 'project, investigatorId',
                     sort: 'project',
-                    autoLoad: true
+                    autoLoad: false,
+                    additionalFilter: LABKEY.Filter.create('status_code', 1) // IN PROGRESS
                 },
                 listeners : {
                     scope: this,
-                    render: function(field) {
+                    beforerender: function(field) {
                         var invesVal = field.up("form").getForm().findField("investigatorid").value;
-                        var filter = LABKEY.Filter.create('investigatorId', invesVal, LABKEY.Filter.Types.EQUAL);
-                        field.store.filterArray = [filter];
-                        field.store.load();
+                        if (invesVal) {
+                            var filter = LABKEY.Filter.create('investigatorId', invesVal, LABKEY.Filter.Types.EQUAL);
+                            field.store.filterArray = [filter];
+                            field.store.load();
+                        }
                     }
                 }
             }, {

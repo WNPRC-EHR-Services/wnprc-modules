@@ -32,7 +32,7 @@ FROM
   cr1.chargeId AS chargeId,
   ci1.name AS item,
   ci1.chargeCategoryId.name AS category,
-  ci1.departmentCode AS serviceCenter,
+  ci1.departmentCode AS groupName,
   NULL AS isMiscCharge,
   pFees1.tierRate,
 
@@ -77,7 +77,7 @@ SELECT
   cr2.chargeId AS chargeId,
   ci2.name AS item,
   ci2.chargeCategoryId.name AS category,
-  ci2.departmentCode AS serviceCenter,
+  ci2.departmentCode AS groupName,
   NULL AS isMiscCharge,
   pFees2.tierRate,
 

@@ -14,7 +14,7 @@
                     </column>
                     <column columnName="departmentCode">
                         <nullable>false</nullable>
-                        <columnTitle>Group Name</columnTitle>
+                        <columnTitle>Group</columnTitle>
                         <fk>
                             <fkDbSchema>ehr_billing</fkDbSchema>
                             <fkTable>chargeUnits</fkTable>

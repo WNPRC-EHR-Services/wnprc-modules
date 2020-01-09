@@ -162,7 +162,6 @@ function onInsert(helper, scriptErrors, row, oldRow) {
         "name": row.name,
         "oldPk": row.oldPk,
         "chargeCategoryId": chargeableItemCategories[row.category],
-        "serviceCode": row.serviceCode,
         "departmentCode": row.departmentCode,
         "comment": row.comment,
         "container": row.container,

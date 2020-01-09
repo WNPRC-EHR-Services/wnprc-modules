@@ -10,7 +10,7 @@ FROM
   wmisc.debitedAccount,
   wmisc.chargetype,
   wmisc.chargeId,
-  ci.departmentCode AS serviceCenter,
+  ci.departmentCode AS groupName,
   ci.name AS item,
   (CASE
      WHEN wmisc.unitCost IS NULL OR wmisc.unitCost = 0

@@ -31,7 +31,7 @@
     ci1.name AS item,
     ci1.chargeCategoryId.name AS category,
     pdt.comment,
-    ci1.departmentCode AS serviceCenter,
+    ci1.departmentCode AS groupName,
     pdt.tierRate AS tierRate,
     NULL AS isMiscCharge,
 

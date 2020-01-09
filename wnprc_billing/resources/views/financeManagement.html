@@ -73,7 +73,7 @@
                 },{
                     header: 'Charge Category and Rates',
                     items: [
-                        {name: 'Charge Units', url: LABKEY.ActionURL.buildURL(queryController, queryAction, null, {schemaName: 'ehr_billing', 'query.queryName': 'chargeUnits', showImport: true})},
+                        {name: 'Groups', url: LABKEY.ActionURL.buildURL(queryController, queryAction, null, {schemaName: 'ehr_billing', 'query.queryName': 'chargeUnits', showImport: true})},
                         {name: 'Chargeable Item Categories', url: LABKEY.ActionURL.buildURL(queryController, queryAction, null, {schemaName: 'ehr_billing', 'query.queryName': 'chargeableItemCategories', showImport: true})},
                         {name: 'Chargeable Items', url: LABKEY.ActionURL.buildURL('query', 'executeQuery', null, {schemaName: 'ehr_billing', 'query.queryName': 'chargeableItems', showImport: true})},
                         {name: 'Standard Rates', url: LABKEY.ActionURL.buildURL("query", "executeQuery", null, {schemaName: 'ehr_billing', 'query.queryName': 'chargeRates', showImport: true})},

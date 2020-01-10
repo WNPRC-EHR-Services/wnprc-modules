@@ -39,4 +39,17 @@
             <column columnName="modified"/>
         </columns>
     </table>
+    <table tableName="groupCategoryAssociations" tableDbType="TABLE" useColumnOrder="true">
+        <tableTitle>Tier Rates</tableTitle>
+        <columns>
+            <column columnName="rowid"/>
+            <column columnName="chargeGroupName"/>
+            <column columnName="chargeCategoryId"/>
+            <column columnName="container"/>
+            <column columnName="createdBy"/>
+            <column columnName="created"/>
+            <column columnName="modifiedBy"/>
+            <column columnName="modified"/>
+        </columns>
+    </table>
 </tables>

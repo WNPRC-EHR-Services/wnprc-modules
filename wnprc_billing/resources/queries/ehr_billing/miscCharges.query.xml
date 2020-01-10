@@ -27,7 +27,8 @@
                         </fk>
                     </column>
                     <column columnName="investigator"/>
-                    <column columnName="chargecategory">
+                    <column columnName="chargetype">
+                        <columnTitle>Adjustment</columnTitle>
                         <fk>
                             <fkDbSchema>wnprc_billing</fkDbSchema>
                             <fkTable>miscChargesType</fkTable>
@@ -35,12 +36,12 @@
                             <fkDisplayColumnName useRawValue="true"/>
                         </fk>
                     </column>
-                    <column columnName="chargetype">
-                        <columnTitle>Charge Unit</columnTitle>
+                    <column columnName="chargeGroup">
+                        <columnTitle>Group</columnTitle>
                         <fk>
                             <fkDbSchema>ehr_billing_public</fkDbSchema>
                             <fkTable>chargeUnits</fkTable>
-                            <fkColumnName>chargetype</fkColumnName>
+                            <fkColumnName>groupName</fkColumnName>
                             <fkDisplayColumnName useRawValue="true"/>
                         </fk>
                     </column>

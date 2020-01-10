@@ -63,7 +63,7 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                     id: 'ehr_billing-nonAnimalCharges-chargeId',
                     valueField: 'rowId',
                     displayField: 'name',
-                    observedField: 'chargetype',
+                    observedField: 'chargeGroup',
                     observerLookupField: 'departmentCode'
                 }
             },
@@ -74,9 +74,9 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                     width: 125
                 }
             },
-            chargetype: {
+            chargeGroup: {
                 hidden: false,
-                xtype: 'wnprc_billing-chargetypeentryfield',
+                xtype: 'wnprc_billing-chargegroupentryfield',
                 columnConfig: {
                     width: 175
                 }

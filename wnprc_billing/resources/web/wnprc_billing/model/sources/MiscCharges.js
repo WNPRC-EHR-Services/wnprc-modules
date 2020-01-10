@@ -63,7 +63,7 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                     id: 'ehr_billing-Misc-charges-chargeId',
                     valueField: 'rowid',
                     displayField: 'name',
-                    observedField: 'chargetype',
+                    observedField: 'chargeGroup',
                     observerLookupField: 'departmentCode'
                 }
             },
@@ -74,9 +74,9 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                     width: 125
                 }
             },
-            chargetype: {
+            chargeGroup: {
                 hidden: false,
-                xtype: 'wnprc_billing-chargetypeentryfield',
+                xtype: 'wnprc_billing-chargegroupentryfield',
                 columnConfig: {
                     width: 175
                 }

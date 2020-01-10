@@ -8,9 +8,9 @@ FROM
   wmisc.billingDate,
   wmisc.project,
   wmisc.debitedAccount,
-  wmisc.chargetype,
+  wmisc.chargetype, --adjustment or reversal
   wmisc.chargeId,
-  ci.departmentCode AS groupName,
+  wmisc.chargeGroup AS groupName,
   ci.name AS item,
   (CASE
      WHEN wmisc.unitCost IS NULL OR wmisc.unitCost = 0
@@ -23,7 +23,6 @@ FROM
     ELSE (wmisc.unitCost + (wmisc.unitCost * wmisc.tierRate)) END) AS unitCost, -- unit cost with tier rate
   coalesce(wmisc.quantity, 1) AS quantity,
   coalesce(cic.name, 'Misc. Fees') AS category,
-  wmisc.chargeCategory, --adjustment or reversal
   wmisc.objectid AS sourceRecord,
   wmisc.comment,
   wmisc.objectid,
@@ -72,7 +71,7 @@ FROM
             AND (cast(wmisc.date AS DATE) <= a.enddateCoalesced OR a.enddate IS NULL)
             AND cast(wmisc.date AS date) >= a.dateOnly) > 0 THEN NULL ELSE 'N'
     END) AS matchesProject,
-  CASE WHEN (wmisc.chargeCategory = 'Reversal' OR wmisc.chargeCategory = 'Adjustment') THEN 'Y' ELSE NULL END AS isAdjustment,
+  CASE WHEN (wmisc.chargetype = 'Reversal' OR wmisc.chargetype = 'Adjustment') THEN 'Y' ELSE NULL END AS isAdjustment,
   CASE WHEN (TIMESTAMPDIFF('SQL_TSI_DAY', wmisc.date, curdate()) > 45) THEN 'Y' ELSE null END AS isOldCharge,
   wmisc.debitedAccount.projectNumber
 

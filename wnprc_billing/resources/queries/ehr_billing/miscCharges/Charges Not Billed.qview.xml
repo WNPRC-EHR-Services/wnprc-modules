@@ -5,7 +5,7 @@
         <column name="project"/>
         <column name="investigator"/>
         <column name="chargeId"/>
-        <column name="chargecategory"/>
+        <column name="chargeGroup"/>
         <column name="chargetype"/>
         <column name="debitedaccount"/>
         <column name="creditedaccount"/>

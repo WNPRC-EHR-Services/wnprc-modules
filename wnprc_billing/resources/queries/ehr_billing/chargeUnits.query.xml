@@ -4,7 +4,7 @@
             <table tableName="chargeUnits" tableDbType="TABLE">
                 <tableTitle>Groups</tableTitle>
                 <columns>
-                    <column columnName="chargetype">
+                    <column columnName="groupName">
                         <columnTitle>Group</columnTitle>
                     </column>
                     <column columnName="servicecenter">

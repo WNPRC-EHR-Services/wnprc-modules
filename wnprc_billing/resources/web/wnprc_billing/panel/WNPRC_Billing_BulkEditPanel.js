@@ -40,7 +40,7 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
                     this.loadStoreOnValueChange(field, "investigator", "alias", newValue);
                 }, this);
             }
-            else if (item.name === 'chargetype') {
+            else if (item.name === 'chargeGroup') {
 
                 item.on('change', function(field, newValue){
                     this.loadStoreOnValueChange(field, "chargeId", "departmentCode", newValue);
@@ -79,10 +79,10 @@ Ext4.define('WNPRC_Billing.panel.BulkEditPanel', {
 
                 item.on('beforerender', function (field) {
 
-                    var chargeTypeField = field.up("form").getForm().findField("chargetype");
+                    var chargeGroupField = field.up("form").getForm().findField("chargeGroup");
 
-                    if (chargeTypeField) {
-                        var filter = LABKEY.Filter.create('departmentCode', chargeTypeField.value, LABKEY.Filter.Types.EQUAL);
+                    if (chargeGroupField) {
+                        var filter = LABKEY.Filter.create('departmentCode', chargeGroupField.value, LABKEY.Filter.Types.EQUAL);
                         field.store.filterArray = [filter];
                         field.store.load();
                     }

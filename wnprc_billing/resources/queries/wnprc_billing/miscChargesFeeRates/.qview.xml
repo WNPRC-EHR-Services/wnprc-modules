@@ -22,6 +22,7 @@
         <column name="tierRate"/>
         <column name="unitCost"/>
         <column name="totalCost"/>
+        <column name="createdby"/>
     </columns>
     <sorts>
         <sort column="date" descending="true" />

@@ -16,9 +16,6 @@ Ext4.define('WNPRC_Billing.form.field.ProjectEntryField', {
                     if (invesField) {
                         invesField.disabled = false;
                         invesField.setValue(null);
-                        var filter = LABKEY.Filter.create('project', this.value, LABKEY.Filter.Types.EQUAL);
-                        invesField.store.filterArray = [filter];
-                        invesField.store.load();
                     }
                 }
                 //for data entry grid

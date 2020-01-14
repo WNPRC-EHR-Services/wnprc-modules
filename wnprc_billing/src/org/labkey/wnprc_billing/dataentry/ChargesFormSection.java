@@ -23,10 +23,6 @@ public class ChargesFormSection extends SimpleFormSection
         _allowRowEditing = false;
 
         addClientDependency(ClientDependency.fromPath("wnprc_billing/model/sources/MiscCharges.js"));
-        addClientDependency(ClientDependency.fromPath("wnprc_billing/panel/WNPRC_Billing_BulkEditPanel.js"));
-        addClientDependency(ClientDependency.fromPath("wnprc_billing/window/WNPRC_Billing_BulkEditWindow.js"));
-        addClientDependency(ClientDependency.fromPath("wnprc_billing/window/WNPRC_Billing_AddAnimalsWindow.js"));
-
         setConfigSources(Collections.singletonList("Task"));
     }
 
@@ -39,18 +35,6 @@ public class ChargesFormSection extends SimpleFormSection
         defaultButtons.remove("COPYFROMSECTION");
         defaultButtons.remove("TEMPLATE");
 
-        defaultButtons.remove("ADDANIMALS");
-        defaultButtons.add(1, "ADDANIMALS_WITH_WNPRC_BILLING_BULK_EDIT");
-
         return defaultButtons;
-    }
-
-    @Override
-    public List<String> getTbarMoreActionButtons()
-    {
-        List<String> defaultMoreActionButtons = super.getTbarMoreActionButtons();
-        defaultMoreActionButtons.remove("BULKEDIT");
-        defaultMoreActionButtons.add("WNPRC_BILLING_BULKEDIT");
-        return defaultMoreActionButtons;
     }
 }

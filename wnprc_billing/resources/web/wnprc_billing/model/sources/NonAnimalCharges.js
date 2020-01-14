@@ -31,21 +31,13 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                 columnConfig: {
                     width: 250
                 },
-                xtype: 'ehr_billingRowObserverEntryField',
+                xtype: 'wnprc_billing-investigatorfield',
                 lookup: {
-                    schemaName: 'ehr_billing',
-                    queryName: 'aliases',
+                    schemaName: 'ehr',
+                    queryName: 'aliasesWithInvestigators',
                     keyColumn: 'investigatorName',
-                    displayColumn: 'investigatorName',
-                    columns: 'alias, investigatorName'
-                },
-                editorConfig: {
-                    caseSensitive: false,
-                    id: 'wnprc_billing-debitAcct-investigator',
-                    valueField: 'investigatorName',
-                    displayField: 'investigatorName',
-                    observedField: 'debitedaccount',
-                    observerLookupField: 'alias'
+                    columns: 'investigatorName',
+                    displayColumn: 'investigatorName'
                 }
             },
             chargeId: {
@@ -57,14 +49,6 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                 },
                 lookup: {
                     columns: 'rowId, name, chargeCategoryId, departmentCode, startDate, endDate'
-                },
-                editorConfig: {
-                    caseSensitive: false,
-                    id: 'ehr_billing-nonAnimalCharges-chargeId',
-                    valueField: 'rowId',
-                    displayField: 'name',
-                    observedField: 'chargeGroup',
-                    observerLookupField: 'departmentCode'
                 }
             },
             date: {
@@ -90,13 +74,15 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                     width: 200
                 }
             },
-            chargeCategory: {
+            chargetype: {
                 hidden: false,
                 columnConfig: {
                     width: 125
                 }
             },
-
+            chargeCategory: {
+                hidden: true
+            }
         }
     }
 });

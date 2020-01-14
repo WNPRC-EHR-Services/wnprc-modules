@@ -30,22 +30,14 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 hidden: false,
                 userEditable: true,
                 columnConfig: {
-                    width: 150
-                },
-                editorConfig: {
-                  caseSensitive: false,
-                  id: 'wnprc_billing-Charges-investigator',
-                  valueField: 'inves',
-                  displayField: 'inves',
-                  observedField: 'project',
-                  observerLookupField: 'project'
+                    width: 200
                 },
                 lookup: {
                     schemaName: 'ehr',
-                    queryName: 'project',
-                    keyColumn: 'inves',
-                    displayColumn: 'inves',
-                    columns: 'inves'
+                    queryName: 'projectsWithInvestigators',
+                    keyColumn: 'investigatorName',
+                    columns: 'project, investigatorId, investigatorName',
+                    displayColumn: 'investigatorName'
                 }
             },
             chargeId: {
@@ -58,14 +50,6 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 lookup: {
                     columns: 'rowid, name, chargeCategoryId, departmentCode, startDate, endDate'
                 },
-                editorConfig: {
-                    caseSensitive: false,
-                    id: 'ehr_billing-Misc-charges-chargeId',
-                    valueField: 'rowid',
-                    displayField: 'name',
-                    observedField: 'chargeGroup',
-                    observerLookupField: 'departmentCode'
-                }
             },
             date: {
                 hidden: false,
@@ -87,14 +71,17 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 anchor: '50%',
                 height: 20,
                 columnConfig: {
-                    width: 200
+                    width: 300
                 }
             },
-            chargeCategory: {
+            chargetype: {
                 hidden: false,
                 columnConfig: {
                     width: 125
                 }
+            },
+            chargeCategory: {
+                hidden: true
             }
         }
     }

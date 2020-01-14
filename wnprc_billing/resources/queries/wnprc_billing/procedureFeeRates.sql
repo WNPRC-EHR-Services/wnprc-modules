@@ -51,8 +51,8 @@ FROM
      WHEN pFees1.project.investigatorId IS NOT NULL THEN pFees1.project.investigatorId.lastName
      ELSE NULL END) AS investigatorLastName,
   CASE WHEN (TIMESTAMPDIFF('SQL_TSI_DAY', pFees1.date, curdate()) > 45) THEN 'Y' ELSE null END AS isOldCharge,
-  pFees1.account.projectNumber
-
+  pFees1.account.projectNumber,
+  pFees1.performedby
 
  FROM wnprc_billing.procedureFeesWithTierRates pFees1
  LEFT JOIN ehr_billing.chargeRates cr1 ON (
@@ -96,7 +96,8 @@ SELECT
      WHEN pFees2.project.investigatorId IS NOT NULL THEN pFees2.project.investigatorId.lastName
      ELSE NULL END) AS investigatorLastName,
        CASE WHEN (TIMESTAMPDIFF('SQL_TSI_DAY', pFees2.date, curdate()) > 45) THEN 'Y' ELSE null END AS isOldCharge,
-  pFees2.account.projectNumber
+  pFees2.account.projectNumber,
+  pFees2.performedby
 
 FROM wnprc_billing.procedureFeesWithTierRates pFees2
   LEFT JOIN ehr_billing.chargeRates cr2 ON (

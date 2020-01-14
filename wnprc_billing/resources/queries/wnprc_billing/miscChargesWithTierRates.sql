@@ -9,6 +9,7 @@ SELECT * FROM
       wmisc.debitedAccount,
       wmisc.chargetype, --adjustment or reversal
       wmisc.chargeId,
+      wmisc.chargeGroup,
       wmisc.objectid AS sourceRecord,
       wmisc.comment,
       wmisc.objectid,

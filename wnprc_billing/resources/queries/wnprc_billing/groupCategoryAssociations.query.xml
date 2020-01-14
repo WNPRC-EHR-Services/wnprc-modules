@@ -2,6 +2,9 @@
     <metadata>
         <tables xmlns="http://labkey.org/data/xml">
             <table tableName="groupCategoryAssociations" tableDbType="TABLE" useColumnOrder="true">
+                <importTemplates>
+                    <template label="Download Group Category Template" url="/query/exportExcelTemplate.view?schemaName=wnprc_billing&amp;query.queryName=groupCategoryAssocWithCategoryName&amp;captionType=Label&amp;filenamePrefix=groupCategoryTemplate" />
+                </importTemplates>
                 <tableTitle>Group Category Associations</tableTitle>
                 <columns>
                     <column columnName="chargeGroupName">

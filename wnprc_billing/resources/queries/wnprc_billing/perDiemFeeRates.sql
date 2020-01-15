@@ -29,7 +29,7 @@
     pdt.quantity,
     cr1.chargeId AS chargeId,
     ci1.name AS item,
-    ci1.chargeCategoryId.chargeCategoryId.name AS category,
+    ci1.chargeCategoryId.name AS category,
     pdt.comment,
     ci1.departmentCode AS groupName,
     pdt.tierRate AS tierRate,

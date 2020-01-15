@@ -363,8 +363,8 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         log("View and download invoice PDF.");
         viewPDF("downloadPDF");
 
-        log("View Estimated Charges By Project.");
-        viewEstimatedChargesByProject();
+        log("View Billing Queries");
+        viewBillingQueries();
 
         log("Verify notification link");
         testBillingNotification();
@@ -582,35 +582,35 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         assertEquals("Data access row not inserted as expected: " , expectedRowData, actualRowData);
     }
 
-    private void viewEstimatedChargesByProject()
+    private void viewBillingQueries()
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
-        clickAndWait(Locator.bodyLinkContainingText("Estimated Charges By Project"));
-        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Center Project"), Ext4Helper.TextMatchTechnique.CONTAINS,"640991");
+        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"));
 
         setFormElement(Locator.input("startDate"), "09/01/2011");
         setFormElement(Locator.input("endDate"), "09/30/2011");
-        clickButtonContainingText("Submit", 0);
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Billing Query"), Ext4Helper.TextMatchTechnique.CONTAINS,"[All]");
 
-        DataRegionTable perDiemFeeRatesTable = new DataRegionTable("perDiemFeeRatesQueryRegion", getDriver());
-        List<String> expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-01 00:00", "640991", "acct101", "$26.00", "30.0", "0.3", "$780.00");
-        List<String> actualRowData = perDiemFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost");
+        clickButtonContainingText("Run Query", 0);
+
+        DataRegionTable miscChargesFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-1").waitFor();
+        List<String> expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-15", "640991", "acct101", "$19.50", "10.0", "$195.00", getDisplayName());
+        List<String> actualRowData = miscChargesFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "totalCost", "createdby");
+        assertEquals("Wrong row data for Per Diem Rates Table", expectedRowData, actualRowData);
+        assertEquals("One row should be displayed", miscChargesFeeRatesTable.getDataRowCount(), 1);
+
+        DataRegionTable perDiemFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-2").waitFor();
+        expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-01 00:00", "640991", "acct101", "$26.00", "30.0", "0.3", "$780.00");
+        actualRowData = perDiemFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost");
         assertEquals("Wrong row data for Per Diem Rates Table", expectedRowData, actualRowData);
         assertEquals("One row should be displayed", perDiemFeeRatesTable.getDataRowCount(), 1);
 
-
-        DataRegionTable procedureFeeRatesTable = new DataRegionTable("procedureFeeRatesQueryRegion", getDriver());
-        expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-27 09:30", "640991", "acct101", "$13.00", "1", "0.3", "$13.00");
-        actualRowData = procedureFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost");
+        DataRegionTable procedureFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-3").waitFor();
+        expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-27 09:30", "640991", "acct101", "$13.00", "1", "0.3", "$13.00", " ");
+        actualRowData = procedureFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost", "performedby");
         assertEquals("Wrong row data for Procedure Fee Rates Table", expectedRowData, actualRowData);
         assertEquals("Two rows should be displayed", procedureFeeRatesTable.getDataRowCount(), 2);
-
-        DataRegionTable miscChargesFeeRatesTable = new DataRegionTable("miscChargesFeeRatesQueryRegion", getDriver());
-        expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-15", "640991", "acct101", "$19.50", "10.0", "$195.00");
-        actualRowData = miscChargesFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "totalCost");
-        assertEquals("Wrong row data for Per Diem Rates Table", expectedRowData, actualRowData);
-        assertEquals("One row should be displayed", miscChargesFeeRatesTable.getDataRowCount(), 1);
     }
 
     private void viewChargesAdjustmentsNotYetBilled()

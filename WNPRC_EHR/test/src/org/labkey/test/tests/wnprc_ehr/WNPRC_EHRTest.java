@@ -676,25 +676,25 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         mapWithAnimalId.put("Id", PROJECT_MEMBER_ID);
         mapWithAnimalId.put("date", "2010-10-23");
         mapWithAnimalId.put("project", PROJECT_ID);
-        mapWithAnimalId.put("chargetype", "Clinical Pathology");
+        mapWithAnimalId.put("chargeGroup", "Clinical Pathology");
         mapWithAnimalId.put("chargeId", "vaccine supplies");
         mapWithAnimalId.put("quantity", "10");
-        mapWithAnimalId.put("chargecategory", "Adjustment");
+        mapWithAnimalId.put("chargetype", "Adjustment");
         mapWithAnimalId.put("comment", "charge 1 with animal id");
 
         Map<String, String> mapWithDebitAcct = new LinkedHashMap<>();
         mapWithDebitAcct.put("debitedaccount", ACCOUNT_ID_1);
         mapWithDebitAcct.put("date", "2010-10-23");
-        mapWithDebitAcct.put("chargetype", "Business Office");
+        mapWithDebitAcct.put("chargeGroup", "Business Office");
         mapWithDebitAcct.put("chargeId", "Blood draws - Additional Tubes");
         mapWithDebitAcct.put("quantity", "8");
-        mapWithDebitAcct.put("chargecategory", "Adjustment");
+        mapWithDebitAcct.put("chargetype", "Adjustment");
         mapWithDebitAcct.put("comment", "charge 1 without animal id");
 
         Map<String, String> mapWithDebitAcct2 = new LinkedHashMap<>();
         mapWithDebitAcct2.put("debitedaccount", ACCOUNT_ID_1);
         mapWithDebitAcct2.put("date", "2010-10-22");
-        mapWithDebitAcct2.put("chargetype", "Clinical Pathology");
+        mapWithDebitAcct2.put("chargeGroup", "Clinical Pathology");
         mapWithDebitAcct2.put("chargeId", "vaccine supplies");
         mapWithDebitAcct2.put("quantity", "5");
         mapWithDebitAcct2.put("comment", "charge 2 without animal id");
@@ -703,7 +703,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         mapWithAnimalId2.put("Id", PROJECT_MEMBER_ID);
         mapWithAnimalId2.put("date", "2011-09-15");
         mapWithAnimalId2.put("project", PROJECT_ID);
-        mapWithAnimalId2.put("chargetype", "Clinical Pathology");
+        mapWithAnimalId2.put("chargeGroup", "Clinical Pathology");
         mapWithAnimalId2.put("chargeId", "vaccine supplies");
         mapWithAnimalId2.put("quantity", "10");
         mapWithAnimalId2.put("comment", "charge 2 with animal id");

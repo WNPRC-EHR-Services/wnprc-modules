@@ -102,6 +102,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private final File CHARGEABLE_ITEMS_RATES_TSV = TestFileUtils.getSampleData("wnprc_ehr/billing/chargeableItemsRates.tsv");
     private final File CHARGEABLE_ITEMS_RATES_ERROR_TSV = TestFileUtils.getSampleData("wnprc_ehr/billing/chargeableItemsRatesError.tsv");
+    private final File CHARGEABLE_ITEMS_RATES_GROUP_CATEGORY_ERROR_TSV = TestFileUtils.getSampleData("wnprc_ehr/billing/chargeableItemsRatesGroupCategoryError.tsv");
     private static final int CHARGE_RATES_NUM_ROWS = 9;
     private static final int CHARGEABLE_ITEMS_NUM_ROWS = 8;
 
@@ -111,6 +112,9 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private final File CHARGEABLE_ITEM_CATEGORIES_TSV = TestFileUtils.getSampleData("wnprc_ehr/billing/chargeableItemCategories.tsv");
     private static final int CHARGEABLE_ITEM_CATEGORIES_NUM_ROWS = 11;
+
+    private final File GROUP_CATEGORY_ASSOCIATIONS_TSV = TestFileUtils.getSampleData("wnprc_ehr/billing/groupCategoryAssociations.tsv");
+    private static final int GROUP_CATEGORY_ASSOCIATIONS_NUM_ROWS = 11;
 
     private final File TIER_RATES_TSV = TestFileUtils.getSampleData("wnprc_ehr/billing/tierRates.tsv");
     private static final int TIER_RATES_NUM_ROWS = 4;
@@ -838,15 +842,17 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         drt.clickHeaderButton("Import bulk data");
         waitForText("Format:");
 
-        click(Locator.id("uploadFileDiv2Expando"));
-        waitForText("Import Lookups by Alternate Key");
+        log("Test for Overlapping date error during data upload");
+        String error1 = "ERROR: For charge Item Per diems: Charge item start date (2050-01-01) is after charge item end date (2049-12-31).";
+        String error2 = "ERROR: For charge Item Medicine A per dose: Charge rate (2018-05-05 to 2019-12-31) overlaps a previous charge rate (2007-01-01 to 2045-12-31).";
+        attemptUploadWithBadData(CHARGEABLE_ITEMS_RATES_ERROR_TSV);
 
-        setFormElement(Locator.xpath("//div[@id='uploadFileDiv2']/descendant::input[@name='file']"), CHARGEABLE_ITEMS_RATES_ERROR_TSV.getPath());
-        click(Locator.button("Submit"));
+        refresh();
 
-        waitForText("ERROR");
-        assertTextPresent("ERROR: For charge Item Per diems: Charge item start date (2050-01-01) is after charge item end date (2049-12-31).");
-        assertTextPresent("ERROR: For charge Item Medicine A per dose: Charge rate (2018-05-05 to 2019-12-31) overlaps a previous charge rate (2007-01-01 to 2045-12-31).");
+        log("Test for Group-Category association during data upload");
+        error1 = "ERROR: 'Scientific Protocol Implementation, Surgery' is not a valid group and category association. If this is a new association, then add this association to ehr_billing.groupCategoryAssociations table by going to 'GROUP CATEGORY ASSOCIATIONS' link on the main Finance page.";
+        error2 = "ERROR: 'Clinical Pathology, Surgery' is not a valid group and category association. If this is a new association, then add this association to ehr_billing.groupCategoryAssociations table by going to 'GROUP CATEGORY ASSOCIATIONS' link on the main Finance page.";
+        attemptUploadWithBadData(CHARGEABLE_ITEMS_RATES_GROUP_CATEGORY_ERROR_TSV, error1, error2);
 
         uploadChargeRates(CHARGEABLE_ITEMS_RATES_UPDATE_TSV, CHARGE_RATES_NUM_UPDATE_ROWS, CHARGEABLE_ITEMS_NUM_UPDATE_ROWS);
 
@@ -866,7 +872,18 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         assertTextPresent("Medicine A per dose", 2);
         assertTextPresent("vaccine supplies", 3);
 
+    }
 
+    private void attemptUploadWithBadData(File file, String... errors)
+    {
+        click(Locator.id("uploadFileDiv2Expando"));
+        waitForText("Import Lookups by Alternate Key");
+
+        setFormElement(Locator.xpath("//div[@id='uploadFileDiv2']/descendant::input[@name='file']"), file.getPath());
+        click(Locator.button("Submit"));
+
+        waitForText("ERROR");
+        assertTextPresent(errors);
     }
 
     private void uploadChargeRates(File file, int rateRows, int itemRows)
@@ -905,16 +922,21 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         importBulkDataFromFile(ALIASES_TSV, "Grant Accounts - ALL", ALIASES_NUM_ROWS);
         testExpectedRowCount(ALIASES_NUM_ROWS);
 
+        //upload Charge Units
+        importBulkDataFromFile(CHARGE_UNITS_TSV, "Groups", CHARGE_UNITS_NUM_ROWS);
+        testExpectedRowCount(CHARGE_UNITS_NUM_ROWS);
+
         //upload Chargeable Item Categories
         importBulkDataFromFile(CHARGEABLE_ITEM_CATEGORIES_TSV, "Chargeable Item Categories", CHARGEABLE_ITEM_CATEGORIES_NUM_ROWS);
         testExpectedRowCount(CHARGEABLE_ITEM_CATEGORIES_NUM_ROWS);
 
+        //upload Group-Category Associations
+        importBulkDataFromFile(GROUP_CATEGORY_ASSOCIATIONS_TSV, "Group Category Associations", GROUP_CATEGORY_ASSOCIATIONS_NUM_ROWS);
+        testExpectedRowCount(GROUP_CATEGORY_ASSOCIATIONS_NUM_ROWS);
+
         //upload Chargeable Items and Charge Rates
         uploadChargeRates(CHARGEABLE_ITEMS_RATES_TSV, CHARGE_RATES_NUM_ROWS, CHARGEABLE_ITEMS_NUM_ROWS);
 
-        //upload Charge Units
-        importBulkDataFromFile(CHARGE_UNITS_TSV, "Charge Units", CHARGE_UNITS_NUM_ROWS);
-        testExpectedRowCount(CHARGE_UNITS_NUM_ROWS);
     }
 
     private void testExpectedRowCount(int expectedNumRows)

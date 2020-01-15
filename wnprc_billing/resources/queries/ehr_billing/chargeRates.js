@@ -129,7 +129,7 @@ function onInsert(helper, scriptErrors, row, oldRow) {
 
         var groupCategoryWithChargeName = row.groupName + ", " + row.category;
 
-        EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryId', "'" + groupCategoryWithChargeName + "' is not a valid group and category association. If this is a new association, then add this association to ehr_billing.groupCategoryAssociations table by going to 'GROUP CATEGORY ASSOCIATIONS' link on the main Finance page.", 'ERROR')
+        EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryId', "'" + groupCategoryWithChargeName + "' is not a valid group and category association. If this is a new association, then add this association to ehr_billing.groupCategoryAssociations table by going to 'GROUP CATEGORY ASSOCIATIONS' link on the main Finance page.", 'ERROR');
         return false;
     }
 
@@ -155,7 +155,7 @@ function onInsert(helper, scriptErrors, row, oldRow) {
 
     var isItemUpdate = false;
     for (var i=0; i < validItems.length; i++) {
-        if (validItems[i]["name"] === row.name && validItems[i]["departmentCode"] === row.departmentCode) {
+        if (validItems[i]["name"] === row.name && validItems[i]["departmentCode"] === row.groupName) {
             isItemUpdate = true;
             row.chargeId = validItems[i]["rowid"];
             break;

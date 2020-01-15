@@ -621,8 +621,8 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         DataRegionTable notBilled = new DataRegionTable("query", getDriver());
 
-        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", "Clinical Pathology", "10.0", "$15.00", "charge 2 with animal id");
-        List<String> actualRowData = notBilled.getRowDataAsText(0, "Id", "date", "project", "chargetype", "quantity", "unitCost", "comment");
+        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", "vaccine supplies", "Misc. Fees", "Clinical Pathology", "10.0", "$15.00", "charge 2 with animal id");
+        List<String> actualRowData = notBilled.getRowDataAsText(0, "Id", "date", "project", "chargeId/name", "chargeId/chargeCategoryId/name", "chargeGroup", "quantity", "unitCost", "comment");
         assertEquals("Wrong row data for misc charges not billed ", expectedRowData, actualRowData);
     }
 

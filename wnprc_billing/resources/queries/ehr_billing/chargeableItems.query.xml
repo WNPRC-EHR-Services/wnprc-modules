@@ -16,17 +16,17 @@
                         <nullable>false</nullable>
                         <columnTitle>Group</columnTitle>
                         <fk>
-                            <fkDbSchema>wnprc_billing</fkDbSchema>
-                            <fkTable>groupCategoryAssociations</fkTable>
-                            <fkColumnName>chargeGroupName</fkColumnName>
+                            <fkDbSchema>ehr_billing</fkDbSchema>
+                            <fkTable>chargeUnits</fkTable>
+                            <fkColumnName>groupName</fkColumnName>
                         </fk>
                     </column>
                     <column columnName="chargeCategoryId">
                         <columnTitle>Charge Category</columnTitle>
                         <fk>
-                            <fkDbSchema>wnprc_billing</fkDbSchema>
-                            <fkTable>groupCategoryAssociations</fkTable>
-                            <fkColumnName>chargeCategoryId</fkColumnName>
+                            <fkDbSchema>ehr_billing</fkDbSchema>
+                            <fkTable>chargeableItemCategories</fkTable>
+                            <fkColumnName>rowid</fkColumnName>
                         </fk>
                     </column>
                 </columns>

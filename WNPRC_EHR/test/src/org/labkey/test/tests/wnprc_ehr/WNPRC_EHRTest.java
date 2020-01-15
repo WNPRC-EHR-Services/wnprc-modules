@@ -342,6 +342,9 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         log("Upload sample data.");
         uploadData();
 
+        log("Add investigators.");
+        addInvestigators();
+
         log("Update new charge rates.");
         updateChargeRates();
 
@@ -413,10 +416,6 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void testInvestigatorFacingLinks() throws IOException, CommandException
     {
-        navigateToFolder(PROJECT_NAME, EHR_FOLDER);
-        log("Add investigator to ehr.investigators table.");
-        addInvestigators();
-
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
         provideBillingDataAccess();
 
@@ -501,6 +500,10 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void addInvestigators() throws IOException, CommandException
     {
+        log("Add investigators to ehr.investigators table.");
+
+        navigateToFolder(PROJECT_NAME, EHR_FOLDER);
+
         Connection cn = new Connection(WebTestHelper.getBaseURL(), PasswordUtil.getUsername(), PasswordUtil.getPassword());
 
         log("Inserting Principal Investigator Jon Snow.");
@@ -524,6 +527,37 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         insertCmd.execute(cn, EHR_FOLDER_PATH);
 
         log("Investigators inserted in to ehr.investigators table.");
+
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        clickAndWait(Locator.bodyLinkContainingText("Grant Accounts - ALL"));
+        DataRegionTable aliases = new DataRegionTable("query", getDriver());
+        aliases.setSort("alias", SortDirection.ASC);
+        log("Update Grant Account with Investigator 'Stark'");
+        updateRecordsAndVerify(aliases, 0, "Investigator:", "Stark", "investigatorId");
+        log("Update Grant Account with Investigator 'Snow'");
+        updateRecordsAndVerify(aliases, 1, "Investigator:", "Snow", "investigatorId");
+
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        clickAndWait(Locator.bodyLinkContainingText("WNPRC Projects"));
+        DataRegionTable projects = new DataRegionTable("query", getDriver());
+        projects.setSort("project", SortDirection.ASC);
+        log("Update Project with Investigator 'Stark'");
+        updateRecordsAndVerify(projects, 0, "Project Coordinator:", "Stark", "investigatorId");
+        log("Update Project with Investigator 'Snow'");
+        updateRecordsAndVerify(projects, 1, "Project Coordinator:", "Snow", "investigatorId");
+    }
+
+    private void updateRecordsAndVerify(DataRegionTable table, int rowNum, String inputLabel, String inputValue, String inputName)
+    {
+        table.clickEditRow(rowNum);
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining(inputLabel), Ext4Helper.TextMatchTechnique.CONTAINS, inputValue);
+        clickButton("Submit",0);
+        checkMessageWindow("Success", "Your upload was successful!", "OK");
+
+        log("Verify '" + inputLabel + "' value '" + inputValue + "' was inserted.");
+        List<String> actualRowData = table.getRowDataAsText(rowNum, inputName);
+        List<String> expectedRowData = Arrays.asList(inputValue);
+        assertEquals(inputName + " value not found: ", expectedRowData, actualRowData);
     }
 
     private void provideBillingDataAccess() throws IOException, CommandException

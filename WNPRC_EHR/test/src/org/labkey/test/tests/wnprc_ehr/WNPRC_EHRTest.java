@@ -345,6 +345,9 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         log("Add investigators.");
         addInvestigators();
 
+        log("Provide Billing Data Access.");
+        provideBillingDataAccess();
+
         log("Update new charge rates.");
         updateChargeRates();
 
@@ -416,9 +419,6 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void testInvestigatorFacingLinks() throws IOException, CommandException
     {
-        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
-        provideBillingDataAccess();
-
         navigateToFolder(PROJECT_NAME, PI_PORTAL);
         log("Give EHR Lab Read access to PI Portal folder.");
         _permissionsHelper.setPermissions("EHR Lab", "ReaderRole");
@@ -562,22 +562,24 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void provideBillingDataAccess() throws IOException, CommandException
     {
-        Connection cn = new Connection(WebTestHelper.getBaseURL(), PasswordUtil.getUsername(), PasswordUtil.getPassword());
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        clickAndWait(Locator.bodyLinkContainingText("Access To Billing Data"));
+        DataRegionTable dataAccessTable = new DataRegionTable("query", getDriver());
+        dataAccessTable.clickInsertNewRow();
 
-        log("Provide data access to Investigator Sansa Stark.");
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("User With Access:"), Ext4Helper.TextMatchTechnique.CONTAINS, _userHelper.getDisplayNameForEmail(INVESTIGATOR.getEmail()));
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Stark");
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Project:"), Ext4Helper.TextMatchTechnique.CONTAINS, "640991");
+        _ext4Helper.checkCheckbox("Access to all projects?:");
+        clickButton("Submit",0);
+        checkMessageWindow("Error", "Must choose 'Project' or check 'Access to all projects' but not both.", "OK");
+        _ext4Helper.uncheckCheckbox("Access to all projects?:");
+        clickButton("Submit",0);
 
-        InsertRowsCommand insertCmd = new InsertRowsCommand("ehr_billing", "dataAccess");
-        Map<String,Object> rowMap = new HashMap<>();
-
-        int piUserId = getUserId(INVESTIGATOR_PRINCIPAL.getEmail());
-        int userId = getUserId(INVESTIGATOR.getEmail());
-        rowMap.put("userid", userId);
-        rowMap.put("investigatorId", getInvestigatorId(piUserId));
-        rowMap.put("project", "640991");
-
-        insertCmd.addRow(rowMap);
-
-        insertCmd.execute(cn, PRIVATE_FOLDER_PATH);
+        log("Verify row insert in ehr_billing.dataAccess.");
+        List<String> actualRowData = dataAccessTable.getRowDataAsText(0, "investigatorid", "userId", "project", "alldata");
+        List<String> expectedRowData = Arrays.asList("Stark", "investigator", "640991", "No");
+        assertEquals("Data access row not inserted as expected: " , expectedRowData, actualRowData);
     }
 
     private void viewEstimatedChargesByProject()

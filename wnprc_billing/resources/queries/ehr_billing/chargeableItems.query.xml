@@ -17,7 +17,7 @@
                         <columnTitle>Group</columnTitle>
                         <fk>
                             <fkDbSchema>wnprc_billing</fkDbSchema>
-                            <fkTable>chargeCategoryAssociations</fkTable>
+                            <fkTable>groupCategoryAssociations</fkTable>
                             <fkColumnName>chargeGroupName</fkColumnName>
                         </fk>
                     </column>
@@ -25,7 +25,7 @@
                         <columnTitle>Charge Category</columnTitle>
                         <fk>
                             <fkDbSchema>wnprc_billing</fkDbSchema>
-                            <fkTable>chargeCategoryAssociations</fkTable>
+                            <fkTable>groupCategoryAssociations</fkTable>
                             <fkColumnName>chargeCategoryId</fkColumnName>
                         </fk>
                     </column>

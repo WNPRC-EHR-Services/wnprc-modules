@@ -179,6 +179,26 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         initTest.clickFolder("PI Portal");
         initTest.addBillingPublicWebParts();
+
+        initTest.uploadBillingDataAndVerify();
+    }
+
+    private void uploadBillingDataAndVerify() throws Exception
+    {
+        log("Check Extensible table columns.");
+        checkExtensibleTablesCols();
+
+        log("Upload sample data.");
+        uploadData();
+
+        log("Add investigators.");
+        addInvestigators();
+
+        log("Provide Billing Data Access.");
+        provideBillingDataAccess();
+
+        log("Update new charge rates.");
+        updateChargeRates();
     }
 
     public void goToProjectHome()
@@ -336,21 +356,6 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     @Test
     public void testBilling() throws IOException, CommandException
     {
-        log("Check Extensible table columns.");
-        checkExtensibleTablesCols();
-
-        log("Upload sample data.");
-        uploadData();
-
-        log("Add investigators.");
-        addInvestigators();
-
-        log("Provide Billing Data Access.");
-        provideBillingDataAccess();
-
-        log("Update new charge rates.");
-        updateChargeRates();
-
         log("Enter misc charges via data entry form.");
         enterCharges();
 

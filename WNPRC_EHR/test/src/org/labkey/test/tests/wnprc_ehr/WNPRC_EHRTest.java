@@ -54,6 +54,7 @@ import org.labkey.test.util.ext4cmp.Ext4FieldRef;
 import org.labkey.test.util.ext4cmp.Ext4FileFieldRef;
 import org.labkey.test.util.ext4cmp.Ext4GridRef;
 import org.labkey.test.util.external.labModules.LabModuleHelper;
+import org.labkey.test.util.ext4cmp.Ext4ComboRef;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -384,7 +385,8 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         testInvestigatorFacingLinks();
 
         log("View Charges and adjustments Not Yet Billed");
-        viewChargesAdjustmentsNotYetBilled();
+        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", " ", "vaccine supplies", "Misc. Fees", "Clinical Pathology", "10.0", "$15.00", "charge 2 with animal id");
+        viewChargesAdjustmentsNotYetBilled(1, "comment", "charge 2 with animal id", expectedRowData);
 
         log("Download Multiple Invoices");
         testDownloadMultipleInvoices();
@@ -392,6 +394,152 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         log("Delete invoice runs");
         testDeleteInvoiceRuns();
     }
+
+    @Test
+    public void testBulkEditChargesWithAnimalIds() throws IOException, CommandException
+    {
+        log ("Animals with Charge Ids - Bulk Edit via Add Batch");
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        clickAndWait(Locator.bodyLinkContainingText("Enter Charges with Animal Ids"));
+        Ext4GridRef miscChargesGrid = _helper.getExt4GridForFormSection("Misc. Charges");
+        miscChargesGrid.clickTbarButton("Add Batch");
+        waitForElement(Ext4Helper.Locators.window("Choose Animals"));
+        Ext4FieldRef.getForLabel(this, "Id(s)").setValue(StringUtils.join(MORE_ANIMAL_IDS, ";"));
+        Ext4FieldRef.getForLabel(this, "Bulk Edit Before Applying").setChecked(true);
+        waitAndClick(Ext4Helper.Locators.window("Choose Animals").append(Ext4Helper.Locators.ext4Button("Submit")));
+        Locator.XPathLocator bulkEditWindow = Ext4Helper.Locators.window("Bulk Edit");
+        fillBulkEditForm(bulkEditWindow, miscChargesGrid, true);
+        assertEquals("Animals added via Add Batch and rows in Data Entry grid do not match:", miscChargesGrid.getRowCount(), MORE_ANIMAL_IDS.length);
+
+        log ("Add comment via More Options --> Bulk Edit");
+        String comment = "Charges with Animal Ids added via bulk edit.";
+        String msg = "You are about to set values for 1 fields on 5 records. Do you want to do this?";
+        addCommentViaBulkEdit(bulkEditWindow, miscChargesGrid, comment, MORE_ANIMAL_IDS.length, msg);
+
+        log ("Submit " + comment);
+        submitForm();
+
+        log ("Verify entered charges in Misc Charges table");
+        List<String> expectedRowData = Arrays.asList("test1020148", LocalDateTime.now().format(_dateTimeFormatter), "795644", "Snow, Jon", "Blood draws", "Blood Draws", "Business Office", "5.0", "$10.00", comment);
+        viewChargesAdjustmentsNotYetBilled(MORE_ANIMAL_IDS.length, "comment", comment, expectedRowData);
+    }
+
+    private void addCommentViaBulkEdit(Locator.XPathLocator bulkEditWindow, Ext4GridRef grid, String comment, int numRows, String msg)
+    {
+        grid.clickTbarButton("Select All");
+        openBulkEditWindowViaMoreActions(bulkEditWindow, grid);
+        _helper.toggleBulkEditField("Comment");
+        _ext4Helper.queryOne("window field[fieldLabel=Comment]", Ext4ComboRef.class).setValue(comment);
+        waitAndClick(bulkEditWindow.append(Ext4Helper.Locators.ext4Button("Submit")));
+        checkMessageWindow("Set Values", msg, "Yes");
+        grid.waitForRowCount(numRows);
+    }
+
+    private void openBulkEditWindowViaMoreActions(Locator.XPathLocator bulkEditWindow, Ext4GridRef grid)
+    {
+        grid.clickTbarButton("More Actions");
+        click(Ext4Helper.Locators.menuItem("Bulk Edit"));
+        waitForElement(bulkEditWindow);
+    }
+
+    private void fillBulkEditForm(Locator.XPathLocator bulkEditWindow, Ext4GridRef grid, boolean hasAnimalId)
+    {
+        waitForElement(bulkEditWindow);
+
+        log ("Toggle fields");
+        if (hasAnimalId)
+        {
+            _helper.toggleBulkEditField("Project");
+        }
+        else
+        {
+            _helper.toggleBulkEditField("Debit Account");
+        }
+        _helper.toggleBulkEditField("Investigator");
+        _helper.toggleBulkEditField("Group");
+        _helper.toggleBulkEditField("Charge Item");
+        _helper.toggleBulkEditField("Quantity");
+
+        log("Set and Reset fields");
+
+        if (hasAnimalId)
+        {
+            log("Set Project");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Project:"), Ext4Helper.TextMatchTechnique.CONTAINS, "640991");
+
+            log ("Set Investigator");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), "Stark, Sansa");
+
+        }
+        else
+        {
+            log ("Set Debit Account");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Debit Account:"), Ext4Helper.TextMatchTechnique.CONTAINS, "101");
+
+            log ("Set Investigator");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Snow, Jon");
+
+        }
+
+        if (hasAnimalId)
+        {
+            log ("Reset Project");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Project:"), Ext4Helper.TextMatchTechnique.CONTAINS, "795644");
+
+            log ("Reset Investigator");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Snow, Jon");
+        }
+        else
+        {
+            log ("Set Debit Account");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Debit Account:"), Ext4Helper.TextMatchTechnique.CONTAINS, "100");
+
+            log ("Set Investigator");
+            _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Stark, Sansa");
+
+        }
+
+        log ("Set Group");
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Group:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Clinical Pathology");
+
+        log ("Set Charge Item");
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Charge Item:"), Ext4Helper.TextMatchTechnique.CONTAINS, "vaccine supplies");
+
+        log ("Reset Group");
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Group:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Business Office");
+
+        log ("Reset Charge Item");
+        _ext4Helper.selectComboBoxItem( Ext4Helper.Locators.formItemWithLabelContaining("Charge Item:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Blood draws");
+        sleep(1000);
+
+        _ext4Helper.queryOne("window field[fieldLabel=Quantity]", Ext4ComboRef.class).setValue(5);
+
+        waitAndClick(bulkEditWindow.append(Ext4Helper.Locators.ext4Button("Submit")));
+    }
+
+//    @Test
+//    public void testBulkEditChargesWithoutAnimalIds() throws IOException, CommandException
+//    {
+//        log ("Animals without Charge Ids - Bulk Edit via More Options --> Bulk Edit");
+//        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+//        clickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
+//        Ext4GridRef miscChargesGrid = _helper.getExt4GridForFormSection("Misc. Charges");
+//        _helper.addRecordToGrid(miscChargesGrid);
+//        _helper.addRecordToGrid(miscChargesGrid);
+//        miscChargesGrid.clickTbarButton("Select All");
+//        Locator.XPathLocator bulkEditWindow = Ext4Helper.Locators.window("Bulk Edit");
+//        openBulkEditWindowViaMoreActions(bulkEditWindow, miscChargesGrid);
+//        fillBulkEditForm(bulkEditWindow, miscChargesGrid, false);
+//
+//        log ("Add comment via More Options --> Bulk Edit");
+//        String comment = "Charges without Animal Ids added via bulk edit.";
+//        addCommentViaBulkEdit(bulkEditWindow, miscChargesGrid, comment, 2);
+//
+////        log ("Verify non-animal charges in Misc Charges table");
+////        List<String> expectedRowData = Arrays.asList("test1020148", LocalDateTime.now().format(_dateTimeFormatter), "795644", "Snow, Jon", "Blood draws", "Blood Draws", "Business Office", "5.0", "$10.00", comment);
+////        viewChargesAdjustmentsNotYetBilled(MORE_ANIMAL_IDS.length, "comment", comment, expectedRowData);
+//
+//    }
 
     private void testBillingNotification()
     {
@@ -592,6 +740,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
         clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"));
+        refresh();
 
         setFormElement(Locator.input("startDate"), "09/01/2011");
         setFormElement(Locator.input("endDate"), "09/30/2011");
@@ -618,17 +767,22 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         assertEquals("Two rows should be displayed", procedureFeeRatesTable.getDataRowCount(), 2);
     }
 
-    private void viewChargesAdjustmentsNotYetBilled()
+    private void viewChargesAdjustmentsNotYetBilled(int numRows, String filterCol, String filterVal, List<String> expectedRowData)
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
         clickAndWait(Locator.bodyLinkContainingText("View Charges and Adjustments Not Yet Billed"));
 
         DataRegionTable notBilled = new DataRegionTable("query", getDriver());
+        notBilled.setFilter(filterCol, "Equals", filterVal);
+        notBilled.setSort("Id", SortDirection.ASC);
 
-        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", "vaccine supplies", "Misc. Fees", "Clinical Pathology", "10.0", "$15.00", "charge 2 with animal id");
-        List<String> actualRowData = notBilled.getRowDataAsText(0, "Id", "date", "project", "chargeId/name", "chargeId/chargeCategoryId/name", "chargeGroup", "quantity", "unitCost", "comment");
-        assertEquals("Wrong row data for misc charges not billed ", expectedRowData, actualRowData);
+        DataRegionTable table = new DataRegionTable("query", getDriver());
+
+        List<String> actualRowData = notBilled.getRowDataAsText(0, "Id", "date", "project", "investigator", "chargeId/name", "chargeId/chargeCategoryId/name", "chargeGroup", "quantity", "unitCost", "comment");
+
+        assertEquals("Wrong number of rows for misc charges not billed for '" + filterVal + "': ", numRows, notBilled.getDataRowCount());
+        assertEquals("Wrong row data for misc charges not billed: ", expectedRowData, actualRowData);
     }
 
     private void viewJET()

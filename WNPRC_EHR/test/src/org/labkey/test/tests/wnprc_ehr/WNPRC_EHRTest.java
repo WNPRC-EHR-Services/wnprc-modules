@@ -385,7 +385,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         testInvestigatorFacingLinks();
 
         log("View Charges and adjustments Not Yet Billed");
-        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", " ", "vaccine supplies", "Misc. Fees", "Clinical Pathology", "10.0", "$15.00", "charge 2 with animal id");
+        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", " ", "vaccine supplies", "Misc. Fees", "Clinical Pathology", " ", " ", "10.0", "$15.00", "charge 2 with animal id");
         viewChargesAdjustmentsNotYetBilled(1, "comment", "charge 2 with animal id", expectedRowData);
 
         log("Download Multiple Invoices");
@@ -398,6 +398,9 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     @Test
     public void testBulkEditChargesWithAnimalIds() throws IOException, CommandException
     {
+        String comment = "Charges with Animal Ids added via bulk edit.";
+        String msg = "You are about to set values for 1 fields on 5 records. Do you want to do this?";
+
         log ("Animals with Charge Ids - Bulk Edit via Add Batch");
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
         clickAndWait(Locator.bodyLinkContainingText("Enter Charges with Animal Ids"));
@@ -412,15 +415,13 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         assertEquals("Animals added via Add Batch and rows in Data Entry grid do not match:", miscChargesGrid.getRowCount(), MORE_ANIMAL_IDS.length);
 
         log ("Add comment via More Options --> Bulk Edit");
-        String comment = "Charges with Animal Ids added via bulk edit.";
-        String msg = "You are about to set values for 1 fields on 5 records. Do you want to do this?";
         addCommentViaBulkEdit(bulkEditWindow, miscChargesGrid, comment, MORE_ANIMAL_IDS.length, msg);
 
         log ("Submit " + comment);
         submitForm();
 
         log ("Verify entered charges in Misc Charges table");
-        List<String> expectedRowData = Arrays.asList("test1020148", LocalDateTime.now().format(_dateTimeFormatter), "795644", "Snow, Jon", "Blood draws", "Blood Draws", "Business Office", "5.0", "$10.00", comment);
+        List<String> expectedRowData = Arrays.asList("test1020148", LocalDateTime.now().format(_dateTimeFormatter), "795644", "Snow, Jon", "Blood draws", "Blood Draws", "Business Office", " ", " ", "5.0", "$10.00", comment);
         viewChargesAdjustmentsNotYetBilled(MORE_ANIMAL_IDS.length, "comment", comment, expectedRowData);
     }
 
@@ -517,29 +518,38 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         waitAndClick(bulkEditWindow.append(Ext4Helper.Locators.ext4Button("Submit")));
     }
 
-//    @Test
-//    public void testBulkEditChargesWithoutAnimalIds() throws IOException, CommandException
-//    {
-//        log ("Animals without Charge Ids - Bulk Edit via More Options --> Bulk Edit");
-//        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
-//        clickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
-//        Ext4GridRef miscChargesGrid = _helper.getExt4GridForFormSection("Misc. Charges");
-//        _helper.addRecordToGrid(miscChargesGrid);
-//        _helper.addRecordToGrid(miscChargesGrid);
-//        miscChargesGrid.clickTbarButton("Select All");
-//        Locator.XPathLocator bulkEditWindow = Ext4Helper.Locators.window("Bulk Edit");
-//        openBulkEditWindowViaMoreActions(bulkEditWindow, miscChargesGrid);
-//        fillBulkEditForm(bulkEditWindow, miscChargesGrid, false);
-//
-//        log ("Add comment via More Options --> Bulk Edit");
-//        String comment = "Charges without Animal Ids added via bulk edit.";
-//        addCommentViaBulkEdit(bulkEditWindow, miscChargesGrid, comment, 2);
-//
-////        log ("Verify non-animal charges in Misc Charges table");
-////        List<String> expectedRowData = Arrays.asList("test1020148", LocalDateTime.now().format(_dateTimeFormatter), "795644", "Snow, Jon", "Blood draws", "Blood Draws", "Business Office", "5.0", "$10.00", comment);
-////        viewChargesAdjustmentsNotYetBilled(MORE_ANIMAL_IDS.length, "comment", comment, expectedRowData);
-//
-//    }
+    @Test
+    public void testBulkEditChargesWithoutAnimalIds() throws IOException, CommandException
+    {
+        String msg = "You are about to set values for 6 fields on 2 records. Do you want to do this?";
+        String comment = "Charges without Animal Ids added via bulk edit.";
+
+        log ("Animals without Charge Ids - Bulk Edit via More Options --> Bulk Edit");
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        clickAndWait(Locator.bodyLinkContainingText("Enter Charges without Animal Ids"));
+        Ext4GridRef miscChargesGrid = _helper.getExt4GridForFormSection("Misc. Charges");
+        _helper.addRecordToGrid(miscChargesGrid);
+        _helper.addRecordToGrid(miscChargesGrid);
+        miscChargesGrid.clickTbarButton("Select All");
+        Locator.XPathLocator bulkEditWindow = Ext4Helper.Locators.window("Bulk Edit");
+        openBulkEditWindowViaMoreActions(bulkEditWindow, miscChargesGrid);
+        fillBulkEditForm(bulkEditWindow, miscChargesGrid, false);
+
+        checkMessageWindow("Set Values", msg, "Yes");
+        assertEquals("Animals added via More Actions --> Add Batch and rows in Data Entry grid do not match:", miscChargesGrid.getRowCount(), 2);
+
+        log ("Add comment via More Options --> Bulk Edit");
+        msg = "You are about to set values for 1 fields on 2 records. Do you want to do this?";
+        addCommentViaBulkEdit(bulkEditWindow, miscChargesGrid, comment, 2, msg);
+
+        log ("Submit " + comment);
+        submitForm();
+
+        log ("Verify non-animal charges entered via Bulk Edit in Misc Charges table");
+        List<String> expectedRowData = Arrays.asList(" ", LocalDateTime.now().format(_dateTimeFormatter), " ", "Stark, Sansa", "Blood draws", "Blood Draws", "Business Office", " ", "acct100", "5.0", "$10.00", comment);
+        viewChargesAdjustmentsNotYetBilled(2, "comment", comment, expectedRowData);
+
+    }
 
     private void testBillingNotification()
     {
@@ -739,8 +749,8 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
-        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"));
-        refresh();
+        click(Locator.bodyLinkContainingText("View Billing Queries"));
+        waitForElement(Locator.id("wnprc-view-billing-querires-clear-all").withText("Clear All"));
 
         setFormElement(Locator.input("startDate"), "09/01/2011");
         setFormElement(Locator.input("endDate"), "09/30/2011");
@@ -779,7 +789,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         DataRegionTable table = new DataRegionTable("query", getDriver());
 
-        List<String> actualRowData = notBilled.getRowDataAsText(0, "Id", "date", "project", "investigator", "chargeId/name", "chargeId/chargeCategoryId/name", "chargeGroup", "quantity", "unitCost", "comment");
+        List<String> actualRowData = notBilled.getRowDataAsText(0, "Id", "date", "project", "investigator", "chargeId/name", "chargeId/chargeCategoryId/name", "chargeGroup", "chargetype", "debitedaccount", "quantity", "unitCost", "comment");
 
         assertEquals("Wrong number of rows for misc charges not billed for '" + filterVal + "': ", numRows, notBilled.getDataRowCount());
         assertEquals("Wrong row data for misc charges not billed: ", expectedRowData, actualRowData);

@@ -749,8 +749,8 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
-        click(Locator.bodyLinkContainingText("View Billing Queries"));
-        waitForElement(Locator.id("wnprc-view-billing-querires-clear-all").withText("Clear All"));
+        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"));
+        waitForElement(Locator.input("startDate"));
 
         setFormElement(Locator.input("startDate"), "09/01/2011");
         setFormElement(Locator.input("endDate"), "09/30/2011");
@@ -933,6 +933,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void submitForm()
     {
+        shortWait().until(ExpectedConditions.elementToBeClickable(Locator.button("Submit")));
         clickButton("Submit", 0);
         _extHelper.waitForExtDialog("Finalize Form");
         click(Ext4Helper.Locators.ext4Button("Yes"));

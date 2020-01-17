@@ -6,7 +6,15 @@ Ext4.define('WNPRC_Billing.form.field.MiscChargesDateField', {
 
         this.addListener({
             scope:this,
-            change: function (combo, val) {
+            render: function (field, newVal) {
+                //for bulk edit window
+                if (this.up("form") && this.up("form").getForm()) {
+                    if (!field.getValue()) {
+                        field.setValue(new Date());
+                    }
+                }
+            },
+            change: function (field, newVal) {
 
                 //for bulk edit window
                 if (this.up("form") && this.up("form").getForm()) {
@@ -30,7 +38,7 @@ Ext4.define('WNPRC_Billing.form.field.MiscChargesDateField', {
                 //for data entry grid
                 else {
                     //if date is changed, reset below values since unitCost is retrieved from ehr_billing.chargeRates based on the date entered along with its coupled selections (chargeGroup (labeled as Group), which is coupled with chargeId (labeled as Charge Item))
-                    EHR.DataEntryUtils.setSiblingFields(combo, {
+                    EHR.DataEntryUtils.setSiblingFields(field, {
                         chargeGroup: null,
                         chargeId: null,
                         unitCost: null

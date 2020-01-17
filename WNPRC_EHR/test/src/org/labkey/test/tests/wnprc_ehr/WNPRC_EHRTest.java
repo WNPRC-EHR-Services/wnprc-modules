@@ -57,6 +57,7 @@ import org.labkey.test.util.external.labModules.LabModuleHelper;
 import org.labkey.test.util.ext4cmp.Ext4ComboRef;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.io.File;
@@ -456,10 +457,18 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         {
             _helper.toggleBulkEditField("Debit Account");
         }
+        _helper.toggleBulkEditField("Date of Charge");
+
+        if (Ext4FieldRef.getForLabel(this, "Date of Charge").getValue() == null)
+        {
+            Ext4FieldRef.getForLabel(this, "Date of Charge").setValue(LocalDateTime.now().format(_dateTimeFormatter));
+        }
+
         _helper.toggleBulkEditField("Investigator");
         _helper.toggleBulkEditField("Group");
         _helper.toggleBulkEditField("Charge Item");
         _helper.toggleBulkEditField("Quantity");
+        _helper.toggleBulkEditField("Unit Cost");
 
         log("Set and Reset fields");
 
@@ -513,7 +522,10 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         _ext4Helper.selectComboBoxItem( Ext4Helper.Locators.formItemWithLabelContaining("Charge Item:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Blood draws");
         sleep(1000);
 
-        _ext4Helper.queryOne("window field[fieldLabel=Quantity]", Ext4ComboRef.class).setValue(5);
+        String unitCost = Ext4FieldRef.getForLabel(this, "Unit Cost").getValue().toString();
+        assertEquals("Unit cost mismatch:", unitCost, "10");
+
+        Ext4FieldRef.getForLabel(this, "Quantity").setValue(5);
 
         waitAndClick(bulkEditWindow.append(Ext4Helper.Locators.ext4Button("Submit")));
     }
@@ -521,7 +533,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     @Test
     public void testBulkEditChargesWithoutAnimalIds() throws IOException, CommandException
     {
-        String msg = "You are about to set values for 6 fields on 2 records. Do you want to do this?";
+        String msg = "You are about to set values for 1 fields on 2 records. Do you want to do this?";
         String comment = "Charges without Animal Ids added via bulk edit.";
 
         log ("Animals without Charge Ids - Bulk Edit via More Options --> Bulk Edit");
@@ -535,11 +547,12 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         openBulkEditWindowViaMoreActions(bulkEditWindow, miscChargesGrid);
         fillBulkEditForm(bulkEditWindow, miscChargesGrid, false);
 
-        checkMessageWindow("Set Values", msg, "Yes");
+        Window msgWindow = new Window.WindowFinder(this.getDriver()).withTitle("Set Values").waitFor();
+        msgWindow.clickButton("Yes", 0);
+
         assertEquals("Animals added via More Actions --> Add Batch and rows in Data Entry grid do not match:", miscChargesGrid.getRowCount(), 2);
 
         log ("Add comment via More Options --> Bulk Edit");
-        msg = "You are about to set values for 1 fields on 2 records. Do you want to do this?";
         addCommentViaBulkEdit(bulkEditWindow, miscChargesGrid, comment, 2, msg);
 
         log ("Submit " + comment);
@@ -933,7 +946,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void submitForm()
     {
-        shortWait().until(ExpectedConditions.elementToBeClickable(Locator.button("Submit")));
+//        new WebDriverWait(getDriver(), 15).until(ExpectedConditions.elementToBeClickable(Locator.button("Submit")));
         clickButton("Submit", 0);
         _extHelper.waitForExtDialog("Finalize Form");
         click(Ext4Helper.Locators.ext4Button("Yes"));

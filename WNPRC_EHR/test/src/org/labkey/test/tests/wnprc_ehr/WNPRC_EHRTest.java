@@ -754,7 +754,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
         log("Verify row insert in ehr_billing.dataAccess.");
         List<String> actualRowData = dataAccessTable.getRowDataAsText(0, "investigatorid", "userId", "project", "alldata");
-        List<String> expectedRowData = Arrays.asList("Stark", "investigator", "640991", "No");
+        List<String> expectedRowData = Arrays.asList("Stark, Sansa", "investigator", "640991", "No");
         assertEquals("Data access row not inserted as expected: " , expectedRowData, actualRowData);
     }
 

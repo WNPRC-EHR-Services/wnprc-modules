@@ -5,10 +5,10 @@
                 <auditLogging>DETAILED</auditLogging>
                 <columns>
                     <column columnName="chargeGroupName">
-                        <columnTitle>chargeGroupName</columnTitle>
+                        <columnTitle>Group</columnTitle>
                     </column>
                     <column columnName="chargeCategoryName">
-                        <columnTitle>chargeCategoryName</columnTitle>
+                        <columnTitle>Category</columnTitle>
                     </column>
                 </columns>
             </table>

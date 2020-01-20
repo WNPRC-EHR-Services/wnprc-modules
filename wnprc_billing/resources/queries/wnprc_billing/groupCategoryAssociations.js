@@ -48,9 +48,11 @@ function onInit(event, helper){
 
 function onInsert(helper, scriptErrors, row, oldRow) {
 
-    if (!chargeableItemCategories[row.chargeCategoryName]) {
+    var category = row.chargeCategoryId; //Text values under 'Category' header are getting set to chargeCategoryId field.
 
-        EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryName', "'" + row.chargeCategoryName + "' is not a valid category. If this is a new category, please add to ehr_billing.chargeableItemCategories table by going to 'CHARGEABLE ITEM CATEGORIES' link on the main Finance page.", 'ERROR');
+    if (!chargeableItemCategories[category]) {
+
+        EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryId', "'" + category + "' is not a valid category. If this is a new category, please add to ehr_billing.chargeableItemCategories table by going to 'CHARGEABLE ITEM CATEGORIES' link on the main Finance page.", 'ERROR');
         return false;
     }
 
@@ -60,5 +62,5 @@ function onInsert(helper, scriptErrors, row, oldRow) {
         return false;
     }
 
-    row.chargeCategoryId = chargeableItemCategories[row.chargeCategoryName];
+    row.chargeCategoryId = chargeableItemCategories[category]; //set chargeCategoryId with expected rowid value
 }

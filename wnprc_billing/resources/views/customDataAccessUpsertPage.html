@@ -100,21 +100,22 @@
                 name: 'investigatorid',
                 fieldLabel: 'Investigator',
                 allowBlank: true,
-                displayField: 'lastName',
+                displayField: 'investigatorWithName',
                 valueField: 'rowid',
                 value: investigatorId,
                 queryMode: 'local',
                 store: {
                     type: 'labkey-store',
                     schemaName: 'ehrLinked',
-                    queryName: 'investigators',
-                    columns: 'rowid, lastName',
-                    sort: 'lastname',
+                    queryName: 'investigatorsWithName',
+                    columns: 'rowid, investigatorWithName',
+                    sort: 'investigatorWithName',
                     autoLoad: true
                 },
                 listeners: {
                     change: function(field, newValue, oldValue, eOpts){
                         var projectField = field.up("form").getForm().findField("project");
+                        projectField.setValue(null);
                         var filter = LABKEY.Filter.create('investigatorId', newValue, LABKEY.Filter.Types.EQUAL);
                         projectField.store.filterArray = [filter];
                         projectField.store.load();

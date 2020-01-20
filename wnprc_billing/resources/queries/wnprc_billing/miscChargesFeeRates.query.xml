@@ -8,6 +8,9 @@
                         <columnTitle>Unit Cost</columnTitle>
                         <formatString>$###,##0.00</formatString>
                     </column>
+                    <column columnName="groupName">
+                        <columnTitle>Group</columnTitle>
+                    </column>
                     <column columnName="totalCost">
                         <columnTitle>Total Cost</columnTitle>
                         <formatString>$###,##0.00</formatString>

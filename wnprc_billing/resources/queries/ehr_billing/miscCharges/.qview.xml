@@ -4,16 +4,8 @@
         <column name="date"/>
         <column name="project"/>
         <column name="investigator"/>
-        <column name="chargeId/name">
-            <properties>
-                <property name="columnTitle" value="Charge Item"/>
-            </properties>
-        </column>
-        <column name="chargeId/chargeCategoryId/name">
-            <properties>
-                <property name="columnTitle" value="Category"/>
-            </properties>
-        </column>
+        <column name="chargeId/name"/>
+        <column name="chargeId/chargeCategoryId/name"/>
         <column name="chargeGroup"/>
         <column name="chargetype"/>
         <column name="debitedaccount"/>

@@ -35,9 +35,9 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                 lookup: {
                     schemaName: 'ehr',
                     queryName: 'aliasesWithInvestigators',
-                    keyColumn: 'investigatorName',
-                    columns: 'investigatorName',
-                    displayColumn: 'investigatorName'
+                    keyColumn: 'investigatorWithName',
+                    columns: 'investigatorWithName',
+                    displayColumn: 'investigatorWithName'
                 }
             },
             chargeId: {

@@ -35,9 +35,9 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 lookup: {
                     schemaName: 'ehr',
                     queryName: 'projectsWithInvestigators',
-                    keyColumn: 'investigatorName',
-                    columns: 'project, investigatorId, investigatorName',
-                    displayColumn: 'investigatorName'
+                    keyColumn: 'investigatorWithName',
+                    columns: 'project, investigatorId, investigatorWithName',
+                    displayColumn: 'investigatorWithName'
                 }
             },
             chargeId: {

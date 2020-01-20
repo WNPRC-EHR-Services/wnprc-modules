@@ -47,9 +47,9 @@ FROM
   (CASE WHEN pFees1.account.isAcceptingCharges IS FALSE THEN 'N' END) AS isAcceptingCharges,
   (CASE WHEN (cr1.unitCost IS NULL OR cr1.unitCost = 0) THEN 'Y' ELSE null END) AS lacksRate,
   (CASE
-     WHEN pFees1.account.investigatorId IS NOT NULL THEN pFees1.account.investigatorId.lastName
-     WHEN pFees1.project.investigatorId IS NOT NULL THEN pFees1.project.investigatorId.lastName
-     ELSE NULL END) AS investigatorLastName,
+     WHEN pFees1.account.investigatorId IS NOT NULL THEN pFees1.account.investigatorId
+     WHEN pFees1.project.investigatorId IS NOT NULL THEN pFees1.project.investigatorId
+     ELSE NULL END) AS investigator,
   CASE WHEN (TIMESTAMPDIFF('SQL_TSI_DAY', pFees1.date, curdate()) > 45) THEN 'Y' ELSE null END AS isOldCharge,
   pFees1.account.projectNumber,
   pFees1.performedby
@@ -92,9 +92,9 @@ SELECT
   (CASE WHEN pFees2.account.isAcceptingCharges IS FALSE THEN 'N' END) AS isAcceptingCharges,
   (CASE WHEN (cr2.unitCost IS NULL OR cr2.unitCost = 0) THEN 'Y' ELSE null END) AS lacksRate,
   (CASE
-     WHEN pFees2.account.investigatorId IS NOT NULL THEN pFees2.account.investigatorId.lastName
-     WHEN pFees2.project.investigatorId IS NOT NULL THEN pFees2.project.investigatorId.lastName
-     ELSE NULL END) AS investigatorLastName,
+     WHEN pFees2.account.investigatorId IS NOT NULL THEN pFees2.account.investigatorId
+     WHEN pFees2.project.investigatorId IS NOT NULL THEN pFees2.project.investigatorId
+     ELSE NULL END) AS investigator,
        CASE WHEN (TIMESTAMPDIFF('SQL_TSI_DAY', pFees2.date, curdate()) > 45) THEN 'Y' ELSE null END AS isOldCharge,
   pFees2.account.projectNumber,
   pFees2.performedby

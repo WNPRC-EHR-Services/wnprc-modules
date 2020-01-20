@@ -5,4 +5,4 @@ SELECT
     endDate,
     isActive
 FROM wnprc_billing.tierRates
-WHERE isActive = 'Y'
+WHERE isActive = true

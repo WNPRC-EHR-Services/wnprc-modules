@@ -30,7 +30,6 @@ FROM
   wmisc.createdby,
   wmisc.taskId,
   wmisc.creditedaccount,
-  wmisc.investigator AS investigator,
 
      cr.rowid                                            AS rateId,
      (SELECT group_concat(DISTINCT a.project.displayName, chr(10)) AS projects
@@ -59,10 +58,10 @@ FROM
   (CASE
      WHEN ((wmisc.unitCost IS NULL OR wmisc.unitCost = 0) AND (cr.unitCost IS NULL OR cr.unitCost = 0)) THEN 'Y'
      ELSE NULL END) AS lacksRate,
-  (CASE
-      WHEN wmisc.debitedAccount.investigatorId IS NOT NULL THEN wmisc.debitedAccount.investigatorId.lastName
-      WHEN wmisc.project.investigatorId IS NOT NULL THEN wmisc.project.investigatorId.lastName
-      ELSE NULL END) AS investigatorLastName,
+  (CASE WHEN wmisc.investigator IS NOT NULL THEN wmisc.investigator
+      WHEN wmisc.debitedAccount.investigatorId IS NOT NULL THEN wmisc.debitedAccount.investigatorId.investigatorWithName
+      WHEN wmisc.project.investigatorId IS NOT NULL THEN wmisc.project.investigatorId.investigatorWithName
+      ELSE NULL END) AS investigator,
   (CASE
     WHEN (SELECT count(*) as projects
           FROM study.assignment a

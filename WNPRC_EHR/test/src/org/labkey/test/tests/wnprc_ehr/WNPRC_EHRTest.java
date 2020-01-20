@@ -709,18 +709,18 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         DataRegionTable aliases = new DataRegionTable("query", getDriver());
         aliases.setSort("alias", SortDirection.ASC);
         log("Update Grant Account with Investigator 'Stark'");
-        updateRecordsAndVerify(aliases, 0, "Investigator:", "Stark", "investigatorId");
+        updateRecordsAndVerify(aliases, 0, "Investigator:", "Stark, Sansa", "investigatorId");
         log("Update Grant Account with Investigator 'Snow'");
-        updateRecordsAndVerify(aliases, 1, "Investigator:", "Snow", "investigatorId");
+        updateRecordsAndVerify(aliases, 1, "Investigator:", "Snow, Jon", "investigatorId");
 
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
         clickAndWait(Locator.bodyLinkContainingText("WNPRC Projects"));
         DataRegionTable projects = new DataRegionTable("query", getDriver());
         projects.setSort("project", SortDirection.ASC);
         log("Update Project with Investigator 'Stark'");
-        updateRecordsAndVerify(projects, 0, "Project Coordinator:", "Stark", "investigatorId");
+        updateRecordsAndVerify(projects, 0, "Project Coordinator:", "Stark, Sansa", "investigatorId");
         log("Update Project with Investigator 'Snow'");
-        updateRecordsAndVerify(projects, 1, "Project Coordinator:", "Snow", "investigatorId");
+        updateRecordsAndVerify(projects, 1, "Project Coordinator:", "Snow, Jon", "investigatorId");
     }
 
     private void updateRecordsAndVerify(DataRegionTable table, int rowNum, String inputLabel, String inputValue, String inputName)
@@ -744,7 +744,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         dataAccessTable.clickInsertNewRow();
 
         _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("User With Access:"), Ext4Helper.TextMatchTechnique.CONTAINS, _userHelper.getDisplayNameForEmail(INVESTIGATOR.getEmail()));
-        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Stark");
+        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Investigator:"), Ext4Helper.TextMatchTechnique.CONTAINS, "Stark, Sansa");
         _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Project:"), Ext4Helper.TextMatchTechnique.CONTAINS, "640991");
         _ext4Helper.checkCheckbox("Access to all projects?:");
         clickButton("Submit",0);
@@ -784,7 +784,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         assertEquals("One row should be displayed", perDiemFeeRatesTable.getDataRowCount(), 1);
 
         DataRegionTable procedureFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-3").waitFor();
-        expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-27 09:30", "640991", "acct101", "$13.00", "1", "0.3", "$13.00", " ");
+        expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-27 09:30", "00640991", "acct101", "$13.00", "1", "0.3", "$13.00", " ");
         actualRowData = procedureFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost", "performedby");
         assertEquals("Wrong row data for Procedure Fee Rates Table", expectedRowData, actualRowData);
         assertEquals("Two rows should be displayed", procedureFeeRatesTable.getDataRowCount(), 2);
@@ -1253,10 +1253,10 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         mapWithAnimalId.put("Id", PROJECT_MEMBER_ID);
         mapWithAnimalId.put("date", "2010-11-22");
         mapWithAnimalId.put("project", PROJECT_ID);
-        mapWithAnimalId.put("chargetype", "Clinical Pathology");
+        mapWithAnimalId.put("chargeGroup", "Clinical Pathology");
         mapWithAnimalId.put("chargeId", "vaccine supplies");
         mapWithAnimalId.put("quantity", "10");
-        mapWithAnimalId.put("chargecategory", "Adjustment");
+        mapWithAnimalId.put("chargetype", "Adjustment");
         mapWithAnimalId.put("comment", "charge 1 with animal id");
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
         log("Enter Misc. Charges with animal Id.");

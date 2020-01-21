@@ -8,6 +8,8 @@ rowid,
           THEN userid.displayName
       ELSE
           firstName
-    END) AS investigatorWithName
+    END) AS investigatorWithName,
+userid,
+financialAnalyst
 
 FROM ehr.investigators

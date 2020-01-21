@@ -148,41 +148,41 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     @BeforeClass @LogMethod
     public static void doSetup() throws Exception
     {
-//        WNPRC_EHRTest initTest = (WNPRC_EHRTest)getCurrentTest();
-//
-//        initTest.initProject("EHR");
-//        initTest.createTestSubjects();
-//        initTest.clickFolder("EHR");
-//        initTest._containerHelper.enableModules(Arrays.asList("EHR_Billing", "WNPRC_Billing", "WNPRC_BillingPublic"));
-//        initTest.setModuleProperties(Arrays.asList(new ModulePropertyValue("EHR_Billing", "/" +
-//                initTest.getProjectName(), "BillingContainer", PRIVATE_FOLDER_PATH)));
-//
-//        initTest.createFinanceManagementFolders();
-//        initTest.clickFolder("Private");
-//        initTest._containerHelper.enableModules(Arrays.asList("WNPRC_EHR", "EHR_Billing", "WNPRC_Billing", "WNPRC_BillingPublic"));
-//        initTest.loadBloodBilledByLookup();
-//        initTest.addFinanceRelatedWebParts();
-//        initTest.clickFolder("Private");
-//        initTest.loadEHRBillingTableDefinitions();
-//
-//        initTest.clickFolder("Private");
-//        initTest.createStudyLinkedSchema();
-//        initTest.createCoreLinkedSchema();
-//        initTest.createEHRLinkedSchema();
-//
-//        initTest.clickFolder("EHR");
-//        initTest.createEHRBillingPublicLinkedSchema();
-//        initTest.createWNPRCBillingLinkedSchema();
-//        initTest.goToProjectHome();
-//        initTest.clickFolder(PI_PORTAL);
-//        initTest._containerHelper.enableModules(Arrays.asList("WNPRC_BillingPublic"));
-//
-//        initTest.createWNPRCBillingPublicLinkedSchema();
-//
-//        initTest.clickFolder("PI Portal");
-//        initTest.addBillingPublicWebParts();
-//
-//        initTest.uploadBillingDataAndVerify();
+        WNPRC_EHRTest initTest = (WNPRC_EHRTest)getCurrentTest();
+
+        initTest.initProject("EHR");
+        initTest.createTestSubjects();
+        initTest.clickFolder("EHR");
+        initTest._containerHelper.enableModules(Arrays.asList("EHR_Billing", "WNPRC_Billing", "WNPRC_BillingPublic"));
+        initTest.setModuleProperties(Arrays.asList(new ModulePropertyValue("EHR_Billing", "/" +
+                initTest.getProjectName(), "BillingContainer", PRIVATE_FOLDER_PATH)));
+
+        initTest.createFinanceManagementFolders();
+        initTest.clickFolder("Private");
+        initTest._containerHelper.enableModules(Arrays.asList("WNPRC_EHR", "EHR_Billing", "WNPRC_Billing", "WNPRC_BillingPublic"));
+        initTest.loadBloodBilledByLookup();
+        initTest.addFinanceRelatedWebParts();
+        initTest.clickFolder("Private");
+        initTest.loadEHRBillingTableDefinitions();
+
+        initTest.clickFolder("Private");
+        initTest.createStudyLinkedSchema();
+        initTest.createCoreLinkedSchema();
+        initTest.createEHRLinkedSchema();
+
+        initTest.clickFolder("EHR");
+        initTest.createEHRBillingPublicLinkedSchema();
+        initTest.createWNPRCBillingLinkedSchema();
+        initTest.goToProjectHome();
+        initTest.clickFolder(PI_PORTAL);
+        initTest._containerHelper.enableModules(Arrays.asList("WNPRC_BillingPublic"));
+
+        initTest.createWNPRCBillingPublicLinkedSchema();
+
+        initTest.clickFolder("PI Portal");
+        initTest.addBillingPublicWebParts();
+
+        initTest.uploadBillingDataAndVerify();
     }
 
     private void uploadBillingDataAndVerify() throws Exception
@@ -762,8 +762,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
     {
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
-        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"));
-        waitForElement(Locator.input("startDate"));
+        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"), WAIT_FOR_JAVASCRIPT);
 
         setFormElement(Locator.input("startDate"), "09/01/2011");
         setFormElement(Locator.input("endDate"), "09/30/2011");

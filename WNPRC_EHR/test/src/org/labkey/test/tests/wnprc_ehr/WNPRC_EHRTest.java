@@ -370,8 +370,8 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         log("View and download invoice PDF.");
         viewPDF("downloadPDF");
 
-//        log("View Billing Queries");
-//        viewBillingQueries(); //TODO: commented out for now, talk to Sweta why teamcity doesn't fully load the page, this test passes locally.
+        log("View Billing Queries");
+        viewBillingQueries();
 
         log("Verify notification link");
         testBillingNotification();
@@ -763,6 +763,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
 
         clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"), WAIT_FOR_JAVASCRIPT);
+        sleep(5000);
 
         setFormElement(Locator.input("startDate"), "09/01/2011");
         setFormElement(Locator.input("endDate"), "09/30/2011");

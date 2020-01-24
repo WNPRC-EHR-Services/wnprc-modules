@@ -1,6 +1,7 @@
 require("ehr/triggers").initScript(this);
 
 var chargeableItemCategories = {};
+var chargeableItemCategoryRowIds = {};
 var groups = {};
 
 function onInit(event, helper){
@@ -18,6 +19,7 @@ function onInit(event, helper){
             for(var i=0; i< rows.length; i++) {
                 var row = rows[i];
                 chargeableItemCategories[row["name"]["value"]] = row["rowId"]["value"];
+                chargeableItemCategoryRowIds[row["rowId"]["value"]] = row["rowId"]["value"];
             }
         },
         failure: function (error) {
@@ -48,12 +50,30 @@ function onInit(event, helper){
 
 function onInsert(helper, scriptErrors, row, oldRow) {
 
-    var category = row.chargeCategoryId; //Text values under 'Category' header are getting set to chargeCategoryId field.
+    var category = row.chargeCategoryId; //When uploading via Bulk Edit, this is a text value, and these text values under 'Category' header get set to chargeCategoryId field. In insert row case, this value is a rowId.
 
-    if (!chargeableItemCategories[category]) {
+    //Insert Row case when user selects from a pre-populated dropdown, or when rowIds are used for Category instead of name
+    if (category === parseInt(category)) {
 
-        EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryId', "'" + category + "' is not a valid category. If this is a new category, please add to ehr_billing.chargeableItemCategories table by going to 'CHARGEABLE ITEM CATEGORIES' link on the main Finance page.", 'ERROR');
-        return false;
+        if (!chargeableItemCategoryRowIds[parseInt(category)]) {
+            EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryId', "'" + category + "' is not a valid category. If this is a new category, please add to ehr_billing.chargeableItemCategories table by going to 'CHARGEABLE ITEM CATEGORIES' link on the main Finance page.", 'ERROR');
+            return false;
+        }
+        else {
+            row.chargeCategoryId = chargeableItemCategoryRowIds[category]; //set chargeCategoryId with expected rowid value
+        }
+    }
+
+    //Bulk Edit case
+    else {
+        if (!chargeableItemCategories[category]) {
+
+            EHR.Server.Utils.addError(scriptErrors, 'chargeCategoryId', "'" + category + "' is not a valid category. If this is a new category, please add to ehr_billing.chargeableItemCategories table by going to 'CHARGEABLE ITEM CATEGORIES' link on the main Finance page.", 'ERROR');
+            return false;
+        }
+        else {
+            row.chargeCategoryId = chargeableItemCategories[category]; //set chargeCategoryId with expected rowid value
+        }
     }
 
     if (!groups[row.chargeGroupName]) {
@@ -61,6 +81,4 @@ function onInsert(helper, scriptErrors, row, oldRow) {
         EHR.Server.Utils.addError(scriptErrors, 'chargeGroupName', "'" + row.chargeGroupName + "' is not a valid group. If this is a new group, please add to ehr_billing.chargeUnits table by going to 'GROUPS' link on the main Finance page.", 'ERROR');
         return false;
     }
-
-    row.chargeCategoryId = chargeableItemCategories[category]; //set chargeCategoryId with expected rowid value
 }

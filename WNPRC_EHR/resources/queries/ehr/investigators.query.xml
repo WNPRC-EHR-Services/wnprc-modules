@@ -9,7 +9,6 @@
                         <shownInInsertView>false</shownInInsertView>
                     </column>
                     <column columnName="userid">
-                        <nullable>false</nullable>
                         <fk>
                             <fkDbSchema>core</fkDbSchema>
                             <fkTable>Users</fkTable>

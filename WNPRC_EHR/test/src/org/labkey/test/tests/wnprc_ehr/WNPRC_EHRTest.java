@@ -760,34 +760,36 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private void viewBillingQueries()
     {
-        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        String startDate="09%2F01%2F2011";
+        String endDate="09%2F30%2F2011";
+//        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"), WAIT_FOR_JAVASCRIPT); //firefox45 on teamcity does not load this page.
 
-        clickAndWait(Locator.bodyLinkContainingText("View Billing Queries"), WAIT_FOR_JAVASCRIPT);
-        sleep(120000);
-
-        setFormElement(Locator.input("startDate"), "09/01/2011");
-        setFormElement(Locator.input("endDate"), "09/30/2011");
-        _ext4Helper.selectComboBoxItem(Ext4Helper.Locators.formItemWithLabelContaining("Billing Query"), Ext4Helper.TextMatchTechnique.CONTAINS,"[All]");
-
-        clickButtonContainingText("Run Query", 0);
-
-        DataRegionTable miscChargesFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-1").waitFor();
+        navigateToFolder(PROJECT_NAME, EHR_FOLDER);
+        log("Verify misc charges");
+        beginAt(String.format("query/%s/executeQuery.view?schemaName=wnprc_billing&query.queryName=miscChargesFeeRates&query.param.StartDate=%s&query.param.EndDate=%s", getContainerPath(), startDate, endDate));
+        DataRegionTable miscChargesFeeRates = new DataRegionTable("query", this);
         List<String> expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-15", "640991", "acct101", "$19.50", "10.0", "$195.00", getDisplayName());
-        List<String> actualRowData = miscChargesFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "totalCost", "createdby");
-        assertEquals("Wrong row data for Per Diem Rates Table", expectedRowData, actualRowData);
-        assertEquals("One row should be displayed", miscChargesFeeRatesTable.getDataRowCount(), 1);
+        List<String> actualRowData = miscChargesFeeRates.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "totalCost", "createdby");
+        assertEquals("Wrong row data for Misc Charges: ", expectedRowData, actualRowData);
+        assertEquals("One row should be displayed", miscChargesFeeRates.getDataRowCount(), 1);
 
-        DataRegionTable perDiemFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-2").waitFor();
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        log("Verify per diems");
+        beginAt(String.format("query%s/executeQuery.view?schemaName=wnprc_billing&query.queryName=perDiemFeeRates&query.param.StartDate=%s&query.param.EndDate=%s", PRIVATE_FOLDER_PATH, startDate, endDate));
+        DataRegionTable perDiemFeeRates = new DataRegionTable("query", this);
         expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-01 00:00", "640991", "acct101", "$26.00", "30.0", "0.3", "$780.00");
-        actualRowData = perDiemFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost");
-        assertEquals("Wrong row data for Per Diem Rates Table", expectedRowData, actualRowData);
-        assertEquals("One row should be displayed", perDiemFeeRatesTable.getDataRowCount(), 1);
+        actualRowData = perDiemFeeRates.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost");
+        assertEquals("Wrong row data for Per Diems: ", expectedRowData, actualRowData);
+        assertEquals("One row should be displayed", perDiemFeeRates.getDataRowCount(), 1);
 
-        DataRegionTable procedureFeeRatesTable = DataRegionTable.DataRegion(getDriver()).withName("billing-qwp-3").waitFor();
+        navigateToFolder(PROJECT_NAME, PRIVATE_FOLDER);
+        log("Verify blood draws");
+        beginAt(String.format("query%s/executeQuery.view?schemaName=wnprc_billing&query.queryName=procedureFeeRates&query.param.StartDate=%s&query.param.EndDate=%s", PRIVATE_FOLDER_PATH, startDate, endDate));
+        DataRegionTable procedureFeeRates = new DataRegionTable("query", this);
         expectedRowData = Arrays.asList(PROJECT_MEMBER_ID, "2011-09-27 09:30", "00640991", "acct101", "$13.00", "1", "0.3", "$13.00", " ");
-        actualRowData = procedureFeeRatesTable.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost", "performedby");
-        assertEquals("Wrong row data for Procedure Fee Rates Table", expectedRowData, actualRowData);
-        assertEquals("Two rows should be displayed", procedureFeeRatesTable.getDataRowCount(), 2);
+        actualRowData = procedureFeeRates.getRowDataAsText(0, "Id", "date", "project", "debitedAccount", "unitCost", "quantity", "tierRate", "totalCost", "performedby");
+        assertEquals("Wrong row data for Procedure Fee Rates/Blood Draws: ", expectedRowData, actualRowData);
+        assertEquals("Two rows should be displayed", procedureFeeRates.getDataRowCount(), 2);
     }
 
     private void viewChargesAdjustmentsNotYetBilled(int numRows, String filterCol, String filterVal, List<String> expectedRowData)

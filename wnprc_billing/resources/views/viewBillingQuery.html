@@ -82,6 +82,7 @@
                 xtype: 'toolbar',
                 dock: 'bottom',
                 ui: 'footer',
+                id: 'wnprc-view-billing-queries-run-query',
                 style: 'background-color: transparent; padding: 10px 0;',
                 items: [{
                     text: 'Run Query',
@@ -106,7 +107,7 @@
                     }
                 }, {
                     text: 'Clear All',
-                    id: 'wnprc-view-billing-querires-clear-all',
+                    id: 'wnprc-view-billing-queries-clear-all',
                     handler: function(btn) {
                         Ext4.get('wnprc_billing_query_web_part').update('');
                         qwpCounter = 0;

@@ -90,7 +90,8 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                 xtype: 'wnprc_billing-unitcostfield'
             },
             totalCost: {
-                userEditable: false
+                userEditable: false,
+                xtype: 'wnprc_billing-totalcostfield'
             }
         }
     }

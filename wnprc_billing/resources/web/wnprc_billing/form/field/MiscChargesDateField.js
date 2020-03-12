@@ -10,7 +10,7 @@ Ext4.define('WNPRC_Billing.form.field.MiscChargesDateField', {
                 //for bulk edit window
                 if (this.up("form") && this.up("form").getForm()) {
                     if (!field.getValue()) {
-                        field.setValue(new Date());
+                        field.setValue(Ext4.Date.format(new Date(), 'Y-m-d'));
                     }
                 }
             },

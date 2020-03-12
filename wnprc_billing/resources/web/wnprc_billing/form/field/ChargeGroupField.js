@@ -19,7 +19,7 @@ Ext4.define('WNPRC_Billing.form.field.ChargeGroupEntryField', {
 
                     var unitCostField = this.up("form").getForm().findField("unitCost");
                     if (unitCostField) {
-                        chargeIdField.disabled = false;
+                        unitCostField.disabled = false;
                         unitCostField.setValue(null);
                     }
                 }

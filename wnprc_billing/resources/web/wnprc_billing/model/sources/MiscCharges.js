@@ -82,6 +82,15 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
             },
             chargeCategory: {
                 hidden: true
+            },
+            quantity: {
+                xtype: 'wnprc_billing-quantityfield'
+            },
+            unitCost: {
+                xtype: 'wnprc_billing-unitcostfield'
+            },
+            totalCost: {
+                userEditable: false
             }
         }
     }

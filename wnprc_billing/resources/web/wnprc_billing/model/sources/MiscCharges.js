@@ -23,7 +23,9 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 }
             },
             debitedaccount: {
-                hidden: true
+                hidden: false,
+                xtype: 'wnprc_billing-miscchargesdebitacctfield',
+                userEditable: false
             },
             investigator: {
                 xtype: 'wnprc_billing-investigatorfield',

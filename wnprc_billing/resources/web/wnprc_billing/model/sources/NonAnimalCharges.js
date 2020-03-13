@@ -16,7 +16,7 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
             },
             debitedaccount: {
                 hidden: false,
-                xtype: 'wnprc_billing-miscchargesdebitacctentryfield',
+                xtype: 'wnprc_billing-nonanimalchargesdebitacctfield',
                 lookup: {
                     schemaName: 'ehr_billing',
                     queryName: 'aliases',
@@ -31,7 +31,7 @@ EHR.model.DataModelManager.registerMetadata('NonAnimalCharges', {
                 columnConfig: {
                     width: 250
                 },
-                xtype: 'wnprc_billing-investigatorfield',
+                xtype: 'wnprc_billing-investigatorfieldfromalias',
                 lookup: {
                     schemaName: 'ehr',
                     queryName: 'aliasesWithInvestigators',

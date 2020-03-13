@@ -1,6 +1,6 @@
-Ext4.define('WNPRC_Billing.form.field.MiscChargesDebitAcctEntryField', {
+Ext4.define('WNPRC_Billing.form.field.NonAnimalChargesDebitAcctField', {
     extend: 'Ext.form.field.ComboBox',
-    alias: 'widget.wnprc_billing-miscchargesdebitacctentryfield',
+    alias: 'widget.wnprc_billing-nonanimalchargesdebitacctfield',
 
     initComponent: function() {
 

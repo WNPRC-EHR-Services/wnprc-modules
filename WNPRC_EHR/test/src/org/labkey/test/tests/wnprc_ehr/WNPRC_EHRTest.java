@@ -386,7 +386,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         testInvestigatorFacingLinks();
 
         log("View Charges and adjustments Not Yet Billed");
-        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", " ", "vaccine supplies", "Misc. Fees", "Clinical Pathology", " ", " ", "10.0", "$15.00", "charge 2 with animal id");
+        List<String> expectedRowData = Arrays.asList("test2312318", "2011-09-15", "640991", " ", "vaccine supplies", "Misc. Fees", "Clinical Pathology", " ", "acct101", "10.0", "$15.00", "charge 2 with animal id");
         viewChargesAdjustmentsNotYetBilled(1, "comment", "charge 2 with animal id", expectedRowData);
 
         log("Download Multiple Invoices");

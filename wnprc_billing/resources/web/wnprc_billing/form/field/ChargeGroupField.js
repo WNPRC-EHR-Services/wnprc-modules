@@ -22,12 +22,18 @@ Ext4.define('WNPRC_Billing.form.field.ChargeGroupEntryField', {
                         unitCostField.disabled = false;
                         unitCostField.setValue(null);
                     }
+                    var totalCostField = this.up("form").getForm().findField("totalCost");
+                    if (totalCostField) {
+                        totalCostField.disabled = false;
+                        totalCostField.setValue(null);
+                    }
                 }
                 //for data entry grid
                 else {
                     EHR.DataEntryUtils.setSiblingFields(combo, {
                         chargeId: null,
-                        unitCost: null
+                        unitCost: null,
+                        totalCost: null
                     });
                 }
             }});

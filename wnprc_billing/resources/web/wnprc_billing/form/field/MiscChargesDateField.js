@@ -12,6 +12,10 @@ Ext4.define('WNPRC_Billing.form.field.MiscChargesDateField', {
                     if (!field.getValue()) {
                         field.setValue(Ext4.Date.format(new Date(), 'Y-m-d'));
                     }
+                    //Non-Animal Charges bulk edit doesn't like the above date setting
+                    if (!field.getValue()) {
+                        field.setValue(new Date());
+                    }
                 }
             },
             change: function (field, newVal) {

@@ -4,22 +4,6 @@
  * Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 
-EHR.DataEntryUtils.registerGridButton('ADDANIMALS_BULK_DISABLED', function(config){
-    return Ext4.Object.merge({
-        text: 'Add Batch',
-        tooltip: 'Click to add a batch of animals, either as a list or by location',
-        handler: function(btn){
-            var grid = btn.up('gridpanel');
-
-            Ext4.create('EHR.window.AddAnimalsWindow', {
-                targetStore: grid.store,
-                formConfig: grid.formConfig,
-                bulkEditCheckDisabled: true
-            }).show();
-        }
-    }, config);
-});
-
 EHR.model.DataModelManager.registerMetadata('Charges', {
     byQuery: {
         'ehr_billing.miscCharges': {
@@ -39,29 +23,23 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 }
             },
             debitedaccount: {
-                hidden: true
+                hidden: false,
+                xtype: 'wnprc_billing-miscchargesdebitacctfield',
+                userEditable: false
             },
             investigator: {
                 xtype: 'wnprc_billing-investigatorfield',
                 hidden: false,
                 userEditable: true,
                 columnConfig: {
-                    width: 150
-                },
-                editorConfig: {
-                  caseSensitive: false,
-                  id: 'wnprc_billing-Charges-investigator',
-                  valueField: 'inves',
-                  displayField: 'inves',
-                  observedField: 'project',
-                  observerLookupField: 'project'
+                    width: 200
                 },
                 lookup: {
                     schemaName: 'ehr',
-                    queryName: 'project',
-                    keyColumn: 'inves',
-                    displayColumn: 'inves',
-                    columns: 'inves'
+                    queryName: 'projectsWithInvestigators',
+                    keyColumn: 'investigatorWithName',
+                    columns: 'project, investigatorId, investigatorWithName',
+                    displayColumn: 'investigatorWithName'
                 }
             },
             chargeId: {
@@ -72,16 +50,8 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                     width: 200
                 },
                 lookup: {
-                    columns: 'rowId, name, chargeCategoryId, departmentCode, startDate, endDate'
+                    columns: 'rowid, name, chargeCategoryId, departmentCode, startDate, endDate'
                 },
-                editorConfig: {
-                    caseSensitive: false,
-                    id: 'ehr_billing-Misc-charges-chargeId',
-                    valueField: 'rowId',
-                    displayField: 'name',
-                    observedField: 'chargetype',
-                    observerLookupField: 'departmentCode'
-                }
             },
             date: {
                 hidden: false,
@@ -90,9 +60,9 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                     width: 125
                 }
             },
-            chargetype: {
+            chargeGroup: {
                 hidden: false,
-                xtype: 'wnprc_billing-chargetypeentryfield',
+                xtype: 'wnprc_billing-chargegroupentryfield',
                 columnConfig: {
                     width: 175
                 }
@@ -103,14 +73,27 @@ EHR.model.DataModelManager.registerMetadata('Charges', {
                 anchor: '50%',
                 height: 20,
                 columnConfig: {
-                    width: 200
+                    width: 300
                 }
             },
-            chargeCategory: {
+            chargetype: {
                 hidden: false,
                 columnConfig: {
                     width: 125
                 }
+            },
+            chargeCategory: {
+                hidden: true
+            },
+            quantity: {
+                xtype: 'wnprc_billing-quantityfield'
+            },
+            unitCost: {
+                xtype: 'wnprc_billing-unitcostfield'
+            },
+            totalCost: {
+                userEditable: false,
+                xtype: 'wnprc_billing-totalcostfield'
             }
         }
     }

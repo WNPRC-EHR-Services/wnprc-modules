@@ -165,3 +165,40 @@ convertToFileName <- function(name)
     # Issue 23230: slashes in the file name cause issues creating the PDFs, for now convert "/" and " " to "_"
     gsub("[/ ]", "_", name);
 }
+
+######################## STEP 0: READ IN THE RUN PROPERTIES AND RUN DATA #######################
+
+run.props = labkey.transform.readRunPropertiesFile("${runInfo}");
+
+# save the important run.props as separate variables
+run.data.file = labkey.transform.getRunPropertyValue(run.props, "runDataFile");
+run.output.file = run.props$val3[run.props$name == "runDataFile"];
+error.file = labkey.transform.getRunPropertyValue(run.props, "errorsFile");
+
+# read in the run data file content
+run.data = read.delim(run.data.file, header=TRUE, sep="\t");
+
+# read in the analyte information (to get the mapping from analyte to standard/titration)
+analyte.data.file = labkey.transform.getRunPropertyValue(run.props, "analyteData");
+analyte.data = read.delim(analyte.data.file, header=TRUE, sep="\t");
+
+# read in the titration information
+titration.data.file = labkey.transform.getRunPropertyValue(run.props, "titrationData");
+titration.data = data.frame();
+if (file.exists(titration.data.file)) {
+    titration.data = read.delim(titration.data.file, header=TRUE, sep="\t");
+}
+run.data <- populateTitrationData(run.data, titration.data);
+
+# determine if the data contains both raw and summary data
+# if both exists, only the raw data will be used for the calculations
+bothRawAndSummary = any(run.data$summary == "true") & any(run.data$summary == "false");
+
+######################## STEP 1: SET THE VERSION NUMBERS ################################
+
+runprop.output.file = labkey.transform.getRunPropertyValue(run.props, "transformedRunPropertiesFile");
+fileConn<-file(runprop.output.file);
+writeLines(c(paste("TransformVersion",transformVersion,sep="\t"),
+paste("RuminexVersion",ruminexVersion,sep="\t"),
+paste("RVersion",rVersion,sep="\t")), fileConn);
+close(fileConn);

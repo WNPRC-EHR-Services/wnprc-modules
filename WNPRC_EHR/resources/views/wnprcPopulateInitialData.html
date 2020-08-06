@@ -259,7 +259,7 @@
 
         tables.sort(function(a, b) {
             return a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1;
-        });
+        }); 
 
         function deleteAll(schemaName, queryName, pk){
             LABKEY.Query.selectRows({

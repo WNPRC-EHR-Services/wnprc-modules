@@ -255,12 +255,6 @@
             schemaName: 'ehr_lookups',
             queryName: 'weight_ranges',
             pk: 'rowid'
-        },{
-            label: 'Weight Ranges2',
-            populateFn: 'populateFromFile',
-            schemaName: 'ehr_lookups',
-            queryName: 'weight_ranges',
-            pk: 'rowid'
         }];
 
         tables.sort(function(a, b) {
@@ -8186,7 +8180,7 @@
 
                         LABKEY.Ajax.request({
                             url: LABKEY.ActionURL.buildURL("query", "import", config.containerPath, {
-                                module: 'ehr',
+                                module: 'wnprc_ehr',
                                 moduleResource: config.moduleResource
                             }),
                             method: 'POST',
@@ -8257,7 +8251,7 @@
 
                         LABKEY.Ajax.request({
                             url: LABKEY.ActionURL.buildURL("query", "import", config.containerPath, {
-                                module: 'ehr',
+                                module: 'wnprc_ehr',
                                 moduleResource: config.moduleResource
                             }),
                             method: 'POST',

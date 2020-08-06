@@ -8,13 +8,14 @@ import org.labkey.test.ModulePropertyValue;
 import org.labkey.test.categories.External;
 import org.labkey.test.categories.PrimateId;
 import org.labkey.test.tests.ehr.AbstractEHRTest;
+import org.labkey.test.tests.wnprc_ehr.WNPRC_EHRTest;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @Category({External.class, PrimateId.class})
-public class PrimateIdTest extends AbstractEHRTest
+public class PrimateIdTest extends WNPRC_EHRTest
 {
     private static final String PROJECT_NAME = "PrimateId_Test_Project_" + UUID.randomUUID();
 
@@ -38,12 +39,6 @@ public class PrimateIdTest extends AbstractEHRTest
         return PROJECT_NAME;
     }
 
-    @Override
-    protected void importStudy()
-    {
-        goToManageStudy();
-        importStudyFromZip(STUDY_ZIP);
-    }
 
     //endregion
 

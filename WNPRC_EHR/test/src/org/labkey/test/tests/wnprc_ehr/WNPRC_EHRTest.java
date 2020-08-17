@@ -180,6 +180,12 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         repopulate("All");
     }
 
+    @Override
+    protected File getStudyPolicyXML()
+    {
+        return TestFileUtils.getSampleData("wnprc_ehr/wnprcEHRStudyPolicy.xml");
+    }
+
     @BeforeClass @LogMethod
     public static void doSetup() throws Exception
     {

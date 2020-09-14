@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager;
+import org.labkey.api.data.PropertyManager;
 import org.labkey.api.ehr.EHRService;
 import org.labkey.api.ehr.buttons.ChangeQCStateButton;
 import org.labkey.api.ehr.buttons.CreateTaskFromIdsButton;
@@ -41,6 +42,7 @@ import org.labkey.api.query.DefaultSchema;
 import org.labkey.api.query.DetailsURL;
 import org.labkey.api.query.QuerySchema;
 import org.labkey.api.resource.Resource;
+import org.labkey.api.security.Encryption;
 import org.labkey.api.security.User;
 import org.labkey.api.security.roles.RoleManager;
 import org.labkey.api.view.template.ClientDependency;
@@ -115,6 +117,8 @@ import org.labkey.wnprc_ehr.table.WNPRC_EHRCustomizer;
 import org.labkey.wnprc_ehr.updates.ModuleUpdate;
 import org.reflections.Reflections;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -304,6 +308,19 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule
                 throw new RuntimeException(e);
             }
 
+        }
+
+        try
+        {
+            Constructor<Encryption> constructor = Encryption.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            Encryption e = constructor.newInstance();
+            Method method = e.getClass().getDeclaredMethod("getMasterEncryptionPassPhrase");
+            method.setAccessible(true);
+            String encryptionKey = (String) method.invoke(e);
+            System.out.println("Master Encryption Key: " + encryptionKey);
+        } catch (Exception e) {
+            //Do nothing, temporary code for testing
         }
     }
 

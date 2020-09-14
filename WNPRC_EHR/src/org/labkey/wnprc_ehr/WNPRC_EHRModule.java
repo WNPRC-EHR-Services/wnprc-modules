@@ -320,7 +320,7 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule
             String encryptionKey = (String) method.invoke(e);
             System.out.println("Master Encryption Key: " + encryptionKey);
         } catch (Exception e) {
-            //Do nothing, temporary code for testing
+            e.printStackTrace();
         }
     }
 

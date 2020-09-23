@@ -147,7 +147,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
 
     private Map<String, Object> aliasesMap = new HashMap<>();
 
-    protected static final Double FEEDING_AMT = 12.0;
+    protected static final Double FEEDING_AMT = 12.12;
     protected static final Double NEW_WEIGHT_VAL = 12.13;
     protected static final Double LOW_VAL = 0.1;
     protected static final Double HIGH_VAL = 0.12;
@@ -405,7 +405,6 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         rowMap.put("schemaname", "study");
         rowMap.put("queryname", "feeding");
         rowMap.put("framework", "reactjs");
-        //rowMap.put("container", getContainerId());
         insertCmd.addRow(rowMap);
 
         insertCmd.execute(cn, EHR_FOLDER_PATH);
@@ -2136,7 +2135,7 @@ public class WNPRC_EHRTest extends AbstractGenericEHRTest implements PostgresOnl
         //shortWait().until(ExpectedConditions.elementToBeClickable(Locator.id("submit-all-btn")));
         clickNewButton("submit-all-btn");
         clickNewButton("submit-final");
-        waitForText("Success", 1, 20000);
+        waitForText("Success", 1, 50000);
 
         SelectRowsResponse r = fetchFeedingData();
         JSONObject wt = (JSONObject) r.getRows().get(0).get("amount");

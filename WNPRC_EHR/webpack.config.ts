@@ -3,7 +3,7 @@ import * as Webpack from 'webpack';
 
 const path = require('path');
 
-var breedingConfig = function wp(env: { BUILD_DIR: string }){
+let breedingConfig = function wp(env: { BUILD_DIR: string }){
 
     return {
         devtool: 'source-map',
@@ -31,7 +31,7 @@ var breedingConfig = function wp(env: { BUILD_DIR: string }){
     };
 };
 
-var testConfig = function wp(env: { BUILD_DIR: string }) {
+let testConfig = function wp(env: { BUILD_DIR: string }) {
 
     return {
         devtool: 'source-map',
@@ -64,7 +64,8 @@ var testConfig = function wp(env: { BUILD_DIR: string }) {
         },
     };
 };
-var feedingConfig = function wp(env: { BUILD_DIR: string }) {
+
+let feedingConfig = function wp(env: { BUILD_DIR: string }) {
 
     return {
         mode: process.env.NODE_ENV,
@@ -89,9 +90,41 @@ var feedingConfig = function wp(env: { BUILD_DIR: string }) {
         output: {
             filename: 'feeding.js',
             library: 'Feeding',
-            libraryExport: 'default',
             libraryTarget: 'umd',
-            path: path.resolve(__dirname, 'resources/web/wnprc_ehr/gen')
+            path: path.resolve(__dirname, 'resources/web/wnprc_ehr/gen'),
+        },
+        resolve: {
+            extensions: ['.ts', '.tsx', '.js', '.json', '.css'],
+        },
+    };
+};
+var abstractConfig = function wp(env: { BUILD_DIR: string }) {
+
+    return {
+        mode: process.env.NODE_ENV,
+        devtool: 'source-map',
+        entry: './src/abstract/base/App.tsx',
+        externals: {
+            jquery: 'jQuery',
+            urijs: 'URI',
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.tsx?$/,
+                    loader: "ts-loader"
+                },
+                {
+                    test: /\.css$/i,
+                    use: ['style-loader', 'css-loader']
+                }
+            ],
+        },
+        output: {
+            filename: 'abstract.js',
+            library: 'Abstract',
+            libraryTarget: 'umd',
+            path: path.resolve(__dirname, 'resources/web/wnprc_ehr/gen'),
         },
         resolve: {
             extensions: ['.ts', '.tsx', '.js', '.json', '.css'],
@@ -99,8 +132,35 @@ var feedingConfig = function wp(env: { BUILD_DIR: string }) {
     };
 };
 
+let researchUltrasoundsConfig = function wp(env: { BUILD_DIR: string }) {
+
+    return {
+        devtool: 'source-map',
+        entry: './src/ts/research_ultrasounds.ts',
+        externals: {
+            jquery: 'jQuery',
+            urijs: 'URI',
+        },
+        module: {
+            rules: [
+                {loader: 'ts-loader', test: /\.tsx?$/},
+                {loader: 'source-map-loader', options: {enforce: 'pre'}, test: /\.js$/},
+            ],
+        },
+        output: {
+            filename: 'research_ultrasounds.js',
+            library: 'ResearchUltrasounds',
+            libraryExport: 'default',
+            libraryTarget: 'umd',
+            path: path.resolve(__dirname, 'resources/web/wnprc_ehr/gen')
+        },
+        resolve: {
+            extensions: ['.ts', '.tsx', '.js', '.json'],
+        },
+    };
+};
+
 declare const module: any;
 module.exports = [
-    breedingConfig, testConfig, feedingConfig
+    breedingConfig, testConfig, feedingConfig, researchUltrasoundsConfig, abstractConfig
 ];
-

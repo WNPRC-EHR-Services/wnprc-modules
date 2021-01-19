@@ -228,7 +228,7 @@ WNPRC_EHR.DatasetButtons = new function(){
                                         //Ext4.Msg.hide();
                                         Ext4.Msg.confirm('View Task Now?', 'Do you want to view the task now?', function(btn){
                                             if (btn == 'yes'){
-                                                window.location = LABKEY.ActionURL.buildURL("ehr", "manageTask", null, {taskid: config.taskId, formtype: config.taskRecord.formType});
+                                                window.location = LABKEY.ActionURL.buildURL("wnprc_ehr", "manageTask", null, {taskid: config.taskId, formtype: config.taskRecord.formType});
                                             }
                                             else {
                                                 dataRegion.refresh();
@@ -877,7 +877,7 @@ WNPRC_EHR.DatasetButtons = new function(){
          */
         addFeedingTaskBtn: function(dataRegionName, menu){
             this.addMenuItem(menu, 'Add Batch of Records', function() {
-                window.location = LABKEY.ActionURL.buildURL("ehr", "manageTask", null, {formtype: 'Feeding'});
+                window.location = LABKEY.ActionURL.buildURL("wnprc_ehr", "feeding", null, {formtype: 'Feeding'});
             });
         },
 
@@ -1208,8 +1208,36 @@ WNPRC_EHR.DatasetButtons = new function(){
                                     width: 300,
                                     id: 'enter-experiment-number',
                                     allowBlank: false
-                                }
-                                ]
+                                }, {
+                                xtype: 'numberfield',
+                                ref: 'positivecontrol',
+                                fieldLabel: 'Positive Control #',
+                                width: 300,
+                                id: 'enter-positive-control',
+                                allowBlank: false
+                            }, {
+                                xtype: 'textfield',
+                                ref: 'vlpositivecontrol',
+                                fieldLabel: 'Positive Control',
+                                width: 300,
+                                id: 'enter-vlpositive-control',
+                                allowBlank: false
+                            }, {
+                                xtype: 'textfield',
+                                ref: 'avgvlpositivecontrol',
+                                fieldLabel: 'AVG Positive Control',
+                                width: 300,
+                                id: 'enter-avgvlpositive-control',
+                                allowBlank: false
+                            }, {
+                                xtype: 'numberfield',
+                                ref: 'efficiency',
+                                fieldLabel: 'Efficiency',
+                                width: 300,
+                                id: 'efficiency',
+                                allowBlank: false,
+                                allowDecimals: true
+                            }]
                             }],
                             buttons: [{
                                 text:'Submit',
@@ -1221,14 +1249,21 @@ WNPRC_EHR.DatasetButtons = new function(){
                                     var win = o.up('window');
                                     var form = win.down('form');
                                     var qc = form.getForm().findField('change-vl-qcstate').getValue();
-                                    var num = form.getForm().findField('enter-experiment-number').getValue();
+                                    var num = form.getForm().findField('enter-experiment-number').getValue();var positive_control = form.getForm().findField('enter-positive-control').getValue();
+                                var vl_positive_control = form.getForm().findField('enter-vlpositive-control').getValue();
+                                var avg_vl_positive_control = form.getForm().findField('enter-avgvlpositive-control').getValue();
+                                var efficiency = form.getForm().findField('efficiency').getValue();
                                     Ext4.Msg.wait('Loading...');
 
                                     //update qc status
                                     Ext4.each(toUpdate, function (row) {
                                         row.Status = qc;
                                         row.experimentNumber = parseInt(num);
-                                    }, this);
+                                    row.positive_control = parseInt(positive_control);
+                                    row.vl_positive_control = vl_positive_control;
+                                    row.avg_vl_positive_control = avg_vl_positive_control;
+                                    row.efficiency = parseFloat(efficiency);
+                                }, this);
 
                                     if (toUpdate.length) {
                                         LABKEY.Query.updateRows({

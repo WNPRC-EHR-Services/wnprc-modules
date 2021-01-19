@@ -446,6 +446,11 @@
                             url: makeExt4DataEntryURL("Ultrasounds"),
                             title: 'Enter Ultrasounds',
                             queries: ['ultrasounds']
+                        },
+                        {
+                            url: makeExt4DataEntryURL("Research Ultrasounds"),
+                            title: 'Enter Research Ultrasounds',
+                            queries: ['research_ultrasounds']
                         }
                     ]
                 },
@@ -608,6 +613,11 @@
                             queries: ['Necropsies']
                         },
                         {
+                            url:     makeExt4DataEntryURL("Necropsy Abstract"),
+                            title: 'Enter Necropsy Abstract',
+                            queries: ['NecropsyAbstract']
+                        },
+                        {
                             url:     makeURL("manageRecord", { schemaName: 'study', queryName: 'Prenatal Deaths', keyField: 'lsid' }),
                             title:   'Enter Prenatal Death',
                             queries: ['Prenatal Deaths']
@@ -654,6 +664,17 @@
                         }
                     ],
                     requests: true
+                },
+                {
+                    header: 'New Forms in Test',
+                    items: [
+                        {
+                            url:     LABKEY.ActionURL.buildURL('wnprc_ehr', 'feeding', ctx['EHRStudyContainer']),
+                            title:   'Enter Feeding Orders',
+                            queries:['feeding']
+                        },
+
+                    ]
                 }
             ];
 

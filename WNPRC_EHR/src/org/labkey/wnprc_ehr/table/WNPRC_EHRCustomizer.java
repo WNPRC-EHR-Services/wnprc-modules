@@ -43,11 +43,11 @@ import org.labkey.api.util.PageFlowUtil;
 import org.labkey.api.util.StringExpressionFactory;
 import org.labkey.api.view.ActionURL;
 import org.labkey.dbutils.api.SimplerFilter;
-import org.labkey.ehr.EHRSchema;
+//import org.labkey.ehr.EHRSchema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
+
 
 
 /**
@@ -144,7 +144,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
 //        }
         UserSchema us = ti.getUserSchema();
 
-        ColumnInfo rowIdCol = ti.getColumn("rowid");
+        BaseColumnInfo rowIdCol = (BaseColumnInfo) ti.getColumn("rowid");
         if (rowIdCol != null && us != null)
         {
             rowIdCol.setDisplayColumnFactory(colInfo -> new DataColumn(colInfo)
@@ -182,7 +182,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
                 }
             });
 
-            ColumnInfo updateTitleCol = ti.getColumn("updateTitle");
+            BaseColumnInfo updateTitleCol = (BaseColumnInfo) ti.getColumn("updateTitle");
             if (updateTitleCol != null && us != null)
             {
                 updateTitleCol.setDisplayColumnFactory(colInfo -> new DataColumn(colInfo)
@@ -405,7 +405,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
 
         if (table.getColumn("Feeding") == null)
         {
-            ColumnInfo col = getWrappedIdCol(us, table, "Feeding", "demographicsMostRecentFeeding");
+            BaseColumnInfo col = getWrappedIdCol(us, table, "Feeding", "demographicsMostRecentFeeding");
             col.setLabel("Feeding");
             col.setDescription("Shows most recent feeding type and chow conversion.");
             table.addColumn(col);
@@ -413,7 +413,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
 
         if (table.getColumn("mostRecentAlopeciaScore") == null)
         {
-            ColumnInfo col = getWrappedIdCol(us, table, "mostRecentAlopeciaScore", "demographicsMostRecentAlopecia");
+            BaseColumnInfo col = getWrappedIdCol(us, table, "mostRecentAlopeciaScore", "demographicsMostRecentAlopecia");
             col.setLabel("Alopecia Score");
             col.setDescription("Calculates the most recent alopecia score for each animal");
             table.addColumn(col);
@@ -421,14 +421,14 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
 
         if (table.getColumn("mostRecentBodyConditionScore") == null)
         {
-            ColumnInfo col = getWrappedIdCol(us, table, "mostRecentBodyConditionScore", "demographicsMostRecentBodyConditionScore");
+            BaseColumnInfo col = getWrappedIdCol(us, table, "mostRecentBodyConditionScore", "demographicsMostRecentBodyConditionScore");
             col.setLabel("Most Recent BCS");
             col.setDescription("Returns the participant's most recent body condition score");
             table.addColumn(col);
         }
         if (table.getColumn("necropsyAbstractNotes") == null)
         {
-            ColumnInfo col = getWrappedIdCol(us, table, "necropsyAbstractNotes", "demographicsNecropsyAbstractNotes");
+            BaseColumnInfo col = getWrappedIdCol(us, table, "necropsyAbstractNotes", "demographicsNecropsyAbstractNotes");
             col.setLabel("Necropsy Abstract Notes");
             col.setDescription("Returns the participant's necropsy abstract remarks and projects");
             table.addColumn(col);
@@ -716,7 +716,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
        boolean isExt4Form = false;
 
        SimplerFilter filter = new SimplerFilter("schemaname", CompareType.EQUAL, schemaName).addCondition("queryname", CompareType.EQUAL, queryName);
-       TableInfo ti = DbSchema.get("ehr", DbSchemaType.Module).getTable(EHRSchema.TABLE_FORM_FRAMEWORK_TYPES);
+       TableInfo ti = DbSchema.get("ehr", DbSchemaType.Module).getTable("form_framework_types");
        TableSelector ts = new TableSelector(ti, filter, null);
        String framework;
        if (ts.getMap() != null && ts.getMap().get("framework") != null)

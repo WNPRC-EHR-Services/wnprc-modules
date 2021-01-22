@@ -17,7 +17,7 @@ package org.labkey.wnprc_ehr;
 
 import au.com.bytecode.opencsv.CSVWriter;
 //import com.google.common.base.MoreObjects;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.apache.log4j.Logger;
@@ -26,7 +26,6 @@ import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.labkey.api.action.ApiAction;
 import org.labkey.api.action.ApiResponse;
 import org.labkey.api.action.ApiSimpleResponse;
 import org.labkey.api.action.ApiUsageException;
@@ -1021,7 +1020,7 @@ public class WNPRC_EHRController extends SpringActionController
     @ActionNames("FetchOnCallScheduleGoogleEvents")
     //TODO @RequiresPermission("SomeGroupPermissionSettingHere")
     @RequiresLogin()
-    public class FetchOnCallScheduleGoogleEventsAction extends ApiAction<DateRangeEvent>
+    public class FetchOnCallScheduleGoogleEventsAction extends ReadOnlyApiAction<DateRangeEvent>
     {
         @Override
         public Object execute(DateRangeEvent event, BindException errors)

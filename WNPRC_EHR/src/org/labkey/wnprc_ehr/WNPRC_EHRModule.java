@@ -129,6 +129,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -206,7 +207,7 @@ public class WNPRC_EHRModule extends ExtendedSimpleModule
         EHRService.get().registerClientDependency(ClientDependency.supplierFromPath("wnprc_ehr/datasetButtons.js"), this);
         EHRService.get().registerClientDependency(ClientDependency.supplierFromPath("wnprc_ehr/animalPortal.js"), this);
         EHRService.get().registerClientDependency(ClientDependency.supplierFromPath("wnprc_ehr/reports/PregnancyReport.js"), this);
-        EHRService.get().registerClientDependency(ClientDependency.fromPath("wnprc_ehr/reports/ResearchUltrasoundsReport.js"), this);
+        EHRService.get().registerClientDependency(ClientDependency.supplierFromPath("wnprc_ehr/reports/ResearchUltrasoundsReport.js"), this);
         EHRService.get().registerClientDependency(ClientDependency.supplierFromPath("wnprc_ehr/Inroom.js"), this);
 
         EHRService.get().registerReportLink(EHRService.REPORT_LINK_TYPE.housing, "List Single-housed Animals", this, DetailsURL.fromString("/query/executeQuery.view?schemaName=study&query.queryName=Demographics&query.viewName=Single%20Housed"), "Commonly Used Queries");

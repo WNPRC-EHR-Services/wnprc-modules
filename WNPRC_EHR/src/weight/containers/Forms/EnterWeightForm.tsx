@@ -201,6 +201,10 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
 
     if (target.value.length == 0) {
       setWeightError("Required");
+    } else if (weight <= 0) {
+      setWeightError("Weight cannot be less than or equal to zero")
+      setErrorLevel("no-action");
+      setAnyErrors(true);
     } else {
       setWeightError("");
       setErrorLevel("submittable");
@@ -244,6 +248,7 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
           <input
             type="number"
             step="any"
+            min={0}
             name="weight"
             id={`weight_${index}`}
             className="form-control"

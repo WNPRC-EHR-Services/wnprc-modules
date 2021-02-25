@@ -1,5 +1,6 @@
 interface jsonDataType {
   commands: Array<any>;
+  extraContext?: object;
 }
 import {Query,ActionURL,Filter} from '@labkey/api';
 import { SelectRowsOptions } from '@labkey/api/dist/labkey/query/SelectRows';

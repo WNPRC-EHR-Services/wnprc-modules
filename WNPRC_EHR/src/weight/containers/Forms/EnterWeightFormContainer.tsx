@@ -81,7 +81,21 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
     setBatchAddUsedInAppContext();
   };
 
-  //here we lifted up state from the BulkEditFields - > BatchEditModal -> this component
+  const findAndSetError = (vals): void => {
+    const copyformdata: Array<RowObj> = [...formdata];
+    for (let k of vals.errors) {
+      for (let i of k.errors){
+        for (let v of copyformdata) {
+          if (v.objectid.value == k.row.objectid) {
+            v["weight"]["error"] = i.msg;
+          }
+        }
+      }
+    }
+    setFormDataInAppContext(copyformdata);
+  }
+
+    //here we lifted up state from the BulkEditFields - > BatchEditModal -> this component
   const updateValues = (vals: UserEditableWeightFormValues): void => {
     const copyformdata: Array<RowObj> = [...formdata];
 
@@ -411,7 +425,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
     let currentDate: string = dayjs(new Date()).format();
     let jsonData = setupJsonData(itemsToInsert, "Completed", taskId, reviewer, currentDate, command);
 
-    saveRowsDirect(jsonData).then(()=> {
+    saveRowsDirect(jsonData).then((d)=> {
       //for now just on submit, need to revisit other submit buttons
       setEndTimeInAppContext(new Date());
 
@@ -425,6 +439,9 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
       submit();
     }).catch(e => {
       setSubmitBoxText(e.exception);
+      findAndSetError(e)
+      //update error data
+      //close submit box?
     });
 
   };
@@ -725,7 +742,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
                               key={i}
                               index={i}
                               animalid={item.animalid.value}
-                              weight={item.weight.value}
+                              weight={item.weight}
                               date={item.date.value}
                               remark={item.remark.value}
                               restraint={item.restraint.value}

@@ -191,9 +191,9 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
 
   const checkWeights = (e: React.FormEvent<HTMLInputElement>) => {
     let target = e.target as HTMLInputElement;
-    if (enteredWeightIsGreaterThanPrevWeight(weight, prevweight, 10)) {
+    if (enteredWeightIsGreaterThanPrevWeight(weight["value"], prevweight, 10)) {
       setWeightWarning("Weight is greater than 10% of previous weight.");
-    } else if (enteredWeightIsLessThanPrevWeight(weight, prevweight, 10)) {
+    } else if (enteredWeightIsLessThanPrevWeight(weight["value"], prevweight, 10)) {
       setWeightWarning("Weight is less than 10% of previous weight.");
     } else {
       setWeightWarning("");
@@ -201,10 +201,10 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
 
     if (target.value.length == 0) {
       setWeightError("Required");
-    } else if (weight <= 0) {
-      setWeightError("Weight cannot be less than or equal to zero")
+    } else if (weight["value"] <= 0) {
+      /*setWeightError("Weight cannot be less than or equal to zero")
       setErrorLevel("no-action");
-      setAnyErrors(true);
+      setAnyErrors(true);*/
     } else {
       setWeightError("");
       setErrorLevel("submittable");
@@ -252,7 +252,7 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             name="weight"
             id={`weight_${index}`}
             className="form-control"
-            value={weight || ""}
+            value={weight["value"] || ""}
             onChange={handleChange}
             onFocus={getAnimalInfo}
             onBlur={e => {
@@ -260,8 +260,8 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             }}
             required
           />
-          {weightWarning && (
-            <span data-tooltip={weightWarning} id="weight-warning">
+          {weight["error"] && (
+            <span data-tooltip={weight["error"]} id="weight-warning">
               ⚠️
             </span>
           )}

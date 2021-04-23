@@ -232,11 +232,11 @@ const FeedingFormContainer: React.FunctionComponent<any> = (props) => {
   };*/
 
   const setFormIds = (ids: any) => {
-    setFormDataExternal([]);
     setAnimalIdsExternal(ids);
     let t = [];
+    let copyformdata = [...formData]
     ids.forEach((id, i) => {
-      t.push({
+      copyformdata.push({
         Id: { value: id, error: "" },
         date: { value: new Date(), error: "" },
         type: { value: "", error: "" },
@@ -247,7 +247,7 @@ const FeedingFormContainer: React.FunctionComponent<any> = (props) => {
         QCStateLabel: { value: "Completed", error: "" },
       });
     });
-    setFormDataExternal(t);
+    setFormDataExternal(copyformdata);
   };
 
   const passLocationAndSetIds = (location) => {

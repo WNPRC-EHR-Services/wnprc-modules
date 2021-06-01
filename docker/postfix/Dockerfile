@@ -36,8 +36,22 @@ RUN postconf -e transport_maps=hash:/etc/postfix/transport              \
                 smtpd_relay_restrictions=reject_unauth_destination      \
                 relay_domains=pcre:/etc/postfix/relays                  \
                 always_bcc=mail_spy@example.com                         \
-                smtpd_use_tls=no                                        \
-                smtp_header_checks=regexp:/etc/postfix/header_checks
+                smtpd_use_tls=yes                                       \
+                smtpd_tls_cert_file=/etc/postfix/certs/cert.pem         \
+                smtpd_tls_key_file=/etc/postfix/certs/key.pem           \
+                smtpd_tls_security_level=may	                        \
+                # recommanded for log details                           \
+                smtpd_tls_loglevel=1        \
+                # recommanded for tracing TLS headers
+                smtpd_tls_received_header=yes           \
+                smtpd_tls_exclude_ciphers=NULL,aNULL,RC4,3DES,eNULL,DHE_EXPORT \
+                smtp_header_checks=regexp:/etc/postfix/header_checks  \
+                smtpd_tls_mandatory_ciphers=high   \
+                smtpd_tls_ciphers=medium            \
+                smtpd_tls_protocols=!SSLv2,!SSLv3   \
+                # Legacy syntax:
+                smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+
 
 
 CMD envsubst < /etc/postfix/transport.template > /etc/postfix/transport && postmap hash:/etc/postfix/transport && postmap /etc/postfix/header_checks && /usr/bin/supervisord -c /etc/supervisor/supervisord.conf

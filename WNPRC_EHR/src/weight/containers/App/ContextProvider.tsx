@@ -13,6 +13,7 @@ function ContextProvider({ children }) {
   const [startTime, setStartTime] = useState<object>();
   const [endTime, setEndTime] = useState<object>();
   const [formdata, setFormData] = useState<Array<RowObj>>([]);
+  const [cagedata, setCageData] = useState<Array<RowObj>>([]);
   const [taskId, setTaskId] = useState<string>(
     Utils.generateUUID().toUpperCase()
   );
@@ -23,8 +24,11 @@ function ContextProvider({ children }) {
   const [batchAddUsed, setBatchAddUsed] = useState<boolean>(false);
   const [anyErrorsEver, setAnyErrorsEver] = useState<boolean>(false);
 
-  const setFormDataInAppContext = (formdata) => {
+  const setFormDataInAppContext = (formdata: Array<RowObj>) => {
     setFormData(formdata);
+  }
+  const setCageDataInAppContext = (cagedata: Array<RowObj>) => {
+    setCageData(cagedata);
   }
 
   const setRestraintsInAppContext = (restraints) => {
@@ -117,6 +121,8 @@ function ContextProvider({ children }) {
     setEndTimeInAppContext,
     setFormDataInAppContext,
     formdata,
+    setCageDataInAppContext,
+    cagedata,
     setTaskIdInAppContext,
     taskId,
     setFormFrameworkTypesInAppContext,

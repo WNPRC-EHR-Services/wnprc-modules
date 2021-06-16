@@ -44,22 +44,6 @@ const AnimalInfoPane: React.FunctionComponent<PaneProps> = props => {
               </td>
             </tr>
             <tr>
-              <td>Room</td>
-              <td>
-                <a href={animalInfo["_labkeyurl_Id/curLocation/room"]} target={"_blank"}>
-                  {animalInfo["Id/curLocation/room"]}
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td>Cage</td>
-              <td>
-                <a href={animalInfo["_labkeyurl_Id/curLocation/cage"]} target={"_blank"}>
-                  {animalInfo["Id/curLocation/cage"]}
-                </a>
-              </td>
-            </tr>
-            <tr>
               <td>Current Weight</td>
               <td>
                 <a
@@ -90,14 +74,6 @@ const AnimalInfoPane: React.FunctionComponent<PaneProps> = props => {
               </td>
             </tr>
             <tr>
-              <td>Status</td>
-              <td>
-                <a href={animalInfo._labkeyurl_calculated_status} target={"_blank"}>
-                  {animalInfo.calculated_status}
-                </a>
-              </td>
-            </tr>
-            <tr>
               <td>Medical</td>
               <td>
                 {animalInfo.medical}
@@ -110,29 +86,9 @@ const AnimalInfoPane: React.FunctionComponent<PaneProps> = props => {
               </td>
             </tr>
             <tr>
-              <td>Avail</td>
-              <td>
-                {animalInfo["Id/activeAssignments/Availability"]}
-              </td>
-            </tr>
-            <tr>
-              <td>Birth</td>
-              <td>
-                <a href={animalInfo._labkeyurl_birth} target={"_blank"}>{animalInfo.birth}</a>
-              </td>
-            </tr>
-            <tr>
               <td>Age</td>
               <td>
                 {animalInfo["Id/age/AgeFriendly"]}
-              </td>
-            </tr>
-            <tr>
-              <td>Condition</td>
-              <td>
-                <a href={animalInfo["_labkeyurl_Id/curLocation/cond"]} target={"_blank"}>
-                  {animalInfo["Id/curLocation/cond"]}
-                </a>
               </td>
             </tr>
             <tr>

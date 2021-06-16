@@ -16,6 +16,17 @@ export const groupCommands = (values: Array<any>) => {
   }, {});
 };
 
+export const groupCages = (values: Array<any>) => {
+  return values.reduce((acc, item) => {
+    if (!acc[item.cage.value]) {
+      acc[item.cage.value] = [];
+    }
+
+    acc[item.cage.value].push(item);
+    return acc;
+  }, {});
+};
+
 export const setupValues = (formdata: any[], QCStateLabel: string, valuekey: string) => {
   let newarray = [];
   for (let item of formdata){

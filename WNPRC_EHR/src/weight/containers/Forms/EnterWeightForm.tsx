@@ -15,7 +15,7 @@ import { AppContext } from "../App/ContextProvider";
 import DropdownOptions from "../../components/DropdownOptions";
 import {Filter, ActionURL} from "@labkey/api"
 import {AnimalInfoStates, AnimalInfoProps, ConfigProps, FormErrorLevels} from "../../../typings/main";
-import {WeightFormProps} from "../../typings/main";
+import {RowObj, WeightFormProps} from "../../typings/main";
 
 /**
  * Main modal which holds the values for the fields in the weight dataset,
@@ -31,10 +31,11 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
     restraint,
     index,
     infoState,
-    liftUpAnimalInfo,
     liftUpVal,
     liftUpErrorLevel,
-    liftUpValidation
+    liftUpValidation,
+    liftUpCurrentIndex,
+    getAnimalInfo
   } = props;
   const [prevweight, setPrevWeight] = useState<number>(null);
   const [animalInfo, setAnimalInfo] = useState<AnimalInfoProps>(null);
@@ -45,7 +46,7 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
   const [errorLevel, setErrorLevel] = useState<FormErrorLevels>("no-action");
   const [animalInfoState, setAnimalInfoState] = useState<AnimalInfoStates>("waiting");
 
-  const { submit, submitted, setRestraintsInAppContext, restraints, setEndTimeInAppContext, setStartTimeInAppContext, setFormFrameworkTypesInAppContext, wasSaved, isRecording, setIsRecordingInAppContext, setAnyErrorsEverInAppContext } = useContext(
+  const { submit, submitted, setRestraintsInAppContext, restraints, setEndTimeInAppContext, setStartTimeInAppContext, setFormFrameworkTypesInAppContext, wasSaved, isRecording, setIsRecordingInAppContext, setAnyErrorsEverInAppContext, formdata, setFormDataInAppContext } = useContext(
     AppContext
   );
 
@@ -67,7 +68,10 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
   }, [animalInfoState]);
 
   useEffect(() => {
-    liftUpAnimalInfo(animalInfo);
+    /*let copyformdata: Array<RowObj> = [...formdata];
+    copyformdata[index].animal_info.value = animalInfo;*/
+    //liftUpAnimalInfo(animalInfo, index);
+
   }, [animalInfo]);
 
   useEffect(() => {
@@ -78,6 +82,14 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
     liftUpValidation("validated", !anyErrors, index);
   },[anyErrors]);
 
+  /*setPrevWeight(data["rows"][0]["Id/MostRecentWeight/MostRecentWeight"]);
+  validateItems("animalid", animalid);
+  setAnimalError("");*/
+  //TODO propagate up animal not found issue?
+  //setInfoState("loading-unsuccess");
+  //TODO
+  /*setAnimalError("Animal Not Found");
+  validateItems("animalid", animalid)*/
 
   //validate items to set error levels which determine which buttons are disabled
   const validateItems = (name: string, value: string | number | object) => {
@@ -117,8 +129,8 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
   };
 
   const handleRestraintChange = (val: number) => {
-    liftUpVal("restraint", val, index);
-    startSessionTimer();
+    //liftUpVal("restraint", val, index);
+    //startSessionTimer();
   };
 
   const handleDateChange = (date: object) => {
@@ -133,61 +145,6 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
     }
   };
 
-  const getAnimalInfo = (e: React.FormEvent<EventTarget>): void => {
-    let target = e.target as HTMLInputElement;
-    if (target.name == "animalid" && e.nativeEvent.type != "focus") {
-      if (target.value == "") {
-        setAnimalError("Required");
-        setAnyErrors(true);
-        return;
-      } else {
-        setAnimalError("");
-        return;
-      }
-    }
-    if (target.value == "" && e.nativeEvent.type == "blur" && target.name=="animalid") {
-      setAnimalError("Required");
-      return;
-    }
-
-    if (target.value == "" && target.name=="animalid") {
-      return;
-    }
-
-    //issue when cacheing this... if animalId is diff than prev
-    if (animalInfo != null && animalid === animalInfo.Id) {
-      liftUpAnimalInfo(animalInfo);
-      setAnimalInfoState("loading-success");
-      return;
-    }
-
-    //need to show loading spinner
-    setAnimalInfoState("loading");
-
-    let config: ConfigProps = {
-      schemaName: "study",
-      queryName: "demographics",
-      sort: "-date",
-      filterArray: [
-        Filter.create("Id", animalid, Filter.Types.EQUAL)
-      ]
-    };
-    labkeyActionSelectWithPromise(config).then(data => {
-      //cache animal info
-      if (data["rows"][0]) {
-        setAnimalInfo(data["rows"][0]);
-        setPrevWeight(data["rows"][0]["Id/MostRecentWeight/MostRecentWeight"]);
-        infoState("loading-success");
-        validateItems("animalid", animalid);
-        setAnimalError("");
-      } else {
-        //TODO propagate up animal not found issue?
-        infoState("loading-unsuccess");
-        setAnimalError("Animal Not Found");
-        validateItems("animalid", animalid)
-      }
-    });
-  };
 
   const checkWeights = (e: React.FormEvent<HTMLInputElement>) => {
     let target = e.target as HTMLInputElement;
@@ -213,7 +170,6 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
     //@ts-ignore
     calendarEl.setOpen(true);
   };
-
   return (
     <div>
       <div className="row">
@@ -228,12 +184,19 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             className="form-control"
             value={animalid.toLowerCase()}
             onChange={handleChange}
-            onBlur={getAnimalInfo}
-            onFocus={getAnimalInfo}
+            onBlur={(e) => {
+              //validate some shit, which should happen in handleChange
+              getAnimalInfo(index, animalid);
+              liftUpCurrentIndex(index)
+            }}
+            onFocus={(e) => {
+              //validate some shit, which should happen in handleChange
+              getAnimalInfo(index, animalid);
+              liftUpCurrentIndex(index)
+            }}
             required
-            autoFocus
           />
-          {animalError && <span data-tooltip={animalError}>❗</span>}
+          {formdata[index].animal_info.error != "" && <span data-tooltip={formdata[index].animal_info.error}>❗</span>}
         </div>
       </div>
       <div className="row">
@@ -249,7 +212,11 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             className="form-control"
             value={weight || ""}
             onChange={handleChange}
-            onFocus={getAnimalInfo}
+            onFocus={() => {
+              //validate some shit, which should happen in handleChange
+              //getAnimalInfo(index, animalid);
+              liftUpCurrentIndex(index)
+            }}
             onBlur={e => {
               checkWeights(e);
             }}
@@ -279,7 +246,11 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             name="date"
             id={`date_${index}`}
             onChange={handleDateChange}
-            onFocus={getAnimalInfo}
+            onFocus={() => {
+              getAnimalInfo(index, animalid);
+              liftUpCurrentIndex(index)
+              }
+            }
             customInput={<DateInput
               opendate={openDatepicker}
               iconpath={`${ActionURL.getContextPath()}/wnprc_ehr/static/images/icons8-calendar-24.png`}
@@ -316,7 +287,11 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             rows={3}
             value={remark}
             onChange={handleChange}
-            onFocus={getAnimalInfo}
+            onFocus={() => {
+              getAnimalInfo(index, animalid);
+              liftUpCurrentIndex(index)
+              }
+            }
           />
         </div>
       </div>

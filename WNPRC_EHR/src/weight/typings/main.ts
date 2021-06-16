@@ -57,6 +57,8 @@ export interface ContextProviderProps {
     setEndTimeInAppContext: (endTime: object) => void;
     formdata: Array<any>;
     setFormDataInAppContext: (formData: Array<any>) => void;
+    cagedata: Array<any>;
+    setCageDataInAppContext: (formData: Array<any>) => void;
     setTaskIdInAppContext: (taskID: string) => void;
     taskId: string;
     formFrameworkTypes: string;
@@ -125,9 +127,10 @@ export interface WeightFormProps {
     index?: number;
     infoState?: (infoState: AnimalInfoStates) => void;
     liftUpVal?: (name: string, value: any, index: number) => void;
-    liftUpAnimalInfo: (animalInfo: AnimalInfoProps) => void;
+    getAnimalInfo: (index: number, animalid: any) => void;
     liftUpErrorLevel: (errorLevel: string) => void;
     liftUpValidation: (name: string, value: any, index: number) => void;
+    liftUpCurrentIndex: (index: number) => void;
 }
 
 export interface ModifyRowsCommands {
@@ -146,11 +149,17 @@ export interface RowMemberObj {
     error: string;
 }
 
+export interface AnimalInfoObj {
+    value: object;
+    error: string;
+}
+
 export interface RowObj {
     animalid: RowMemberObj;
     date: RowMemberObj;
     weight?: RowMemberObj;
     remark: RowMemberObj;
+    animal_location: RowMemberObj;
     QCState: RowMemberObj;
     objectid: RowMemberObj;
     restraint_objectid: RowMemberObj;
@@ -160,6 +169,7 @@ export interface RowObj {
     visibility: RowMemberObj;
     restraint: RestraintObj;
     validated: RowMemberObj;
+    animal_info: AnimalInfoObj;
 }
 
 export interface UserEditableWeightFormValues {

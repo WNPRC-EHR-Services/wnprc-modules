@@ -61,8 +61,13 @@
 
 .card-header {
   background-color: #e0e0e0;
+  height: 50px;
 }
 
+.card-title.h4 {
+  padding-left: 10px;
+  padding-top: 15px;
+}
 .card-body {
   padding: 1rem;
   border: 1px solid;
@@ -172,9 +177,13 @@ select[id^="restraint"] {
   border-color: #95989a !important;
 }
 
-#animal-info-empty {
+#animal-info-empty, .panel-body {
   padding: 15px;
   padding-bottom: 40px;
+}
+
+.cage-group {
+  border: 1px solid black;
 }
 
 #locations-select {

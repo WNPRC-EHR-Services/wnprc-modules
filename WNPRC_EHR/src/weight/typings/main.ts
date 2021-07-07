@@ -56,7 +56,7 @@ export interface ContextProviderProps {
     setStartTimeInAppContext: (startTime: object) => void;
     setEndTimeInAppContext: (endTime: object) => void;
     formdata: Array<any>;
-    setFormDataInAppContext: (formData: Array<any>) => void;
+    setFormDataInAppContext: (prevState: (formData: Array<RowObj>) => Array<RowObj>) => void;
     cagedata: Array<any>;
     setCageDataInAppContext: (formData: Array<any>) => void;
     setTaskIdInAppContext: (taskID: string) => void;

@@ -129,8 +129,8 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
   };
 
   const handleRestraintChange = (val: number) => {
-    //liftUpVal("restraint", val, index);
-    //startSessionTimer();
+    liftUpVal("restraint", val, index);
+    startSessionTimer();
   };
 
   const handleDateChange = (date: object) => {
@@ -214,7 +214,7 @@ const EnterWeightForm: React.FunctionComponent<WeightFormProps> = props => {
             onChange={handleChange}
             onFocus={() => {
               //validate some shit, which should happen in handleChange
-              //getAnimalInfo(index, animalid);
+              getAnimalInfo(index, animalid);
               liftUpCurrentIndex(index)
             }}
             onBlur={e => {

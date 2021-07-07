@@ -24,8 +24,8 @@ function ContextProvider({ children }) {
   const [batchAddUsed, setBatchAddUsed] = useState<boolean>(false);
   const [anyErrorsEver, setAnyErrorsEver] = useState<boolean>(false);
 
-  const setFormDataInAppContext = (formdata: Array<RowObj>) => {
-    setFormData(formdata);
+  const setFormDataInAppContext = (prevState: (formData: Array<RowObj>) => Array<RowObj>) => {
+    setFormData(prevState);
   }
   const setCageDataInAppContext = (cagedata: Array<RowObj>) => {
     setCageData(cagedata);

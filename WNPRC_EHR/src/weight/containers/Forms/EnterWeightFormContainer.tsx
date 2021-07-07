@@ -51,6 +51,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
   const [animalInfo, setAnimalInfo] = useState<InfoProps>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [locloading, setLocLoading] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(false);
   const [infoState, setInfoState] = useState<AnimalInfoStates>("waiting");
   const [location, setLocation] = useState<Array<string>>([]);
   const [ids, setIds] = useState<Array<string>>([]);
@@ -70,7 +71,17 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
 
   const formEl = useRef(null);
 
-  //this is triggered by the child component
+
+  // we want to return the index where the animal exists ( could be multiple )
+  const lookUpAnimalIndices = (formData: Array<RowObj>, animalid: string): Array<number> => {
+    let formDataAnimalIndices: Array<number> = [];
+    formData.forEach((item, idx) => {
+      if (item.animalid.value === animalid) {
+        formDataAnimalIndices.push(idx);
+      }
+    })
+    return formDataAnimalIndices;
+  }
 
   const getAnimalInfo = (index: number, animalid: any): void => {
     if (!formdata[index] || animalid == "")
@@ -97,29 +108,34 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
       if (data["rows"][0]) {
         let animalInfo = data["rows"][0];
         //why is this formdata outdated
-        let copyFormData: Array<RowObj> = [...formdata];
-        copyFormData[index].animal_info.value = animalInfo;
-        copyFormData[index].animal_info.error = "";
 
 
-        setFormDataInAppContext(copyFormData);
-        //@ts-ignore
-        /*setFormDataInAppContext((prevState: any) => {
-          debugger;
-          console.log('setting demograph')
+        setFormDataInAppContext((prevState: Array<RowObj>) => {
+          let copyFormData: Array<RowObj> = [...prevState];
+          let indices = lookUpAnimalIndices(copyFormData, animalInfo.Id);
+          indices.forEach((index) => {
+            copyFormData[index].animal_info.value = animalInfo;
+            copyFormData[index].animal_info.error = "";
+          })
           // Object.assign would also work
-          return copyformdata.concat(prevState);
-        });*/
+          return [...copyFormData];
+        });
         setAnimalInfo(animalInfo);
         setInfoState("loading-success");
         /*setPrevWeight(data["rows"][0]["Id/MostRecentWeight/MostRecentWeight"]);
         validateItems("animalid", animalid);
         setAnimalError("");*/
       } else {
-        let copyformdata: Array<RowObj> = [...formdata];
-        copyformdata[index].animal_info.error = "Animal Not Found";
-        setFormDataInAppContext(copyformdata);
         setInfoState("loading-unsuccess");
+        setFormDataInAppContext((prevState: Array<RowObj>) => {
+          let copyFormData: Array<RowObj> = [...prevState];
+          let indices = lookUpAnimalIndices(copyFormData, animalInfo.Id);
+          indices.forEach((index) => {
+            copyFormData[index].animal_info.error = "Animal Not Found";
+          })
+          // Object.assign would also work
+          return [...copyFormData];
+        });
         //TODO
         /*setAnimalError("Animal Not Found");
         validateItems("animalid", animalid)*/
@@ -134,24 +150,28 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
 
   //here we lifted up state from the BulkEditFields - > BatchEditModal -> this component
   const updateValues = (vals: UserEditableWeightFormValues): void => {
-    const copyformdata: Array<RowObj> = [...formdata];
 
-    copyformdata.forEach(item => {
-      if (vals["weight"]["value"]){
-        item["weight"]["value"] = vals["weight"]["value"];
-      }
-      if (vals["date"]["value"]){
-        item["date"]["value"] = vals["date"]["value"];
-      }
-      if (vals["restraint"]["value"]){
-        item["restraint"]["value"] = vals["restraint"]["value"];
-      }
-      if (vals["remark"]["value"]){
-        item["remark"]["value"] = vals["remark"]["value"];
-      }
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let copyformdata: Array<RowObj> = [...prevState];
+
+      copyformdata.forEach(item => {
+        if (vals["weight"]["value"]){
+          item["weight"]["value"] = vals["weight"]["value"];
+        }
+        if (vals["date"]["value"]){
+          item["date"]["value"] = vals["date"]["value"];
+        }
+        if (vals["restraint"]["value"]){
+          item["restraint"]["value"] = vals["restraint"]["value"];
+        }
+        if (vals["remark"]["value"]){
+          item["remark"]["value"] = vals["remark"]["value"];
+        }
+      });
+      return [...copyformdata];
+
     });
 
-    setFormDataInAppContext(copyformdata);
     onValidate();
     setBulkEditUsedInAppContext();
   };
@@ -201,6 +221,9 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
             });
           });
         }
+        setFormDataInAppContext((prevState: Array<RowObj>) => {
+          return [...animaldata, ...prevState]
+        })
       });
       animaldata.forEach((item:RowObj) => {
         item["cage"] = {value: "", error: ""};
@@ -208,7 +231,6 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
           item["cage"]["value"] = getRoomCage(item.animal_location.value as string)[1] ? getRoomCage(item.animal_location.value as string)[1] : "no_cage";
         }
       })
-      setFormDataInAppContext(animaldata);
       setLocLoading(false);
       setErrorLevel("saveable");
     });
@@ -232,6 +254,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
     }
     //set the ask id
     setEditMode(true);
+    setLoadingData(true);
 
     //if there's no task id, then we don't have to update the task table... just update the records
     //or more generally if we are in edit mode, we don't have ot update the task id...
@@ -282,6 +305,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
       if (data["rows"].length == 0){
         setWasError(true);
         setErrorText("Cannot find a record with that taskid/lsid.");
+        setLoadingData(false);
         return;
       }
 
@@ -341,13 +365,15 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
           }
         }
       }).then(() => {
-        setFormDataInAppContext(newformdatarestraints);
         setErrorLevel("submittable");
+        setFormDataInAppContext((prevState: Array<RowObj>) => {
+          return [...newformdatarestraints];
+        });
+        setLoadingData(false);
       }).catch((data) => {
         setWasError(true);
         setErrorText("There was an error loading the record.");
       });
-
     });
   }, []);
 
@@ -383,14 +409,18 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
 
   //mutate the array
   const liftUpVal = (name: string, value: string | number | object | boolean, index: number) => {
-    let newValues = [...formdata];
-    formdata[index][name]["value"] = value;
-    setFormDataInAppContext(newValues);
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let newValues = [...prevState];
+      newValues[index][name]["value"] = value;
+      return [...newValues];
+    });
   };
   const liftUpValidationState = (name: string, value: string | number | object | boolean, index: number) => {
-    let newValues = [...formdata];
-    formdata[index][name]["value"] = value;
-    setFormDataInAppContext(newValues);
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let newValues = [...prevState];
+      newValues[index][name]["value"] = value;
+      return [...newValues];
+    });
   };
 
   const liftUpIndexState = (index: number) => {
@@ -440,13 +470,15 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
   };
 
   const changeActionToUpdate = (): void => {
-    let copyformdata: Array<RowObj> = [...formdata];
-    copyformdata.forEach(item => {
-      if (item["command"]["value"] != "delete") {
-        item["command"]["value"] = "update";
-      }
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let copyformdata: Array<RowObj> = [...prevState];
+      copyformdata.forEach(item => {
+        if (item["command"]["value"] != "delete") {
+          item["command"]["value"] = "update";
+        }
+      });
+      return [...copyformdata]
     });
-    setFormDataInAppContext(copyformdata);
   };
 
   const onSave = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -459,7 +491,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
     // (see saveWeights function)...
     let QCState: string = "";
     if (editMode) {
-      QCState = getQCStateByRowId(QCMap, formdata[0]["QCState"]);
+      QCState = getQCStateByRowId(QCMap, formdata[0]["QCState"]["value"]);
     } else {
       QCState = "In Progress";
     }
@@ -496,6 +528,18 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
     });
   };
 
+  const waitWithInterval = (time: number, interval: number): Promise<any> => {
+    return new Promise(resolve => {
+      let countdown: number = time;
+      setInterval(() => {
+        countdown--;
+        if (countdown == 0) {
+          resolve();
+        }
+      }, interval);
+    });
+  };
+
   const triggerSubmit = () => {
     let command: CommandType = wasSaved || editMode ? "update" : "insert";
     setSubmitBoxText("Submitting...");
@@ -523,53 +567,16 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
   };
 
   useEffect(() => {
-    let initialdata: Array<RowObj> = [];
-    let restraintObjectId: string = Utils.generateUUID().toUpperCase();
-    initialdata.push({
-      animalid: { value: "", error: "" },
-      date: { value: new Date(), error: "" },
-      weight: { value: undefined, error: "" },
-      remark: { value: "", error: "" },
-      animal_location: {value: "", error: ""},
-      objectid: { value: Utils.generateUUID().toUpperCase(), error: "" },
-      lsid: { value: "", error: "" },
-      restraint_objectid: { value: restraintObjectId, error: "" },
-      QCState: {
-        value: getQCStateByLabel(QCMap, "In Progress") || 2,
-        error: ""
-      },
-      command: { value: "insert", error: "" },
-      collapsed: { value: false, error: "" },
-      visibility: { value: "visible", error: "" },
-      restraint: {value: "", error: "", objectid: restraintObjectId },
-      validated: {value: false, error: ""},
-      animal_info: {value: null, error: ""}
-    });
-    setFormDataInAppContext(initialdata);
-    getQCStateMap().then(map => {
-      setQCMap(map);
-    });
-  }, []);
-
-  const setFormIds = () => {
-    let copyformdata: Array<RowObj>;
-    if (formdata[0] && formdata[0].animalid.value != ""){
-      copyformdata = [...formdata]
-    } else {
-      copyformdata = []
-    }
-    ids.forEach((id, i) => {
-      let restraintObjectId = Utils.generateUUID().toUpperCase();
-      copyformdata.push({
-        animalid: { value: id, error: "" },
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let initialdata: Array<RowObj> = [];
+      let restraintObjectId: string = Utils.generateUUID().toUpperCase();
+      initialdata.push({
+        animalid: { value: "", error: "" },
         date: { value: new Date(), error: "" },
         weight: { value: undefined, error: "" },
         remark: { value: "", error: "" },
         animal_location: {value: "", error: ""},
-        objectid: {
-          value: Utils.generateUUID().toUpperCase(),
-          error: ""
-        },
+        objectid: { value: Utils.generateUUID().toUpperCase(), error: "" },
         lsid: { value: "", error: "" },
         restraint_objectid: { value: restraintObjectId, error: "" },
         QCState: {
@@ -583,41 +590,94 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
         validated: {value: false, error: ""},
         animal_info: {value: null, error: ""}
       });
+      return [...initialdata];
     });
-    setFormDataInAppContext(copyformdata);
+    getQCStateMap().then(map => {
+      setQCMap(map);
+    });
+  }, []);
+
+  const setFormIds = () => {
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let copyformdata: Array<RowObj>;
+      if (formdata[0] && formdata[0].animalid.value != "")
+      {
+        copyformdata = [...prevState]
+      }
+      else
+      {
+        copyformdata = []
+      }
+      ids.forEach((id, i) => {
+        let restraintObjectId = Utils.generateUUID().toUpperCase();
+        copyformdata.push({
+          animalid: {value: id, error: ""},
+          date: {value: new Date(), error: ""},
+          weight: {value: undefined, error: ""},
+          remark: {value: "", error: ""},
+          animal_location: {value: "", error: ""},
+          objectid: {
+            value: Utils.generateUUID().toUpperCase(),
+            error: ""
+          },
+          lsid: {value: "", error: ""},
+          restraint_objectid: {value: restraintObjectId, error: ""},
+          QCState: {
+            value: getQCStateByLabel(QCMap, "In Progress") || 2,
+            error: ""
+          },
+          command: {value: "insert", error: ""},
+          collapsed: {value: false, error: ""},
+          visibility: {value: "visible", error: ""},
+          restraint: {value: "", error: "", objectid: restraintObjectId},
+          validated: {value: false, error: ""},
+          animal_info: {value: null, error: ""}
+        });
+      });
+      return [...copyformdata];
+    });
   };
 
   const toggleOpen = (index) => {
-    let copyformdata: Array<RowObj>;
-    copyformdata = [...formdata];
-    copyformdata[index]["collapsed"]["value"] = false;
-    setFormDataInAppContext(copyformdata);
-    return true;
+    return new Promise( (resolve, reject) => {
+      setFormDataInAppContext((prevState: Array<RowObj>) => {
+        let copyformdata: Array<RowObj>;
+        copyformdata = [...prevState];
+        copyformdata[index]["collapsed"]["value"] = false;
+        return [...copyformdata];
+      });
+      resolve();
+      //return true;
+    })
+
   }
 
   const toggleClose = (index) => {
-    let copyformdata: Array<RowObj>;
-    copyformdata = [...formdata];
-    copyformdata[index]["collapsed"]["value"] = true;
-    setFormDataInAppContext(copyformdata);
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let copyformdata: Array<RowObj>;
+      copyformdata = [...prevState];
+      copyformdata[index]["collapsed"]["value"] = true;
+      return [...copyformdata];
+    });
     return true;
   }
 
   const toggleCollapse = (i: number) => {
-    let copyformdata: Array<RowObj>;
-    copyformdata = [...formdata];
-    copyformdata[i]["collapsed"]["value"] = copyformdata[i]["collapsed"]["value"] ? false : true;
-    setFormDataInAppContext(copyformdata);
+    setFormDataInAppContext((prevState: Array<RowObj>) => {
+      let copyformdata: Array<RowObj>;
+      copyformdata = [...prevState];
+      copyformdata[i]["collapsed"]["value"] = copyformdata[i]["collapsed"]["value"] ? false : true;
+      return [...copyformdata];
+    });
     return true;
   };
 
   //what state is the toggleOpen dependent on?
   //dependent on the whichButton was clicked.
 
-  const addRecord = (): Array<RowObj> => {
-    let copyformdata: Array<RowObj> = [...formdata];
+  const addRecord = (): RowObj => {
     let restraintObjectId: string = Utils.generateUUID().toUpperCase();
-    copyformdata.unshift({
+    return {
       animalid: { value: "", error: "" },
       date: { value: new Date(), error: "" },
       weight: { value: undefined, error: "" },
@@ -633,24 +693,22 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
       command: { value: "insert", error: "" },
       collapsed: { value: false, error: "" },
       visibility: { value: "visible", error: "" },
-      restraint: {value: "None", error: "", objectid: restraintObjectId},
+      restraint: {value: "", error: "", objectid: restraintObjectId},
       validated: {value: false, error: ""},
       animal_info: {value: null, error: ""}
-    });
-    return copyformdata;
+    };
   };
   const removeRecord = (copyformdata, i) => {
-    //only need to do this part if we are in wasSaved or editMode, otherwise we can splice.
-    if (wasSaved || editMode)
-    {
-      copyformdata[i]["command"]["value"] = "delete";
-    }
-    else
-    {
-      copyformdata.splice(i, 1);
-    }
     //the validity of this record is no longer valid, so set the error level to whatever it was
-    setFormDataInAppContext(copyformdata);
+      //only need to do this part if we are in wasSaved or editMode, otherwise we can splice.
+      if (wasSaved || editMode) {
+        copyformdata[i]["command"]["value"] = "delete";
+      }
+      else {
+        copyformdata.splice(i, 1);
+      }
+
+      return [...copyformdata];
   }
 
   const getRoomCage = (location: string) => {
@@ -739,9 +797,14 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
           id="add-record"
           disabled={singleEditMode}
           onClick={() => {
-            let newform = addRecord();
+            let newRecord = addRecord();
             console.log('adding record, setting data.')
-            setFormDataInAppContext(newform);
+            setFormDataInAppContext((prevState: Array<RowObj>) => {
+              let copyformdata = [...prevState];
+              copyformdata.unshift(newRecord);
+              return [...copyformdata];
+
+            });
             document.getElementById("animalid_0").focus();
           }}
         >
@@ -770,7 +833,9 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
           id="delete-record"
           disabled={singleEditMode}
           onClick={() => {
-            setFormDataInAppContext([]);
+            setFormDataInAppContext((prevState: Array<RowObj>) => {
+              return [];
+            });
             setCageDataInAppContext([]);
             setAnimalInfo(null);
             setInfoState("waiting");
@@ -828,7 +893,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
         )}
         <form className="weights-form" ref={formEl}>
 
-          {locloading ? (
+          {locloading || loadingData ? (
             <Spinner text={"Loading..."} />
           ) : (
             <div>
@@ -894,13 +959,18 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
                         title="Remove Record"
                         aria-label="Close"
                         onClick={e => {
-                          let copyformdata: Array<RowObj> = [...formdata];
-                          copyformdata[i]["visibility"]["value"] =
-                            "hide-record";
-                          setFormDataInAppContext(copyformdata);
+                          setFormDataInAppContext((prevState: Array<RowObj>) =>{
+                            let copyformdata: Array<RowObj> = [...prevState];
+                            copyformdata[i]["visibility"]["value"] =
+                              "hide-record";
+                            return copyformdata;
+                          });
                           sleep(750).then(() => {
-                            let copyformdata: Array<RowObj> = [...formdata];
-                            removeRecord(copyformdata, i)
+                            setFormDataInAppContext((prevState: Array<RowObj>) => {
+                              let copyformdata: Array<RowObj> = [...prevState];
+                              let recordRemoved = removeRecord(copyformdata, i)
+                              return [...recordRemoved];
+                            })
                             onValidate();
                           });
                         }}
@@ -958,17 +1028,6 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
             <h3>Navigation</h3>
           </div>
         <div className="panel-body">
-          <p>
-            <button onClick={(d) => {
-              toggleOpen(current-1);
-              document.getElementById("animalid_" + (current-1)).focus();
-            }}>Previous </button>
-            <button onClick={(d) => {
-              toggleOpen(current+1);
-              document.getElementById("animalid_" + (current+1)).focus();
-            }}>Next </button>
-          </p>
-
           <div className="cage-container">
             {cagedata && (Object.values(cagedata) as Array<any>).map((cage, cageIndex) => (
               <div className="cage-group" key={cageIndex}>
@@ -977,7 +1036,12 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
                     for (let i = 0; i < formdata.length; i++){
                       if (animal.animalid == formdata[i].animalid){
                         toggleOpen(i);
-                        document.getElementById("animalid_" + (i)).focus();
+                        toggleOpen(i).then((d)=> {
+                          waitWithInterval(1,500).then(() => {
+
+                            document.getElementById("weight_" + (i)).focus();
+                          })
+                        });
                       }
                     }
                   }} key={animalIndex}>{animal && animal.animalid && animal.animalid.value}</button>
@@ -993,7 +1057,7 @@ const EnterWeightFormContainer: React.FunctionComponent<any> = props => {
           </div>
         </div>
 
-        <div className="row panel panel-portal ">
+        <div className="row panel panel-portal panel-body">
           <div className="panel-heading">
             <h3>Animal Info</h3>
           </div>

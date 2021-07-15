@@ -10,6 +10,7 @@
         <column name="originneeded"></column>
         <column name="numberofanimals"></column>
         <column name="QCState"></column>
+        <column name="threadid"></column>
         <column name="animal_history_link"></column>
         <column name="animalidstooffer"></column>
 

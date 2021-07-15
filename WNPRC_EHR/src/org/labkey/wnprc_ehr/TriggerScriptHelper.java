@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.labkey.api.announcements.api.Announcement;
+import org.labkey.api.announcements.api.AnnouncementService;
 import org.labkey.api.data.CompareType;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager;
@@ -800,6 +802,27 @@ public class TriggerScriptHelper {
 
         }
         return theDifferences;
+    }
+
+    // Create a message board thread given an animal request row id
+    public Integer setUpMessageBoardThread(Integer rowId)
+    {
+        Container c = ContainerManager.getForPath("/WNPRC/WNPRC_Units/Animal_Services/SPI/Discussions/");
+        String title = "Animal Request Thread #" + rowId.toString();
+        String body = "";
+        boolean sendEmail = false;
+        List<Integer> ids = new ArrayList<Integer>();
+        ids.add(user.getUserId());
+        Announcement md = AnnouncementService.get().insertAnnouncement(c,user,title,body,sendEmail);
+        return md.getRowId();
+    }
+
+    // Set the message board thread id in the animal request row
+    public void updateAnimalRequestsTable(Map<String,Object> row) throws InvalidKeyException, QueryUpdateServiceException, SQLException, BatchValidationException
+    {
+        SimpleQueryUpdater queryUpdater = new SimpleQueryUpdater(user, container, "wnprc", "animal_requests");
+        queryUpdater.update(row);
+
     }
 
 }

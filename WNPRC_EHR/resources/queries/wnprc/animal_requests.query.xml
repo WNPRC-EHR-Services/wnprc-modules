@@ -141,6 +141,10 @@
                     <column columnName="animal_history_link">
                         <columnTitle>Animal History</columnTitle>
                     </column>
+                    <column columnName="threadid">
+                        <columnTitle>Messages Portal</columnTitle>
+                        <isUserEditable>false</isUserEditable>
+                    </column>
 
                 </columns>
                 <buttonBarOptions position="both" includeStandardButtons="false">

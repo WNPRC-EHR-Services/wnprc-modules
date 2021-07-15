@@ -912,6 +912,79 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
         }
     }
 
+    public static class ThreadIdColumn extends DataColumn {
+        public ThreadIdColumn(ColumnInfo colInfo)
+        {
+            super(colInfo);
+        }
+
+        @Override
+        public Object getValue(RenderContext ctx)
+        {
+            return super.getValue(ctx);
+        }
+        @Override
+        public void renderGridCellContents(RenderContext ctx, Writer out) throws IOException
+        {
+            Integer val = (Integer) super.getValue(ctx);
+            if (val != null)
+            {
+                String edit;
+                edit = "<a  href='" +
+                        ctx.getViewContext().getContextPath() +
+                        "/announcements/WNPRC/WNPRC_Units/Animal_Services/SPI/Discussions/thread.view?rowId=" +
+                        val.toString() +
+                        "&update=1&returnUrl=" +
+                        ctx.getViewContext().getContextPath() +
+                        "%2Fwnprc_ehr%2FWNPRC%2FEHR%2FdataEntry.view%3F'>Discussion</a>";
+                out.write(edit);
+            }
+            else
+            {
+                out.write(""); //create one?
+            }
+        }
+
+
+    }
+
+    public static class ThreadIdColumnCreatedByConditional extends DataColumn {
+        private User _currentUser;
+        public ThreadIdColumnCreatedByConditional(ColumnInfo colInfo, User currentUser) {
+            super(colInfo);
+            _currentUser = currentUser;
+        }
+
+        @Override
+        public void renderGridCellContents(RenderContext ctx, Writer out) throws IOException
+        {
+            if (_currentUser.getUserId() == (Integer) ctx.get("createdBy"))
+            {
+                Integer val = (Integer) super.getValue(ctx);
+                if (val != null)
+                {
+                    String edit;
+                    edit = "<a  href='" +
+                            ctx.getViewContext().getContextPath() +
+                            "/announcements/WNPRC/WNPRC_Units/Animal_Services/SPI/Discussions/thread.view?rowId=" +
+                            val.toString() +
+                            "&update=1&returnUrl=" +
+                            ctx.getViewContext().getContextPath() +
+                            "%2Fwnprc_ehr%2FWNPRC%2FEHR%2FdataEntry.view%3F'>Discussion</a>";
+                    out.write(edit);
+                }
+                else
+                {
+                    out.write(""); //create one?
+                }
+            }
+            else
+            {
+                out.write("");
+            }
+        }
+    }
+
     public static class AnimalRequestsEditLinkConditional extends DataColumn
     {
         private User _currentUser;
@@ -990,7 +1063,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             {
                 return "";
             }
-            else if (_currentUser.getUserId() == (Integer) ctx.get("createdBy"))
+            if (_currentUser.getUserId() == (Integer) ctx.get("createdBy"))
             {
                 return super.getValue(ctx);
             }
@@ -1147,6 +1220,20 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
                     }
                 });
 
+        }
+
+        if (table.getColumn("threadid") != null)
+        {
+            BaseColumnInfo col = (BaseColumnInfo) table.getColumn("threadid");
+            if (us.getContainer().hasPermission(currentUser, WNPRCAnimalRequestsViewPermission.class) || us.getContainer().hasPermission(currentUser, AdminPermission.class))
+            {
+                col.setDisplayColumnFactory(colInfo -> new ThreadIdColumn(colInfo));
+            }
+            else
+            {
+                col.setHidden(true);
+                col.setDisplayColumnFactory(colInfo -> new ThreadIdColumnCreatedByConditional(colInfo, currentUser));
+            }
         }
     }
 

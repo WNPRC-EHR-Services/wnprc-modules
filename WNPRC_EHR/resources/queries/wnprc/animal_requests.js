@@ -69,6 +69,8 @@ function onAfterInsert(helper,errors,row){
     var hostName = 'https://' + LABKEY.serverName;
     console.log ("animal_requests.js: New request submitted, rowid: "+ rowid);
     WNPRC.Utils.getJavaHelper().sendAnimalRequestNotification(rowid, hostName);
+    row.threadid = WNPRC.Utils.getJavaHelper().setUpMessageBoardThread(rowid);
+    WNPRC.Utils.getJavaHelper().updateAnimalRequestsTable(row);
 }
 
 function onAfterUpdate(helper,errors,row,oldRow){

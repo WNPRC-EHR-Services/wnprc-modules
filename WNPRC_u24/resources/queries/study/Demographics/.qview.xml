@@ -2,6 +2,7 @@
     <columns>
         <column name="AnimalId"/>
         <column name="NeprcId" />
+        <column name="primateId" />
         <column name="birth"/>
         <column name="death"/>
         <column name="gender"/>

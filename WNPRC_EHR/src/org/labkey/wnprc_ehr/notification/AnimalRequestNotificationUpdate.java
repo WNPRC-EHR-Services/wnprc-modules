@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.labkey.api.search.SearchService._log;
-import static org.labkey.ehr.pipeline.GeneticCalculationsJob.getContainer;
 
 public class AnimalRequestNotificationUpdate extends AbstractEHRNotification
 {

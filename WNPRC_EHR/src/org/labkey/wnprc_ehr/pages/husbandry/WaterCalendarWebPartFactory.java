@@ -7,8 +7,8 @@ import org.labkey.api.view.Portal;
 import org.labkey.api.view.BaseWebPartFactory;
 import org.labkey.api.view.ViewContext;
 import org.labkey.api.view.WebPartView;
-import org.labkey.webutils.WebUtilsServiceImpl;
-import org.labkey.webutils.view.JspPage;
+//import org.labkey.webutils.WebUtilsServiceImpl;
+//import org.labkey.webutils.view.JspPage;
 
 import javax.validation.constraints.NotNull;
 import java.io.PrintWriter;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
-        static private String _packagePathDir = WebUtilsServiceImpl.getPackageDirFromClass(JspPage.class);
+        //static private String _packagePathDir = WebUtilsServiceImpl.getPackageDirFromClass(JspPage.class);
 
 
 
@@ -49,8 +49,8 @@ public class WaterCalendarWebPartFactory extends BaseWebPartFactory{
 
 
 
-        JspPage page = new JspPage(view, numberOfRenders,unBindJSON);
-        page.setFrame(WebPartView.FrameType.PORTAL);
+       // JspPage page = new JspPage(view, numberOfRenders,unBindJSON);
+       // page.setFrame(WebPartView.FrameType.PORTAL);
 
 
 

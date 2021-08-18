@@ -1545,7 +1545,7 @@ public class WNPRC_EHRController extends SpringActionController
      */
     @SuppressWarnings("unused")
     @RequiresPermission(AdminPermission.class)
-    public static class ImportDatasetDataAction extends ApiAction<java.lang.Void>
+    public static class ImportDatasetDataAction extends MutatingApiAction<java.lang.Void>
     {
         @Override
         public Object execute(java.lang.Void aVoid, BindException errors)
@@ -1561,7 +1561,7 @@ public class WNPRC_EHRController extends SpringActionController
      */
     @SuppressWarnings("unused")
     @RequiresPermission(AdminPermission.class)
-    public static class ImportDatasetMetadataAction extends ApiAction<java.lang.Void>
+    public static class ImportDatasetMetadataAction extends MutatingApiAction<java.lang.Void>
     {
         @Override
         public Object execute(java.lang.Void aVoid, BindException errors) throws Exception
@@ -1569,7 +1569,7 @@ public class WNPRC_EHRController extends SpringActionController
             Module module = ModuleLoader.getInstance().getModule(WNPRC_EHRModule.class);
             assert module != null;
 
-            File file = new File(Paths.get(module.getExplodedPath().getAbsolutePath(), "referenceStudy", "study").toFile(),
+            File file = new File(Paths.get(module.getExplodedPath().getAbsolutePath(), "pregnancySubsetReferenceStudy", "study").toFile(),
                     "study.xml");
             DatasetImportHelper.importDatasetMetadata(getUser(), getContainer(), file);
             return new ApiSimpleResponse("success", true);
@@ -1595,7 +1595,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @ActionNames("UpdateWaterAmount")
     @RequiresLogin
-    public class UpdateWaterAmountAction extends ApiAction<WaterOrderRecord>
+    public class UpdateWaterAmountAction extends MutatingApiAction<WaterOrderRecord>
     {
         @Override
         public Object execute (WaterOrderRecord event, BindException errors) throws Exception{
@@ -1681,7 +1681,7 @@ public class WNPRC_EHRController extends SpringActionController
 
     @ActionNames("CloseWaterOrder")
     @RequiresLogin
-    public class CloseWaterOrderAction extends ApiAction<WaterOrderRecord>
+    public class CloseWaterOrderAction extends MutatingApiAction<WaterOrderRecord>
     {
         @Override
         public Object execute (WaterOrderRecord event, BindException errors) throws Exception{
@@ -1758,7 +1758,7 @@ public class WNPRC_EHRController extends SpringActionController
     // This method is used on the WaterCalendar to easily modify existing water orders.
     @ActionNames("EnterNewWaterOrder")
     @RequiresLogin
-    public class EnterNewWaterOrderAction extends ApiAction<WaterOrderRecord>
+    public class EnterNewWaterOrderAction extends MutatingApiAction<WaterOrderRecord>
     {
         @Override
         public Object execute (WaterOrderRecord event, BindException errors) throws Exception{
@@ -2117,38 +2117,5 @@ public class WNPRC_EHRController extends SpringActionController
         rs.close();
         return woRows;
 
-    }
-
-    /**
-     * Action definition to import historical/test data for the breeding datasets. Called from the web application,
-     * not from Java.
-     */
-    @SuppressWarnings("unused")
-    @RequiresPermission(AdminPermission.class)
-    public static class ImportDatasetDataAction extends MutatingApiAction<Object>
-    {
-        @Override
-        public Object execute(Object aVoid, BindException errors)
-        {
-            // TODO: create, parse, and load some test data
-            return new ApiSimpleResponse("success", true);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @RequiresPermission(AdminPermission.class)
-    public static class ImportDatasetMetadataAction extends MutatingApiAction<Object>
-    {
-        @Override
-        public Object execute(Object aVoid, BindException errors) throws Exception
-        {
-            Module module = ModuleLoader.getInstance().getModule(WNPRC_EHRModule.class);
-            assert module != null;
-
-            File file = new File(Paths.get(module.getExplodedPath().getAbsolutePath(), "pregnancySubsetReferenceStudy", "study").toFile(),
-                    "study.xml");
-            DatasetImportHelper.importDatasetMetadata(getUser(), getContainer(), file);
-            return new ApiSimpleResponse("success", true);
-        }
     }
 }

@@ -18,6 +18,7 @@ package org.labkey.wnprc_ehr.table;
 import org.apache.log4j.Logger;
 import org.labkey.api.data.AbstractTableInfo;
 import org.labkey.api.data.BaseColumnInfo;
+import org.labkey.api.data.ColumnInfo;
 import org.labkey.api.data.CompareType;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.DataColumn;
@@ -45,6 +46,8 @@ import org.labkey.api.study.Dataset;
 import org.labkey.api.study.Study;
 import org.labkey.api.study.StudyService;
 import org.labkey.api.util.GUID;
+import org.labkey.api.util.HtmlString;
+import org.labkey.api.util.HtmlStringBuilder;
 import org.labkey.api.util.PageFlowUtil;
 import org.labkey.api.util.StringExpressionFactory;
 import org.labkey.api.view.ActionURL;
@@ -938,27 +941,26 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             super(colInfo);
             _currentUser = currentUser;
         }
-
-
         @Override
-        public String getFormattedValue(RenderContext ctx)
+        public HtmlString getFormattedHtml(RenderContext ctx)
+        {
+            String edit;
+            if (_currentUser.getUserId() == (Integer) ctx.get("createdBy"))
             {
-                if (_currentUser.getUserId() == (Integer) ctx.get("createdBy"))
-                {
-                    String edit = new String("");
-                    edit = "<a class='fa fa-pencil lk-dr-action-icon' style='opacity: 1' href='" +
-                            ctx.getViewContext().getContextPath() +
-                            "/ehr/WNPRC/EHR/manageRecord.view?schemaName=wnprc&queryName=animal_requests&title=Animal%20Request&keyField=rowid&key=" +
-                            ctx.get("rowid").toString() +
-                            "&update=1&returnUrl=" +
-                            ctx.getViewContext().getContextPath() +
-                            "%2Fwnprc_ehr%2FWNPRC%2FEHR%2FdataEntry.view%3F'></a>";
-                    return edit;
-                } else
-                {
-                    return "";
-                }
+                edit = "<a class='fa fa-pencil lk-dr-action-icon' style='opacity: 1' href='" +
+                        ctx.getViewContext().getContextPath() +
+                        "/ehr/WNPRC/EHR/manageRecord.view?schemaName=wnprc&queryName=animal_requests&title=Animal%20Request&keyField=rowid&key=" +
+                        ctx.get("rowid").toString() +
+                        "&update=1&returnUrl=" +
+                        ctx.getViewContext().getContextPath() +
+                        "%2Fwnprc_ehr%2FWNPRC%2FEHR%2FdataEntry.view%3F'></a>";
             }
+            else {
+                edit = "";
+            }
+            return HtmlString.unsafe(edit);
+        }
+
     }
     public static class AnimalRequestsEditLinkShow extends DataColumn {
         private User _currentUser;
@@ -968,9 +970,9 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
         }
 
         @Override
-        public String getFormattedValue(RenderContext ctx)
+        public HtmlString getFormattedHtml(RenderContext ctx)
         {
-            String edit = "";
+            String edit;
             edit = "<a class='fa fa-pencil lk-dr-action-icon' style='opacity: 1' href='" +
                     ctx.getViewContext().getContextPath() +
                     "/ehr/WNPRC/EHR/manageRecord.view?schemaName=wnprc&queryName=animal_requests&title=Animal%20Request&keyField=rowid&key=" +
@@ -978,8 +980,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
                     "&update=1&returnUrl=" +
                     ctx.getViewContext().getContextPath() +
                     "%2Fwnprc_ehr%2FWNPRC%2FEHR%2FdataEntry.view%3F'></a>";
-            return edit;
-
+            return HtmlString.unsafe(edit);
         }
 
     }
@@ -1034,19 +1035,20 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             }
         }
         @Override
-        public String getFormattedValue(RenderContext ctx)
+        public HtmlString getFormattedHtml(RenderContext ctx)
         {
+            HtmlStringBuilder emptyString = HtmlStringBuilder.of();
             if ("Request: Pending".equals(ctx.get("QCState$Label")))
             {
-                return "";
+                return emptyString.getHtmlString();
             }
             else if (_currentUser.getUserId() == (Integer) ctx.get("createdBy"))
             {
-                return super.getFormattedValue(ctx);
+                return super.getFormattedHtml(ctx);
             }
             else
             {
-                return "";
+                return emptyString.getHtmlString();
             }
         }
 
@@ -1073,7 +1075,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
         {
             if (table.getColumn(item) != null)
             {
-                ColumnInfo col = table.getColumn(item);
+                BaseColumnInfo col = (BaseColumnInfo) table.getColumn(item);
                 if (!us.getContainer().hasPermission(currentUser, WNPRCAnimalRequestsEditPermission.class) && !us.getContainer().hasPermission(currentUser, AdminPermission.class))
                 {
                     col.setReadOnly(true);
@@ -1114,7 +1116,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
         //re-render animalidsoffer column
         if (table.getColumn("animalidstooffer") != null)
         {
-            ColumnInfo col = table.getColumn("animalidstooffer");
+            BaseColumnInfo col = (BaseColumnInfo) table.getColumn("animalidstooffer");
             col.setLabel("Animal Ids");
             col.setDisplayColumnFactory(new DisplayColumnFactory()
             {

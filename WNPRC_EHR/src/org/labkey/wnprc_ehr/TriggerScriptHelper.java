@@ -44,7 +44,6 @@ import org.labkey.api.study.security.SecurityEscalator;
 import org.labkey.dbutils.api.SimpleQueryFactory;
 import org.labkey.dbutils.api.SimpleQueryUpdater;
 import org.labkey.dbutils.api.SimplerFilter;
-import org.labkey.ehr.EHRSchema;
 //import org.labkey.ehr.demographics.EHRDemographicsServiceImpl;
 import org.labkey.webutils.api.json.JsonUtils;
 import org.labkey.wnprc_ehr.notification.AnimalRequestNotification;
@@ -1143,7 +1142,7 @@ public class TriggerScriptHelper {
                     Map<String, Object> toUpdate = new CaseInsensitiveHashMap<>();
                     toUpdate.put("qcstate", EHRService.QCSTATES.Completed.getQCState(getContainer()).getRowId());
                     toUpdate.put("taskid", taskid);
-                    Table.update(getUser(), EHRSchema.getInstance().getSchema().getTable(EHRSchema.TABLE_TASKS), toUpdate, taskid);
+                    Table.update(getUser(), taskTable, toUpdate, taskid);
                 }
             });
         }
@@ -1830,7 +1829,7 @@ public class TriggerScriptHelper {
 
 
 
-    public static class WaterInfo implements Comparable<org.labkey.ehr.utils.TriggerScriptHelper.BloodInfo>
+    public static class WaterInfo implements Comparable<WaterInfo>
     {
         //private String _objectId;
         private Date _date;
@@ -1862,7 +1861,7 @@ public class TriggerScriptHelper {
         }
 
         @Override
-        public int compareTo(@NotNull org.labkey.ehr.utils.TriggerScriptHelper.BloodInfo o)
+        public int compareTo(@NotNull WaterInfo o)
         {
             return getDate().compareTo(o.getDate());
         }

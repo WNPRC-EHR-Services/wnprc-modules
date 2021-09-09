@@ -9,12 +9,14 @@ import org.labkey.api.admin.ImportException;
 import org.labkey.api.admin.StaticLoggerGetter;
 import org.labkey.api.data.Container;
 import org.labkey.api.security.User;
+import org.labkey.api.study.StudyService;
 import org.labkey.api.writer.FileSystemFile;
-import org.labkey.study.importer.DatasetDefinitionImporter;
-import org.labkey.study.importer.DatasetImportUtils;
-import org.labkey.study.importer.StudyImportContext;
-import org.labkey.study.model.StudyManager;
-import org.labkey.study.writer.StudyArchiveDataTypes;
+import org.springframework.validation.BindException;
+//import org.labkey.study.importer.DatasetDefinitionImporter;
+//import org.labkey.study.importer.DatasetImportUtils;
+//import org.labkey.study.importer.StudyImportContext;
+//import org.labkey.study.model.StudyManager;
+//import org.labkey.study.writer.StudyArchiveDataTypes;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,16 +44,22 @@ public final class DatasetImportHelper
             throws IOException, SQLException, DatasetImportUtils.DatasetLockExistsException, XmlException, ImportException
     {
         assert container.hasActiveModuleByName("study") : "Study module is not active in the container.";
-        assert StudyManager.getInstance().getStudy(container) != null : "No study found in the container.";
+        assert StudyService.get().getStudy(container) != null : "No study found in the container.";
         assert studyXmlFile.exists() : "Study reference data XML file does not exist: " + studyXmlFile.getAbsolutePath();
 
         LOG.debug(String.format("[import] loading dataset metadata... [from='%s',to='%s']",
                 studyXmlFile.getAbsolutePath(), container.getName()));
         FileSystemFile root = new FileSystemFile(studyXmlFile.getParentFile());
-        StudyImportContext ctx = new StudyImportContext(user, container, studyXmlFile,
-                Collections.singleton(StudyArchiveDataTypes.DATASET_DEFINITIONS), new StaticLoggerGetter(LOG), root);
-        DatasetDefinitionImporter ddi = new DatasetDefinitionImporter();
-        ddi.process(ctx, root, new NullSafeBindException(container, "import"));
+
+        //StudyImportContext ctx = new StudyImportContext(user, container, studyXmlFile,
+        //        Collections.singleton(StudyArchiveDataTypes.DATASET_DEFINITIONS), new StaticLoggerGetter(LOG), root);
+
+        //TODO figure out parameters (and is this even the right way to do this?)
+        StudyService.get().runStudyImportJob(container, user, null, studyXmlFile, null, null, null, null);
+
+        //DatasetDefinitionImporter ddi = new DatasetDefinitionImporter();
+        //ddi.process(ctx, root, new NullSafeBindException(container, "import"));
+
         LOG.debug("[import] ...done.");
     }
 

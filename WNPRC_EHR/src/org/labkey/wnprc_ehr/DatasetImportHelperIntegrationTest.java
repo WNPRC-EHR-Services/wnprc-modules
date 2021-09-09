@@ -14,14 +14,15 @@ import org.labkey.api.module.ModuleLoader;
 import org.labkey.api.security.User;
 import org.labkey.api.study.Dataset;
 import org.labkey.api.study.Study;
+import org.labkey.api.study.StudyService;
 import org.labkey.api.study.TimepointType;
 import org.labkey.api.test.TestWhen;
 import org.labkey.api.util.GUID;
 import org.labkey.api.util.JunitUtil;
 import org.labkey.api.util.TestContext;
-import org.labkey.study.importer.DatasetImportUtils;
-import org.labkey.study.model.StudyImpl;
-import org.labkey.study.model.StudyManager;
+//import org.labkey.study.importer.DatasetImportUtils;
+//import org.labkey.study.model.StudyImpl;
+//import org.labkey.study.model.StudyManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,12 +61,16 @@ public class DatasetImportHelperIntegrationTest extends Assert
         // ARRANGE: create the study in the breeding test container
         ContainerManager.setFolderType(_container, FolderTypeManager.get().getFolderType("Study"), _user,
                 new NullSafeBindException(_container, "test-import"));
+
+        /* Removing use of internal private classes
         StudyImpl s = new StudyImpl(_container, "Breeding Test Study");
         s.setTimepointType(TimepointType.DATE); // must be set to avoid NullPointerException
         s.setSubjectColumnName("SubjectID");    // must be set due to non-null constraint
         s.setSubjectNounPlural("Subjects");     // must be set due to non-null constraint
         s.setSubjectNounSingular("Subject");    // must be set due to non-null constraint
-        Study study = StudyManager.getInstance().createStudy(_user, s);
+        Study study = StudyManager.getInstance().createStudy(_user, s);*/
+
+        Study study = StudyService.get().createStudy(_container, _user, "Breeding Test Study", TimepointType.DATE, true);
 
         // ACT: load the dataset metadata from the reference study in the resources
         File file = new File(Paths.get(ModuleLoader.getInstance().getModule("WNPRC_EHR")

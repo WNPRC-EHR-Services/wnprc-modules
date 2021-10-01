@@ -671,11 +671,8 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             TableInfo birth = getRealTableForDataset(table, "birth");
             TableInfo demographics = getRealTableForDataset(table, "demographics");
 
-            // Here we want a union of the birth and arrival tables to get the sire of the animal
-            // For the given demographic animal id, it checks the arrival records to see if there is a matching sire
-            //  which is the actual vendor ID of an animal that arrived at the center, and it uses that animal's id as the sire as long as the species between the two are the same
-            //  if that is not the case, it will fall back on the arrival and birth records, and if still no sire found in arrival or births,
-            //  we fall back on the "old" data in the demographic table, called sire_old
+            // Here we want a union of the birth and arrival tables to get the sire of the animal,
+            // if none found, we fall back on the "old" data in the demographic table
             String arrivalAndBirthQuery = "( " +
                     "SELECT " +
                         "COALESCE ( " +
@@ -685,8 +682,6 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
                                 "studydataset." + arrival.getName() + " a, studydataset." + arrival.getName() + " b " +
                             " WHERE " +
                                 " b.participantid = " + ExprColumn.STR_TABLE_ALIAS + ".participantid AND lower(a.vendor_id) = lower(b.sire) AND lower(a.vendor_id) != lower(a.participantid) " +
-                                " AND (SELECT x.species from studydataset." + demographics.getName() +" x WHERE x.participantid = a.participantid) =  " +
-                                " (SELECT y.species from studydataset." + demographics.getName() +" y WHERE y.participantid = " + ExprColumn.STR_TABLE_ALIAS + ".participantid) " +
                             "ORDER BY " +
                                 "b.modified DESC " +
                             "LIMIT 1), " +
@@ -724,8 +719,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             ExprColumn newCol = new ExprColumn(table, sire_new, sql, JdbcType.VARCHAR);
             newCol.setLabel("Sire");
             newCol.setDescription("This is a calculated column that first checks arrival records and swaps out for the " +
-                    "'real' animal id if a matching vendor id was found and the species of the animals are matching, " +
-                    "if not found it will use whatever is in the " +
+                    "'real' animal id if a matching vendor id was found, if not found it will use whatever is in the " +
                     "arrival record, if not found, it then checks birth records, and if no sire is found there, it " +
                     "then finally uses the historic demographic text field called 'sire_old' as the sire.");
             table.addColumn(newCol);
@@ -738,10 +732,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             TableInfo demographics = getRealTableForDataset(table, "demographics");
 
             // Here we want a union of the birth and arrival tables to get the dam of the animal
-            // For the given demographic animal id, it checks the arrival records to see if there is a matching dam
-            //  which is the actual vendor ID of an animal that arrived at the center, and it uses that animal's id as the dam, as long as the species between the two are the same
-            //  if that is not the case, it will fall back on the arrival and birth records, and if still no dam found in arrival or births,
-            //  we fall back on the "old" data in the demographic table, called dam_old
+            // if none found, we fall back on the "old" data in the demographic table
             String arrivalAndBirthQuery = "( " +
                     "SELECT " +
                         "COALESCE ( " +
@@ -751,8 +742,6 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
                                 "studydataset." + arrival.getName() + " a, studydataset." + arrival.getName() + " b " +
                             " WHERE " +
                                 " b.participantid = " + ExprColumn.STR_TABLE_ALIAS + ".participantid AND lower(a.vendor_id) = lower(b.dam) AND lower(a.vendor_id) != lower(a.participantid) " +
-                                " AND (SELECT x.species from studydataset." + demographics.getName() +" x WHERE x.participantid = a.participantid) =  " +
-                                " (SELECT y.species from studydataset." + demographics.getName() +" y WHERE y.participantid = " + ExprColumn.STR_TABLE_ALIAS + ".participantid) " +
                             "ORDER BY " +
                                 "b.modified DESC " +
                             "LIMIT 1), " +
@@ -791,8 +780,7 @@ public class WNPRC_EHRCustomizer extends AbstractTableCustomizer
             ExprColumn newCol = new ExprColumn(table, dam_new, sql, JdbcType.VARCHAR);
             newCol.setLabel("Dam");
             newCol.setDescription("This is a calculated column that first checks arrival records and swaps out for the " +
-                    "'real' animal id if a matching vendor id was found and the species of the animals are matching, " + 
-                    "if not found it will use whatever is in the " +
+                    "'real' animal id if a matching vendor id was found, if not found it will use whatever is in the " +
                     "arrival record, if not found, it then checks birth records, and if no dam is found there, it " +
                     "then finally uses the historic demographic text field called 'dam_old' as the dam.");
             table.addColumn(newCol);

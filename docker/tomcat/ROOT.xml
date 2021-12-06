@@ -37,6 +37,21 @@
               mail.smtp.host="mailserver"
               mail.smtp.user=""
               mail.smtp.port="1025"
+              mail.smtp.from="test-ehr-do-not-reply@primate.wisc.edu"
+              mail.smtp.starttls.enable="true"
+              mail.smtp.socketFactory.class="javax.net.ssl.SSLSocketFactory"
+              mail.smtp.auth="false"
+    />
+    <Resource name="jdbc/arrow" auth="Container"
+             type="javax.sql.DataSource"
+             username="${arrow.user}"
+             password="${arrow.pass}"
+             driverClassName="net.sourceforge.jtds.jdbc.Driver"
+             url="${arrow.url}"
+             maxTotal="20"
+             maxIdle="10"
+             accessToUnderlyingConnectionAllowed="true"
+             validationQuery="SELECT 1"
     />
 
     <!-- ActiveMQ configuration. Previously (and perhaps in the future) used for pipeline jobs.

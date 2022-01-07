@@ -8,7 +8,7 @@ To build the WNPRC EHR modules for development:
 
   1. Follow the instructions to [set up a LabKey development machine](https://labkey.org/Documentation/wiki-page.view?name=devMachine).
   1. From the **LabKey root directory**:
-      1. Switch to the **wnprc17.2** branch from SVN:
+      1. Switch to the **wnprc21.3** branch from SVN:
           ```bash
           svn switch ^/branches/wnprc17.2
           ```

@@ -669,6 +669,8 @@ public class WNPRC_EHRController extends SpringActionController
         }
     }
 
+    
+
     @RequiresPermission(ReadPermission.class)
     @ActionNames("getChanges")
     @CSRF(CSRF.Method.POST)

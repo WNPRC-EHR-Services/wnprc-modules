@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 SECONDS=0
 TOTALWAITTIME=0
 
@@ -27,7 +28,9 @@ while :; do
   echo 'current time value'
   echo $currentTime
 
-  buildTimeStamp="`wget -qO- --http-user=$teamcityUser --http-password=$teamCityPWD https://teamcity.labkey.org/httpAuth/app/rest/buildTypes/LabKey_213Release_External_Wnprc_Installers/builds/state:finished${B},status:success/startDate`"
+  echo 'server build timeStamp'
+  #buildTimeStamp="`wget -qO- --http-user=$teamcityUser --http-password=$teamCityPWD https://teamcity.labkey.org/httpAuth/app/rest/buildTypes/LabKey_213Release_External_Wnprc_Installers/builds/state:finished${B},status:success/startDate`"
+  buildTimeStamp="`curl -s -u $teamcityUser:$teamCityPWD https://teamcity.labkey.org/httpAuth/app/rest/buildTypes/LabKey_213Release_External_Wnprc_Installers/builds/state:finished${B},status:success/startDate`"
   echo $buildTimeStamp
 
   #Time stamp for troubeshooting in MacOS
@@ -42,15 +45,15 @@ while :; do
   if [[ $buildTimeStampinMillis -le $currentTime ]];
   then
      echo 'wait for build'
-     if [[ $TOTALWAITTIME -le 12 ]] ;then
+     if [[ $TOTALWAITTIME -le 2 ]] ;then
        echo 'wait 10 min'
        echo $TOTALWAITTIME
-     elif  [[ $TOTALWAITTIME -gt 12 ]]; then
+     elif  [[ $TOTALWAITTIME -gt 2 ]]; then
        echo 'waited all the time'
        exit
      fi
      TOTALWAITTIME=$((TOTALWAITTIME+1))
-     sleep 600
+     sleep 120
   else
      echo 'build done'
      exit

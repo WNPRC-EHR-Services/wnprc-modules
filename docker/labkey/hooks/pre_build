@@ -1,0 +1,58 @@
+#!/bin/bash
+
+SECONDS=0
+TOTALWAITTIME=0
+
+FB_IDENTIFIER="w_fb_"
+
+if [[ $SOURCE_BRANCH == *$FB_IDENTIFIER* ]];
+then
+        SHORT_BRANCH_NAME=${SOURCE_BRANCH#*$FB_IDENTIFIER}
+else
+        SHORT_BRANCH_NAME="master"
+fi
+
+if [[ "$SHORT_BRANCH_NAME" = "master" ]] ;
+then
+    B="" ;
+else
+    B=",branch:"${SHORT_BRANCH_NAME};
+fi
+
+currentTime=$(date +'%s')
+echo $currentTime
+
+while :; do
+
+  echo 'current time value'
+  echo $currentTime
+
+  buildTimeStamp="`wget -qO- --http-user=$teamcityUser --http-password=$teamCityPWD https://teamcity.labkey.org/httpAuth/app/rest/buildTypes/LabKey_213Release_External_Wnprc_Installers/builds/state:finished${B},status:success/startDate`"
+  echo $buildTimeStamp
+
+  #Time stamp for troubeshooting in MacOS
+  # buildTimeStampinMillis=$(date -j -f '%Y%m%dT%H%M%S%z' $buildTimeStamp +'%s')
+  # echo $buildTimeStampinMillis
+
+  #Linux commands to transformed time from TeamCity
+  buildTimeStampFormatted=${buildTimeStamp:0:4}-${buildTimeStamp:4:2}-${buildTimeStamp:6:5}:${buildTimeStamp:11:2}:${buildTimeStamp:13:7}
+  buildTimeStampinMillis=$(date -d $buildTimeStampFormatted +'%s')
+  echo $buildTimeStampinMillis
+
+  if [[ $buildTimeStampinMillis -le $currentTime ]];
+  then
+     echo 'wait for build'
+     if [[ $TOTALWAITTIME -le 12 ]] ;then
+       echo 'wait 10 min'
+       echo $TOTALWAITTIME
+     elif  [[ $TOTALWAITTIME -gt 12 ]]; then
+       echo 'waited all the time'
+       exit
+     fi
+     TOTALWAITTIME=$((TOTALWAITTIME+1))
+     sleep 600
+  else
+     echo 'build done'
+     exit
+  fi
+done

@@ -50,12 +50,12 @@ while :; do
        echo $TOTALWAITTIME
      elif  [[ $TOTALWAITTIME -gt 2 ]]; then
        echo 'waited all the time'
-       exit
+       exit 62 #error for time expired
      fi
      TOTALWAITTIME=$((TOTALWAITTIME+1))
-     sleep 120
+     sleep 60
   else
      echo 'build done'
-     exit
+     exit 0
   fi
 done

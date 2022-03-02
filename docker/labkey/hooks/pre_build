@@ -20,7 +20,7 @@ else
     B=",branch:"${SHORT_BRANCH_NAME};
 fi
 
-currentTime=$(date +'%s')
+currentTime=$(date -d "-5 min" +'%s')
 echo $currentTime
 
 while :; do
@@ -45,15 +45,15 @@ while :; do
   if [[ $buildTimeStampinMillis -le $currentTime ]];
   then
      echo 'wait for build'
-     if [[ $TOTALWAITTIME -le 2 ]] ;then
+     if [[ $TOTALWAITTIME -le 12 ]] ;then
        echo 'wait 10 min'
        echo $TOTALWAITTIME
-     elif  [[ $TOTALWAITTIME -gt 2 ]]; then
+     elif  [[ $TOTALWAITTIME -gt 12 ]]; then
        echo 'waited all the time'
        exit 62 #error for time expired
      fi
      TOTALWAITTIME=$((TOTALWAITTIME+1))
-     sleep 60
+     sleep 600
   else
      echo 'build done'
      exit 0

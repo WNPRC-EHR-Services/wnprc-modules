@@ -45,15 +45,15 @@ while :; do
   if [[ $buildTimeStampinMillis -le $currentTime ]];
   then
      echo 'wait for build'
-     if [[ $TOTALWAITTIME -le 12 ]] ;then
+     if [[ $TOTALWAITTIME -le 2 ]] ;then
        echo 'wait 10 min'
        echo $TOTALWAITTIME
-     elif  [[ $TOTALWAITTIME -gt 12 ]]; then
+     elif  [[ $TOTALWAITTIME -gt 2 ]]; then
        echo 'waited all the time'
-       exit 62 #error for time expired
+      # exit 62 #error for time expired
      fi
      TOTALWAITTIME=$((TOTALWAITTIME+1))
-     sleep 600
+     sleep 60
   else
      echo 'build done'
      exit 0

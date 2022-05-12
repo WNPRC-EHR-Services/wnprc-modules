@@ -2,11 +2,11 @@
     <div class="auth-header">Sign In</div>
     <div class="labkey-error" id="errors"></div>
     <div class="auth-form-body">
-        <label for="email">Email</label>
+        <label for="email">NetID or Email</label>
         <input id="email" name="email" type="text" class="input-block" tabindex="1" autocomplete="off">
         <label for="password">Password</label>
         <input id="password" name="password" type="password" class="input-block" tabindex="2" autocomplete="off">
-        <input tabindex="3" type="checkbox" name="remember" id="remember"  checked> Remember my email address
+        <input tabindex="3" type="checkbox" name="remember" id="remember"  checked> Remember my username
         <div class="termsOfUseSection" hidden>
             <div class="auth-header auth-item">Terms of Use</div>
             <div class="toucontent auth-item termsOfUseContent"></div>
@@ -24,7 +24,9 @@
             </span>
         </div>
         <div class="auth-item">
-            <a href="login-resetPassword.view?">Forgot your password?</a>
+            <span style="display:inline" >Forgot password:</span>
+            <a href="login-resetPassword.view?">External Users</a> | 
+            <a href="https://www.mynetid.wisc.edu/recover/pwdreset">UW-Madison Users</a>
         </div>
 
         <input type="hidden" name="returnUrl">

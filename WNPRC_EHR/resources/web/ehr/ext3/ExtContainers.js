@@ -608,7 +608,7 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
             //find distinct animals matching criteria
             LABKEY.Query.selectRows({
                 schemaName: 'study',
-                queryName: 'chemistryResults',
+                queryName: 'chemistryResultsTemp',
                 sort: 'Id, date',
                 filterArray: filterArray,
                 scope: this,
@@ -760,11 +760,18 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
 
         Ext.each(window.storeResults,function(row){
             obj={
+                Id: row.Id,
                 lsid: row.lsid,
                 taskid: this.parentPanel.formUUID,
                 date: row.date,
                 testid: row.testid,
-                units: row.units
+                units: row.units,
+                resultOORIndicator: row.resultOORIndicator,
+                result: row.result,
+                method: row.method,
+                project: row.project,
+                alternateIdentifier: row.alternateIdentifier
+
             };
 
             if(EHR.Security.getQCStateByLabel('In Progress')){
@@ -794,7 +801,7 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
              }
 
              function doUpdate(targetStore) {
-                 LABKEY.Query.updateRows({
+                 LABKEY.Query.insertRows({
                      schemaName: 'study',
                      queryName: 'chemistryResults',
                      scope: this,

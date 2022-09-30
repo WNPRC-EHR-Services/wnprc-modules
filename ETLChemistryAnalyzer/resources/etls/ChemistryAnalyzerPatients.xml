@@ -6,7 +6,7 @@
         <transform id="step1">
             <description>Copy to target</description>
             <source schemaName="ChemistryAnalyzer" queryName="MergingPatientsOrders" />
-            <destination schemaName="study" queryName="chemistryResults" targetOption="merge">
+            <destination schemaName="study" queryName="chemistryResultsTemp" targetOption="merge">
                 <alternateKeys>
                     <column name="alternateIdentifier"/>
                 </alternateKeys>

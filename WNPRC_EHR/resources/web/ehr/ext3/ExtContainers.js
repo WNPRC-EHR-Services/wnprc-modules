@@ -728,7 +728,8 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
                     result: row.result,
                     units: units,
                     method: row.method,
-                    project: row.project
+                    project: row.project,
+                    alternateIdentifier: row.alternateIdentifier
                 };
 
                 window.storeResults.push(obj);

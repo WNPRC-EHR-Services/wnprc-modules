@@ -600,6 +600,7 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
         if (ids.length){
             filterArray.push(LABKEY.Filter.create('Id', ids, LABKEY.Filter.Types.EQUALS_ONE_OF));
             filterArray.push(LABKEY.Filter.create('QCState', '4', LABKEY.Filter.Types.EQUAL));
+            filterArray.push(LABKEY.Filter.create('date','2022-09-27', LABKEY.Filter.Types.GREATER_THAN_OR_EQUAL));
 
         }
         //var tests="";
@@ -729,6 +730,9 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
                     units: units,
                     method: row.method,
                     project: row.project,
+                    remark: row.remark,
+                    //requestDateTime:row.requestDateTime,
+                    performing_lab: row.performing_lab,
                     alternateIdentifier: row.alternateIdentifier
                 };
 
@@ -762,7 +766,7 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
         Ext.each(window.storeResults,function(row){
             obj={
                 Id: row.Id,
-                lsid: row.lsid,
+               // lsid: row.lsid,
                 taskid: this.parentPanel.formUUID,
                 date: row.date,
                 testid: row.testid,
@@ -771,6 +775,9 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
                 result: row.result,
                 method: row.method,
                 project: row.project,
+                remark: row.remark,
+                //requestDateTime:row.requestDateTime,
+                performing_lab: row.performing_lab,
                 alternateIdentifier: row.alternateIdentifier
 
             };

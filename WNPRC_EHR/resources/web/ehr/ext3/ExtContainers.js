@@ -588,6 +588,7 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
     initComponent: function()
     {
         var runsStore = Ext.StoreMgr.get("study||Clinpath Runs||||").getRange();
+        var newData = false;
 
         var ids ="";
 
@@ -601,7 +602,6 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
             filterArray.push(LABKEY.Filter.create('Id', ids, LABKEY.Filter.Types.EQUALS_ONE_OF));
             filterArray.push(LABKEY.Filter.create('QCState', '4', LABKEY.Filter.Types.EQUAL));
             filterArray.push(LABKEY.Filter.create('date','2022-09-27', LABKEY.Filter.Types.GREATER_THAN_OR_EQUAL));
-
         }
         //var tests="";
 
@@ -652,7 +652,7 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
                 ref: '../submit',
                 scope: this,
                 handler: function(s){
-                    this.doSubmit();
+                    this.doSubmit(newData);
                 }
             },{
                 text: 'Close',
@@ -669,7 +669,9 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
 
     onSuccess :function(results){
         var tests=new Map;
-        var numberOfTest;
+        var testProcessed= new Map;
+        var numberOfTest = 0;
+        var numberOfProcessTest = 0;
         window.storeResults = [];
         var testsStore = Ext.StoreMgr.get("ehr_lookups||chemistry_tests||testid||testid");
         var testId;
@@ -682,84 +684,151 @@ EHR.ext.ChemVetAxcelWin = Ext.extend(Ext.Panel, {
 
             var obj;
 
+
             Ext.each(results.rows,function (row) {
-                if (tests.has(row.Id)  == false){
-                    tests.set(row.Id, row.testid+" ");
+                var rowProcess = false;
+                var filter=[];
+                if (row.alternateIdentifier){
+                    filter.push(LABKEY.Filter.create('alternateIdentifier', row.alternateIdentifier, LABKEY.Filter.Types.EQUAL));
+                    filter.push(LABKEY.Filter.create('QCState', '1', LABKEY.Filter.Types.EQUAL));
+                    if (filter.length){
+                        //find distinct animals matching criteria
+                        LABKEY.Query.selectRows({
+                            schemaName: 'study',
+                            queryName: 'chemistryResults',
+                            sort: 'Id, date',
+                            filterArray: filter,
+                            scope: this,
+                            timeout: 30000,
+                            success: function (data){
+                                if (data.rows.length){
+                                    rowProcess = true;
+                                }
+                                if (!rowProcess){
+                                    if (tests.has(row.Id)  == false){
+                                        tests.set(row.Id, row.testid+" ");
 
-                } else{
-                    var testInResult = tests.get(row.Id);
-                    tests.set(row.Id, testInResult += row.testid+" ");
+                                    } else{
+                                        var testInResult = tests.get(row.Id);
+                                        tests.set(row.Id, testInResult += row.testid+" ");
 
-                }
-                testId = row.testid;
+                                    }
+                                    testId = row.testid;
 
-                var idx = testsStore.find('testid', new RegExp('^'+testId+'$'));
-                                
-                if(idx==-1){
-                    var recIdx = testsStore.findBy(function(r){
-                        var alias = r.get('aliases');
-                        if(!r.phantom && alias){
-                            alias = alias.split(',');
-                            if(alias.indexOf(testId)!=-1){
-                                return true;
-                            }
-                        }
-                    }, this);
+                                    var idx = testsStore.find('testid', new RegExp('^'+testId+'$'));
 
-                    if(recIdx!=-1){
-                        testId = testsStore.getAt(recIdx).get('testid');
-                        units = testsStore.getAt(recIdx).get('units');
+                                    if(idx==-1){
+                                        var recIdx = testsStore.findBy(function(r){
+                                            var alias = r.get('aliases');
+                                            if(!r.phantom && alias){
+                                                alias = alias.split(',');
+                                                if(alias.indexOf(testId)!=-1){
+                                                    return true;
+                                                }
+                                            }
+                                        }, this);
 
+                                        if(recIdx!=-1){
+                                            testId = testsStore.getAt(recIdx).get('testid');
+                                            units = testsStore.getAt(recIdx).get('units');
+
+                                        }
+                                    }
+                                    else {
+                                        console.log('found test: '+testId);
+                                        units= testsStore.getAt(idx).get('units');
+                                    }
+                                    obj= {
+                                        lsid: row.lsid,
+                                        //taskid : this.parentPanel.formUUID,
+                                        Id: row.Id,
+                                        date: row.date,
+                                        testid: testId,
+                                        resultOORIndicator: row.resultOORIndicator,
+                                        result: row.result,
+                                        units: units,
+                                        method: row.method,
+                                        project: row.project,
+                                        remark: row.remark,
+                                        //requestDateTime:row.requestDateTime,
+                                        performing_lab: row.performing_lab,
+                                        alternateIdentifier: row.alternateIdentifier
+                                    };
+                                    numberOfTest++;
+                                    newdata = true;
+
+                                    window.storeResults.push(obj);
+
+                                }else {
+                                    if (testProcessed.has(row.Id)  == false){
+                                        testProcessed.set(row.Id, row.testid+" ");
+
+                                    } else{
+                                        var testInResult = testProcessed.get(row.Id);
+                                        testProcessed.set(row.Id, testInResult += row.testid+" ");
+
+                                    }
+                                    numberOfProcessTest++;
+
+                                }
+                                if (results.rows[results.rows.length-1] === row){
+                                    this.showPreview(tests,testProcessed, numberOfTest,numberOfProcessTest);
+                                }
+
+                            },
+                            failure: EHR.Utils.onError
+                        });
                     }
 
-                    //return false;
-                }
-                else {
-                    console.log('found test: '+testId);
-                    units= testsStore.getAt(idx).get('units');
                 }
 
-                obj= {
-                    lsid: row.lsid,
-                    //taskid : this.parentPanel.formUUID,
-                    Id: row.Id,
-                    date: row.date,
-                    testid: testId,
-                    resultOORIndicator: row.resultOORIndicator,
-                    result: row.result,
-                    units: units,
-                    method: row.method,
-                    project: row.project,
-                    remark: row.remark,
-                    //requestDateTime:row.requestDateTime,
-                    performing_lab: row.performing_lab,
-                    alternateIdentifier: row.alternateIdentifier
-                };
 
-                window.storeResults.push(obj);
+
 
             },this );
 
-            var preliminaryResults = " ";
-
-            tests.forEach(function(value,key){
-                preliminaryResults += key+ ": "+ value + '\n';
-                
-            }, this);
-            this.fileField.setValue(preliminaryResults + "Total number of tests: "+ results.rows.length);
-            return;
 
         }
 
     },
+    showPreview: function(test, testProcessed, numberOfTest,numberOfProcessTest){
 
-    doSubmit: function(button)
+        var preliminaryResults = " ";
+        var preliminaryProcessedTest = " ";
+        if (test.size>0){
+            tests.forEach(function(value,key){
+                preliminaryResults += key+ ": "+ value + '\n';
+
+            }, this);
+
+        }
+        if (testProcessed.size>0){
+            testProcessed.forEach(function(value,key){
+                preliminaryProcessedTest += key+ ": "+ value + '\n' ;
+            },this);
+
+        }
+        var newTestPreview = " ";
+        var repeatedTestPreview= " ";
+        if (numberOfTest > 0){
+            newTestPreview = '\n' + "AnimalId: testiIds " + '\n' + preliminaryResults;
+        }
+        if (numberOfProcessTest > 0){
+            repeatedTestPreview = '\n' + "AnimalId: testiIds " + '\n' + preliminaryProcessedTest;
+        }
+        this.fileField.setValue("Total number of new tests: "+ numberOfTest + newTestPreview +  '\n' + "Number of repeated test: "+ numberOfProcessTest + repeatedTestPreview  );
+        return;
+
+    },
+
+    doSubmit: function(newData)
     {
         var records=[];
         var obj;
 
-        if (!window.storeResults){
+        if (!window.storeResults || !newData){
              alert('No Results to upload where found');
+            this.ownerCt.hide();
              return;
         }
 

@@ -6,11 +6,14 @@ function onInit(event, scriptContext){
 }
 
 function onInsert(helper, scriptErrors, row, oldRow) {
-    if (row.alternateIdentifier){
+    if (row.alternateIdentifier && row.result){
+        WNPRC.Utils.getJavaHelper().checkedProcessedRecord(row.alternateIdentifier,row.result,row);
+
+
         console.log('Searching for record in temporary');
         LABKEY.Query.selectRows({
             schemaName:'study',
-            queryName:'chemistryResultsTemp',
+            queryName:'chemistryResults',
             filterArray:[
                 LABKEY.Filter.create('alternateIdentifier', row.alternateIdentifier, LABKEY.Filter.Types.EQUAL),
             ],
@@ -21,15 +24,15 @@ function onInsert(helper, scriptErrors, row, oldRow) {
                     //toUpdate.push({lsid: data.rows[0].lsid, qcstate:EHR.Security.getQCStateByLabel('In Progress')});
                     toUpdate.push({lsid: data.rows[0].lsid, QCState: '2'});
                     LABKEY.Query.updateRows({
-                       schemaName: 'study',
-                       queryName: 'chemistryResultsTemp',
-                       scope: this,
-                       rows: toUpdate,
-                       success: function(data){
-                           console.log('Record on temporary table switch to InProgress');
-                       },
-                       failure: EHR.Server.Utils.onFailure
-                   });
+                        schemaName: 'study',
+                        queryName: 'chemistryResultsTemp',
+                        scope: this,
+                        rows: toUpdate,
+                        success: function(data){
+                            console.log('Record on temporary table switch to InProgress');
+                        },
+                        failure: EHR.Server.Utils.onFailure
+                    });
                 } else {
                     console.log('No records to update in temporary table');
                 }

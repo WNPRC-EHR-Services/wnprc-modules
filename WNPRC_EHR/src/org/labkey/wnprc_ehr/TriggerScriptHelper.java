@@ -2382,4 +2382,33 @@ public class TriggerScriptHelper {
     }
     public boolean isDataAdmin(){return getContainer().hasPermission(getUser(), EHRDataAdminPermission.class);}
 
+    public void checkedProcessedRecord(String alternateIdentifier, Double newResult,Map<String,Object> row) {
+        StringBuilder errorMessage = new StringBuilder();
+
+        if (!alternateIdentifier.isEmpty() && newResult > -1){
+            SimpleFilter filter = new SimpleFilter(FieldKey.fromString("alternateIdentifier"),alternateIdentifier);
+            filter.addCondition(FieldKey.fromString("qcstate"),EHRService.get().getQCStates(container).get(EHRService.QCSTATES.Completed.getLabel()).getRowId());
+
+            TableSelector filteredTable = new TableSelector(getTableInfo("study","chemistryResults"),PageFlowUtil.set("objectid","result","alternateIdentifier"),filter,null);
+            Map<String,Object>[] recordFromDb = filteredTable.getMapArray();
+
+            if (recordFromDb.length>0){
+                for (Map<String,Object> savedRecord : recordFromDb){
+                    Double savedResult = ConvertHelper.convert(savedRecord.get("result"),Double.class);
+                    if (newResult != savedResult){
+                        errorMessage.append("newResult different than savedResult");
+                    }
+                    String QCLabel = ConvertHelper.convert(row.get("QCStateLabel"),String.class);
+                    if (QCLabel.equals("Review required")){
+                        row.replace("QCStateLabel", "Delete Requested");
+                    }
+                }
+            }
+        }else {
+            errorMessage.append("New Result from Chemistry -1");
+        }
+        _log.error(errorMessage.toString());
+
+    }
+
 }

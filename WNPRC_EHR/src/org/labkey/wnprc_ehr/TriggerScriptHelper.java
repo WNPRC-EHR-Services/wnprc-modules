@@ -2382,7 +2382,7 @@ public class TriggerScriptHelper {
     }
     public boolean isDataAdmin(){return getContainer().hasPermission(getUser(), EHRDataAdminPermission.class);}
 
-    public void checkedProcessedRecord(String alternateIdentifier, Double newResult,Map<String,Object> row) {
+    public String checkedProcessedRecord(String alternateIdentifier, Double newResult,Map<String,Object> row) {
         StringBuilder errorMessage = new StringBuilder();
 
         if (!alternateIdentifier.isEmpty() && newResult > -1){
@@ -2401,6 +2401,7 @@ public class TriggerScriptHelper {
                     String QCLabel = ConvertHelper.convert(row.get("QCStateLabel"),String.class);
                     if (QCLabel.equals("Review required")){
                         row.replace("QCStateLabel", "Delete Requested");
+                        _log.info("Changed QC to Delete Requested");
                     }
                 }
             }
@@ -2408,6 +2409,8 @@ public class TriggerScriptHelper {
             errorMessage.append("New Result from Chemistry -1");
         }
         _log.error(errorMessage.toString());
+
+        return "Delete Requested";
 
     }
 

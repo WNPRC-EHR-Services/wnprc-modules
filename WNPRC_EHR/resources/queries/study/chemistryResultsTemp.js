@@ -7,10 +7,11 @@ function onInit(event, scriptContext){
 
 function onInsert(helper, scriptErrors, row, oldRow) {
     if (row.alternateIdentifier && row.result){
-        WNPRC.Utils.getJavaHelper().checkedProcessedRecord(row.alternateIdentifier,row.result,row);
+        row.QCStateLabel = WNPRC.Utils.getJavaHelper().checkedProcessedRecord(row.alternateIdentifier,row.result,row);
+        console.log ("New qcsate for row "+row.QCStateLabel);
 
 
-        console.log('Searching for record in temporary');
+        /*console.log('Searching for record in temporary');
         LABKEY.Query.selectRows({
             schemaName:'study',
             queryName:'chemistryResults',
@@ -37,8 +38,12 @@ function onInsert(helper, scriptErrors, row, oldRow) {
                     console.log('No records to update in temporary table');
                 }
             }
-        });
+        });*/
     }
+}
+function onUpdate(helper, scriptErrors, row, oldRow){
+    console.log ("update old row")
+
 }
 
 function onBecomePublic(errors,helper,row, oldRow){

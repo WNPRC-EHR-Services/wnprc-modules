@@ -17,13 +17,13 @@
     "js"
   ],
   "dependencies": {
-    "@labkey/components": "2.115.1",
-    "@labkey/api": "1.7.2"
+    "@labkey/components": "2.146.0",
+    "@labkey/api": "1.10.0"
   },
   "devDependencies": {
-    "@labkey/build": "5.0.0",
+    "@labkey/build": "6.0.0",
     "react-bootstrap": "0.33.1",
-    "immer": "7.0.7",
+    "immer": "9.0.6",
     "immutable": "3.8.2",
     "font-awesome": "4.7.0",
     "@labkey/eslint-config-base": "0.0.8",

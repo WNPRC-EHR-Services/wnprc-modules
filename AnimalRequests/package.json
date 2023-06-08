@@ -60,7 +60,7 @@
     "@babel/core": "7.4.0",
     "redux-devtools-extension": "2.13.2",
     "rimraf": "2.6.1",
-    "express": "4.16.4",
+    "express": "4.17.3",
     "express-http-proxy": "1.5.1",
     "cors": "2.8.5",
     "jest": "24.5.0",
